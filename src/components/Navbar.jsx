@@ -107,28 +107,30 @@ const Navbar = () => {
                         ))}
 
                         {/* Auth Buttons */}
-                        <button style={{
-                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '25px',
-                            padding: '10px 25px',
-                            marginLeft: '15px',
-                            fontWeight: '500',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s',
-                            boxShadow: '0 4px 8px rgba(216, 27, 96, 0.3)'
-                        }}
-                            onMouseEnter={(e) => {
-                                e.target.style.boxShadow = '0 6px 12px rgba(216, 27, 96, 0.4)';
-                                e.target.style.transform = 'translateY(-2px)';
+                        <Link to="/login" style={{ textDecoration: 'none' }}>
+                            <button style={{
+                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '25px',
+                                padding: '10px 25px',
+                                marginLeft: '15px',
+                                fontWeight: '500',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s',
+                                boxShadow: '0 4px 8px rgba(216, 27, 96, 0.3)'
                             }}
-                            onMouseLeave={(e) => {
-                                e.target.style.boxShadow = '0 4px 8px rgba(216, 27, 96, 0.3)';
-                                e.target.style.transform = 'translateY(0)';
-                            }}>
-                            Login / Sign Up
-                        </button>
+                                onMouseEnter={(e) => {
+                                    e.target.style.boxShadow = '0 6px 12px rgba(216, 27, 96, 0.4)';
+                                    e.target.style.transform = 'translateY(-2px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.boxShadow = '0 4px 8px rgba(216, 27, 96, 0.3)';
+                                    e.target.style.transform = 'translateY(0)';
+                                }}>
+                                Login / Sign Up
+                            </button>
+                        </Link>
                     </Box>
 
                     {/* Mobile menu button */}
