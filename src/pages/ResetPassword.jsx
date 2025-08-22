@@ -19,6 +19,7 @@ import {
     ArrowBack,
     CheckCircle
 } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 const ResetPassword = ({ onBackToLogin, token }) => {
     const [showPassword, setShowPassword] = useState(false);

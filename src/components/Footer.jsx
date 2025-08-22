@@ -391,7 +391,7 @@ const Footer = () => {
                                     <Box sx={{ mt: 3 }}>
                                         {[
                                             { icon: <PhoneIcon />, text: '+1 (800) 123-4567' },
-                                            { icon: <EmailIcon />, text: 'info@matrimonymatch.com' },
+                                            { icon: <EmailIcon />, text: 'info@bandhanmatch.com' },
                                             { icon: <LocationIcon />, text: '123 Love Street, Relationship City' }
                                         ].map((item, index) => (
                                             <Box

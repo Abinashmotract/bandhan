@@ -14,7 +14,7 @@ const HomePage = () => {
         {
             name: 'Amit & Priya',
             image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80',
-            story: 'Met through MatrimonyMatch in 2021 and married in 2022'
+            story: 'Met through bandhanmatch in 2021 and married in 2022'
         },
         {
             name: 'Rahul & Sneha',
@@ -214,7 +214,7 @@ const HomePage = () => {
                             WebkitTextFillColor: 'transparent',
                             display: 'inline-block'
                         }}>
-                            Why Choose MatrimonyMatch?
+                            Why Choose bandhanmatch?
                         </Typography>
                         <Typography variant="body1" sx={{
                             color: '#78909c',
@@ -469,7 +469,7 @@ const HomePage = () => {
             }}>
                 <Container maxWidth="lg">
                     <Typography variant="body2" sx={{ color: '#78909c' }}>
-                        © 2023 MatrimonyMatch. All rights reserved. | Privacy Policy | Terms of Service
+                        © 2023 bandhanmatch. All rights reserved. | Privacy Policy | Terms of Service
                     </Typography>
                 </Container>
             </Box>
