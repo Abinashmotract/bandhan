@@ -295,7 +295,7 @@ const Register = ({ onToggleForm }) => {
               Registration Complete!
             </Typography>
             <Typography variant="body1" sx={{ color: '#78909c' }}>
-              Thank you for joining bandhanmatch. Your journey to find your perfect partner begins now.
+              Thank you for joining bandhnammatch. Your journey to find your perfect partner begins now.
             </Typography>
           </Box>
         );

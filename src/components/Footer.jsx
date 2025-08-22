@@ -125,7 +125,7 @@ const Footer = () => {
                                             WebkitTextFillColor: 'transparent'
                                         }}
                                     >
-                                        Bandhan<span style={{ color: '#d81b60' }}>Match</span>
+                                        Bandhnam<span style={{ color: '#d81b60' }}>Match</span>
                                     </Typography>
                                     <Typography variant="body2" sx={{
                                         mb: 3,
@@ -391,7 +391,7 @@ const Footer = () => {
                                     <Box sx={{ mt: 3 }}>
                                         {[
                                             { icon: <PhoneIcon />, text: '+1 (800) 123-4567' },
-                                            { icon: <EmailIcon />, text: 'info@bandhanmatch.com' },
+                                            { icon: <EmailIcon />, text: 'info@bandhnammatch.com' },
                                             { icon: <LocationIcon />, text: '123 Love Street, Relationship City' }
                                         ].map((item, index) => (
                                             <Box
