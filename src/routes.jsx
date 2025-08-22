@@ -1,32 +1,35 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import MainLayout from "./layouts/MainLayout"
 
-// Pages import karo
+// Pages
 import HomePage from "./pages/HomePage"
-import SearchPage from "./pages/SearchPage"
-import ProfilePage from "./pages/ProfilePage"
-import LoginPage from "./pages/LoginPage"
-import RegisterPage from "./pages/RegisterPage"
+import About from "./pages/About"
+import Contact from "./pages/Contact"
+import Login from "./pages/Login"
+import Register from "./pages/Register"
 
 export default function AppRoutes() {
   return (
     <Router>
-      <Routes>
-        {/* Home */}
-        <Route path="/" element={<HomePage />} />
+      <MainLayout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Search */}
-        <Route path="/search" element={<SearchPage />} />
-
-        {/* Profile (dynamic route with userId) */}
-        <Route path="/profile/:id" element={<ProfilePage />} />
-
-        {/* Auth pages */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-
-        {/* 404 Page */}
-        <Route path="*" element={<h2 style={{ textAlign: "center", marginTop: "50px" }}>404 - Page Not Found</h2>} />
-      </Routes>
+          {/* 404 - Page Not Found */}
+          <Route
+            path="*"
+            element={
+              <h2 style={{ textAlign: "center", marginTop: "50px" }}>
+                404 - Page Not Found
+              </h2>
+            }
+          />
+        </Routes>
+      </MainLayout>
     </Router>
   )
 }
