@@ -51,7 +51,6 @@ const LoginPage = ({ onToggleForm }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          // py: 4,
           position: 'relative',
           overflow: 'hidden',
           '&::before': {
@@ -198,11 +197,11 @@ const LoginPage = ({ onToggleForm }) => {
               </Button>
 
               <Box sx={{ textAlign: 'center', mb: 3 }}>
-                {/* <Link to="/forgot-password" style={{ textDecoration: 'none' }}> */}
+                <Link to="/forgot-password" style={{ textDecoration: 'none' }}>
                   <Typography variant="body2" sx={{ color: '#78909c', cursor: 'pointer' }} onClick={() => {/* Add forgot password logic */ }}>
                     Forgot your password?
                   </Typography>
-                {/* </Link> */}
+                </Link>
               </Box>
 
               <Divider sx={{ my: 3 }}>
@@ -249,7 +248,7 @@ const LoginPage = ({ onToggleForm }) => {
               </Box>
 
               <Box sx={{ textAlign: 'center' }}>
-                {/* <Link to="/register" style={{ textDecoration: 'none' }}> */}
+                <Link to="/register" style={{ textDecoration: 'none' }}>
                   <Typography variant="body2" sx={{ color: '#78909c' }}>
                     Don't have an account?{' '}
                     <span
@@ -263,7 +262,7 @@ const LoginPage = ({ onToggleForm }) => {
                       Sign Up
                     </span>
                   </Typography>
-                {/* </Link> */}
+                </Link>
               </Box>
             </Box>
           </Paper>

@@ -112,24 +112,25 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
                                     try again
                                 </span>
                             </Typography>
-
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                onClick={onBackToLogin}
-                                sx={{
-                                    py: 1.5,
-                                    borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                    fontSize: '1rem',
-                                    fontWeight: 600,
-                                    '&:hover': {
-                                        background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
-                                    }
-                                }}
-                            >
-                                Back to Login
-                            </Button>
+                            <Link to="/login" style={{ textDecoration: 'none' }}>
+                                <Button
+                                    variant="contained"
+                                    fullWidth
+                                    onClick={onBackToLogin}
+                                    sx={{
+                                        py: 1.5,
+                                        borderRadius: '12px',
+                                        background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                        fontSize: '1rem',
+                                        fontWeight: 600,
+                                        '&:hover': {
+                                            background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
+                                        }
+                                    }}
+                                >
+                                    Back to Login
+                                </Button>
+                            </Link>
                         </Paper>
                     </Container>
                 </Box>
@@ -141,14 +142,22 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
         <Fade in={true} timeout={800}>
             <Box
                 sx={{
-                    minHeight: '100vh',
-                    background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    py: 4,
-                    position: 'relative',
-                    overflow: 'hidden'
+                  minHeight: '100vh',
+                        background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            width: '100%',
+                            height: '100%',
+                            background: 'url("https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80") center/cover no-repeat',
+                            opacity: 0.1,
+                            zIndex: 0
+                        }
                 }}
             >
                 <Container maxWidth="sm">
@@ -253,19 +262,21 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
                             </Link>
 
                             <Box sx={{ textAlign: 'center' }}>
-                                <Button
-                                    onClick={onBackToLogin}
-                                    startIcon={<ArrowBack />}
-                                    sx={{
-                                        color: '#d81b60',
-                                        fontWeight: 600,
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(216, 27, 96, 0.1)'
-                                        }
-                                    }}
-                                >
-                                    Back to Login
-                                </Button>
+                                <Link to="/login" style={{ textDecoration: 'none' }}>
+                                    <Button
+                                        onClick={onBackToLogin}
+                                        startIcon={<ArrowBack />}
+                                        sx={{
+                                            color: '#d81b60',
+                                            fontWeight: 600,
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(216, 27, 96, 0.1)'
+                                            }
+                                        }}
+                                    >
+                                        Back to Login
+                                    </Button>
+                                </Link>
                             </Box>
                         </Box>
                     </Paper>

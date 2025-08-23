@@ -5,7 +5,7 @@ import Footer from "../components/Footer"
 export default function MainLayout({ children }) {
   const location = useLocation()
 
-  const noFooterPaths = ["/login", "/register"]
+  const noFooterPaths = ["/login", "/register", "/forgot-password", "/reset-password"]
 
   return (
     <>

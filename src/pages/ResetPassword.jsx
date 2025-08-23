@@ -155,9 +155,17 @@ const ResetPassword = ({ onBackToLogin, token }) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    py: 4,
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        background: 'url("https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80") center/cover no-repeat',
+                        opacity: 0.1,
+                        zIndex: 0
+                    }
                 }}
             >
                 <Container maxWidth="sm">
@@ -309,19 +317,21 @@ const ResetPassword = ({ onBackToLogin, token }) => {
                                 </Button>
                             </Link>
                             <Box sx={{ textAlign: 'center' }}>
-                                <Button
-                                    onClick={onBackToLogin}
-                                    startIcon={<ArrowBack />}
-                                    sx={{
-                                        color: '#d81b60',
-                                        fontWeight: 600,
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(216, 27, 96, 0.1)'
-                                        }
-                                    }}
-                                >
-                                    Back to Login
-                                </Button>
+                                <Link to="/login" style={{ textDecoration: 'none' }}>
+                                    <Button
+                                        onClick={onBackToLogin}
+                                        startIcon={<ArrowBack />}
+                                        sx={{
+                                            color: '#d81b60',
+                                            fontWeight: 600,
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(216, 27, 96, 0.1)'
+                                            }
+                                        }}
+                                    >
+                                        Back to Login
+                                    </Button>
+                                </Link>
                             </Box>
                         </Box>
                     </Paper>

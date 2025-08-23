@@ -55,20 +55,95 @@ const HomePage = () => {
         <Box sx={{ padding: "0px" }}>
             <Box id="home" sx={{
                 background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
-                py: 10,
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    top: 0,
+                    left: 0,
+                    background: `
+      radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.4) 0%, transparent 25%),
+      radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.3) 0%, transparent 25%),
+      radial-gradient(circle at 50% 30%, rgba(255, 230, 240, 0.5) 0%, transparent 35%)
+    `,
+                    zIndex: 0,
+                    animation: 'pulse 15s infinite ease-in-out'
+                },
+                '@keyframes pulse': {
+                    '0%': { opacity: 0.6, transform: 'scale(1)' },
+                    '50%': { opacity: 0.8, transform: 'scale(1.05)' },
+                    '100%': { opacity: 0.6, transform: 'scale(1)' }
+                }
             }}>
-                <Container maxWidth="lg">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                    <Box key={item} sx={{
+                        position: 'absolute',
+                        color: item % 2 === 0 ? '#ff9eb6' : '#d81b60',
+                        fontSize: '24px',
+                        opacity: 0.7,
+                        animation: `floatHeart 15s infinite ease-in-out ${item * 1.5}s`,
+                        top: `${Math.random() * 80 + 10}%`,
+                        left: `${Math.random() * 80 + 10}%`,
+                        zIndex: 1
+                    }}>
+                        ❤
+                    </Box>
+                ))}
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                    <Box key={item} sx={{
+                        position: 'absolute',
+                        width: item % 2 === 0 ? 60 : 40,
+                        height: item % 2 === 0 ? 60 : 40,
+                        borderRadius: item % 3 === 0 ? '50%' : '10px',
+                        background: item % 2 === 0
+                            ? 'linear-gradient(135deg, rgba(216, 27, 96, 0.2) 0%, rgba(136, 14, 79, 0.1) 100%)'
+                            : 'linear-gradient(135deg, rgba(255, 200, 220, 0.3) 0%, rgba(248, 187, 208, 0.2) 100%)',
+                        animation: `float 8s infinite ease-in-out ${item * 0.5}s`,
+                        top: `${Math.random() * 80 + 10}%`,
+                        left: `${Math.random() * 80 + 10}%`,
+                        zIndex: 1
+                    }} />
+                ))}
+
+                <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
                     <Grid container spacing={4} alignItems="center">
                         <Grid item xs={12} md={6}>
-                            <Typography variant="h2" component="h1" gutterBottom sx={{ color: '#d81b60', fontWeight: 700 }}>
+                            <Typography variant="h2" component="h1" gutterBottom sx={{
+                                color: '#d81b60',
+                                fontWeight: 800,
+                                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                mb: 2,
+                                animation: 'fadeInUp 1s ease-out'
+                            }}>
                                 Find Your Perfect Life Partner
                             </Typography>
-                            <Typography variant="subtitle1" sx={{ color: '#555', fontStyle: 'italic' }}>
+                            <Typography variant="subtitle1" sx={{
+                                color: '#555',
+                                fontStyle: 'italic',
+                                fontSize: '1.2rem',
+                                mb: 1,
+                                animation: 'fadeInUp 1s ease-out 0.2s forwards',
+                                opacity: 0
+                            }}>
                                 अपना सही जीवनसाथी खोजें
                             </Typography>
-                            <Typography variant="h6" sx={{ color: '#37474f', mb: 4, fontSize: '1.2rem' }}>
+                            <Typography variant="h6" sx={{
+                                color: '#37474f',
+                                mb: 4,
+                                fontSize: '1.2rem',
+                                animation: 'fadeInUp 1s ease-out 0.4s forwards',
+                                opacity: 0
+                            }}>
                                 Join thousands of couples who found their soulmates through our trusted matchmaking service
                             </Typography>
 
@@ -77,10 +152,17 @@ const HomePage = () => {
                                 backgroundColor: 'white',
                                 borderRadius: '50px',
                                 p: 1,
-                                boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+                                boxShadow: '0 10px 30px rgba(216, 27, 96, 0.2)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                maxWidth: '500px'
+                                maxWidth: '500px',
+                                animation: 'fadeInUp 1s ease-out 0.6s forwards',
+                                opacity: 0,
+                                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                '&:hover': {
+                                    transform: 'translateY(-5px)',
+                                    boxShadow: '0 15px 35px rgba(216, 27, 96, 0.3)'
+                                }
                             }}>
                                 <TextField
                                     fullWidth
@@ -93,7 +175,14 @@ const HomePage = () => {
                                                 <SearchIcon color="primary" />
                                             </InputAdornment>
                                         ),
-                                        sx: { borderRadius: '50px', border: 'none' }
+                                        sx: {
+                                            borderRadius: '50px',
+                                            border: 'none',
+                                            '&:focus': {
+                                                border: 'none',
+                                                outline: 'none'
+                                            }
+                                        }
                                     }}
                                     sx={{
                                         '& fieldset': { border: 'none' },
@@ -103,40 +192,171 @@ const HomePage = () => {
                                     borderRadius: '50px',
                                     px: 3,
                                     py: 1,
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)'
+                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    fontWeight: 'bold',
+                                    textTransform: 'none',
+                                    fontSize: '1rem',
+                                    boxShadow: '0 5px 15px rgba(136, 14, 79, 0.3)',
+                                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'scale(1.05)',
+                                        boxShadow: '0 8px 20px rgba(136, 14, 79, 0.4)',
+                                        background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
+                                    }
                                 }}>
                                     Search
                                 </Button>
                             </Box>
 
-                            <Box sx={{ mt: 3, display: 'flex', alignItems: 'center' }}>
-                                <Typography variant="body2" sx={{ color: '#78909c', mr: 2 }}>
-                                    Trusted by over 500,000 members
+                            {/* Enhanced Stats Section */}
+                            <Box sx={{
+                                mt: 4,
+                                animation: 'fadeInUp 1s ease-out 0.8s forwards',
+                                opacity: 0
+                            }}>
+                                <Typography variant="body2" sx={{
+                                    color: '#78909c',
+                                    mb: 2,
+                                    fontWeight: 500
+                                }}>
+                                    Trusted by over 500,000 members worldwide
                                 </Typography>
-                                <Box sx={{ display: 'flex' }}>
-                                    {[1, 2, 3, 4, 5].map((item) => (
-                                        <Box key={item} sx={{
-                                            width: 35,
-                                            height: 35,
-                                            borderRadius: '50%',
-                                            border: '2px solid white',
-                                            ml: -1,
-                                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: 'white',
-                                            fontSize: '12px',
-                                            fontWeight: 'bold'
+
+                                <Grid container spacing={2}>
+                                    <Grid item xs={4}>
+                                        <Box sx={{
+                                            textAlign: 'center',
+                                            p: 2,
+                                            background: 'rgba(255, 255, 255, 0.7)',
+                                            borderRadius: '12px',
+                                            boxShadow: '0 5px 15px rgba(0, 0, 0, 0.05)',
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'translateY(-5px)',
+                                                background: 'rgba(255, 255, 255, 0.9)',
+                                                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
+                                            }
                                         }}>
-                                            {item === 5 ? '5K+' : 'U'}
+                                            <Typography variant="h4" sx={{
+                                                color: '#d81b60',
+                                                fontWeight: 'bold',
+                                                mb: 0.5
+                                            }}>
+                                                500K+
+                                            </Typography>
+                                            <Typography variant="caption" sx={{
+                                                color: '#78909c',
+                                                fontWeight: 500
+                                            }}>
+                                                Members
+                                            </Typography>
                                         </Box>
-                                    ))}
+                                    </Grid>
+
+                                    <Grid item xs={4}>
+                                        <Box sx={{
+                                            textAlign: 'center',
+                                            p: 2,
+                                            background: 'rgba(255, 255, 255, 0.7)',
+                                            borderRadius: '12px',
+                                            boxShadow: '0 5px 15px rgba(0, 0, 0, 0.05)',
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'translateY(-5px)',
+                                                background: 'rgba(255, 255, 255, 0.9)',
+                                                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
+                                            }
+                                        }}>
+                                            <Typography variant="h4" sx={{
+                                                color: '#d81b60',
+                                                fontWeight: 'bold',
+                                                mb: 0.5
+                                            }}>
+                                                10K+
+                                            </Typography>
+                                            <Typography variant="caption" sx={{
+                                                color: '#78909c',
+                                                fontWeight: 500
+                                            }}>
+                                                Success Stories
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+
+                                    <Grid item xs={4}>
+                                        <Box sx={{
+                                            textAlign: 'center',
+                                            p: 2,
+                                            background: 'rgba(255, 255, 255, 0.7)',
+                                            borderRadius: '12px',
+                                            boxShadow: '0 5px 15px rgba(0, 0, 0, 0.05)',
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'translateY(-5px)',
+                                                background: 'rgba(255, 255, 255, 0.9)',
+                                                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
+                                            }
+                                        }}>
+                                            <Typography variant="h4" sx={{
+                                                color: '#d81b60',
+                                                fontWeight: 'bold',
+                                                mb: 0.5
+                                            }}>
+                                                99%
+                                            </Typography>
+                                            <Typography variant="caption" sx={{
+                                                color: '#78909c',
+                                                fontWeight: 500
+                                            }}>
+                                                Satisfaction
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    mt: 2,
+                                    justifyContent: 'center'
+                                }}>
+                                    <Box sx={{ display: 'flex', mr: 2 }}>
+                                        {[1, 2, 3, 4, 5].map((item) => (
+                                            <Box key={item} sx={{
+                                                width: 35,
+                                                height: 35,
+                                                borderRadius: '50%',
+                                                border: '2px solid white',
+                                                ml: -1,
+                                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: 'white',
+                                                fontSize: '12px',
+                                                fontWeight: 'bold',
+                                                boxShadow: '0 3px 10px rgba(0,0,0,0.1)',
+                                                transition: 'transform 0.3s ease',
+                                                '&:hover': {
+                                                    transform: 'translateY(-3px)',
+                                                    zIndex: item
+                                                }
+                                            }}>
+                                                {item === 5 ? '5K+' : 'U'}
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                    <Typography variant="body2" sx={{ color: '#78909c' }}>
+                                        Join our community
+                                    </Typography>
                                 </Box>
                             </Box>
                         </Grid>
 
-                        <Grid item xs={12} md={6} sx={{ display: { xs: 'none', md: 'block' } }}>
+                        <Grid item xs={12} md={6} sx={{
+                            display: { xs: 'none', md: 'block' },
+                            animation: 'fadeInRight 1.5s ease-out'
+                        }}>
                             <Box sx={{
                                 position: 'relative',
                                 '&::before': {
@@ -147,7 +367,13 @@ const HomePage = () => {
                                     background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
                                     borderRadius: '20px',
                                     transform: 'rotate(5deg)',
-                                    zIndex: 0
+                                    zIndex: 0,
+                                    transition: 'all 0.5s ease',
+                                    opacity: 0.8
+                                },
+                                '&:hover::before': {
+                                    transform: 'rotate(3deg) scale(1.02)',
+                                    opacity: 0.9
                                 }
                             }}>
                                 <Box component="img"
@@ -159,16 +385,112 @@ const HomePage = () => {
                                         position: 'relative',
                                         zIndex: 1,
                                         transform: 'rotate(-5deg)',
-                                        transition: 'transform 0.3s ease',
+                                        transition: 'transform 0.5s ease, box-shadow 0.5s ease',
+                                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
                                         '&:hover': {
-                                            transform: 'rotate(0deg)'
+                                            transform: 'rotate(0deg) scale(1.02)',
+                                            boxShadow: '0 25px 50px rgba(0,0,0,0.3)'
                                         }
                                     }}
                                 />
                             </Box>
+
+                            {/* Floating stats around the image */}
+                            <Box sx={{
+                                position: 'absolute',
+                                top: '10%',
+                                right: '-5%',
+                                background: 'white',
+                                borderRadius: '15px',
+                                p: 2,
+                                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                animation: 'floatStats 6s infinite ease-in-out',
+                                zIndex: 3
+                            }}>
+                                <Typography variant="h6" sx={{ color: '#d81b60', fontWeight: 'bold' }}>
+                                    500K+
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#78909c' }}>
+                                    Successful Matches
+                                </Typography>
+                            </Box>
+
+                            <Box sx={{
+                                position: 'absolute',
+                                bottom: '20%',
+                                left: '-5%',
+                                background: 'white',
+                                borderRadius: '15px',
+                                p: 2,
+                                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                animation: 'floatStats 7s infinite ease-in-out',
+                                animationDelay: '1s',
+                                zIndex: 3
+                            }}>
+                                <Typography variant="h6" sx={{ color: '#d81b60', fontWeight: 'bold' }}>
+                                    99%
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#78909c' }}>
+                                    Satisfaction Rate
+                                </Typography>
+                            </Box>
                         </Grid>
                     </Grid>
                 </Container>
+
+                {/* Keyframes for animations */}
+                <style>
+                    {`
+                @keyframes float {
+                0% { transform: translateY(0px) rotate(0deg); }
+                50% { transform: translateY(-20px) rotate(5deg); }
+                100% { transform: translateY(0px) rotate(0deg); }
+                }
+
+                @keyframes floatHeart {
+                0% {
+                    transform: translateY(0px) rotate(0deg) scale(1);
+                    opacity: 0.7;
+                }
+                50% {
+                    transform: translateY(-30px) rotate(10deg) scale(1.2);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(0px) rotate(0deg) scale(1);
+                    opacity: 0.7;
+                }
+                }
+
+                @keyframes floatStats {
+                0% { transform: translateY(0px) rotate(0deg); }
+                50% { transform: translateY(-10px) rotate(2deg); }
+                100% { transform: translateY(0px) rotate(0deg); }
+                }
+
+                @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                }
+
+                @keyframes fadeInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                }
+                `}
+                </style>
             </Box>
 
             {/* Features Section */}
