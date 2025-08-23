@@ -33,11 +33,11 @@ const Navbar = () => {
 
     // Navigation items
     const navItems = [
-        { text: 'Home', href: '#home' },
-        { text: 'Search', href: '#search' },
-        { text: 'Matches', href: '#matches' },
-        { text: 'Messages', href: '#messages' },
-        { text: 'Profile', href: '#profile' },
+        { text: 'Home', href: 'home' },
+        { text: 'Search', href: 'search' },
+        { text: 'Matches', href: 'matches' },
+        { text: 'Messages', href: 'messages' },
+        { text: 'Profile', href: 'profile' },
     ];
 
     // Drawer component for mobile view
@@ -49,8 +49,18 @@ const Navbar = () => {
                 </IconButton>
             </Box>
             <List>
-                {navItems.map((item) => (
-                    <ListItem key={item.text} component="a" href={item.href} sx={{ color: 'white', justifyContent: 'center', '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
+                {navItems?.map((item) => (
+                    <ListItem
+                        key={item.text}
+                        component={Link}
+                        to={item.href} // use "to" instead of "href"
+                        sx={{
+                            color: 'white',
+                            justifyContent: 'center',
+                            '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
+                        }}
+                        onClick={handleDrawerToggle} // close drawer on click
+                    >
                         <ListItemText primary={item.text} />
                     </ListItem>
                 ))}

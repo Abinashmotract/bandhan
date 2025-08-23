@@ -11,10 +11,27 @@ import {
     Favorite as FavoriteIcon,
     ArrowUpward as ArrowUpwardIcon
 } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+
+    const links = [
+        { label: 'About Us', path: '/about' },
+        { label: 'Success Stories', path: '/success-stories' },
+        { label: 'Blog', path: '/blog' },
+        { label: 'Careers', path: '/careers' },
+        { label: 'Contact Us', path: '/contact' }
+    ];
+
+    const supportLinks = [
+        { label: 'FAQ', path: '/faq' },
+        { label: 'Safety Tips', path: '/safety-tips' },
+        { label: 'Membership', path: '/membership' },
+        { label: 'Report Misuse', path: '/report-misuse' },
+        { label: 'Feedback', path: '/feedback' }
+    ];
 
     useEffect(() => {
         const toggleVisibility = () => {
@@ -103,7 +120,7 @@ const Footer = () => {
                     <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
                         <Grid container spacing={6}>
                             {/* Company Info */}
-                            <Grid item xs={12} md={4}>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <Box sx={{
                                     animation: 'slideInLeft 0.8s ease-out',
                                     '@keyframes slideInLeft': {
@@ -179,7 +196,7 @@ const Footer = () => {
                             </Grid>
 
                             {/* Quick Links */}
-                            <Grid item xs={12} sm={6} md={2}>
+                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <Box sx={{
                                     animation: 'slideInUp 0.8s ease-out 0.2s both',
                                     '@keyframes slideInUp': {
@@ -207,15 +224,19 @@ const Footer = () => {
                                     }}>
                                         Quick Links
                                     </Typography>
+
                                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                        {['About Us', 'Success Stories', 'Blog', 'Careers', 'Contact Us'].map((item, index) => (
+                                        {links.map(({ label, path }) => (
                                             <Typography
-                                                key={item}
+                                                key={label}
                                                 variant="body2"
+                                                component="a"
+                                                href={path}
                                                 sx={{
                                                     mb: 2,
                                                     color: '#e1bee7',
                                                     cursor: 'pointer',
+                                                    textDecoration: 'none',
                                                     transition: 'all 0.3s ease',
                                                     position: 'relative',
                                                     pl: 2,
@@ -236,15 +257,16 @@ const Footer = () => {
                                                     }
                                                 }}
                                             >
-                                                {item}
+                                                {label}
                                             </Typography>
                                         ))}
                                     </Box>
+
                                 </Box>
                             </Grid>
 
                             {/* Help & Support */}
-                            <Grid item xs={12} sm={6} md={2}>
+                            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
                                 <Box sx={{
                                     animation: 'slideInUp 0.8s ease-out 0.4s both',
                                     '@keyframes slideInUp': {
@@ -273,14 +295,17 @@ const Footer = () => {
                                         Support
                                     </Typography>
                                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                        {['FAQ', 'Safety Tips', 'Membership', 'Report Misuse', 'Feedback'].map((item) => (
+                                        {supportLinks.map(({ label, path }) => (
                                             <Typography
-                                                key={item}
+                                                key={label}
                                                 variant="body2"
+                                                component={Link}
+                                                to={path}
                                                 sx={{
                                                     mb: 2,
                                                     color: '#e1bee7',
                                                     cursor: 'pointer',
+                                                    textDecoration: 'none',
                                                     transition: 'all 0.3s ease',
                                                     position: 'relative',
                                                     pl: 2,
@@ -301,7 +326,7 @@ const Footer = () => {
                                                     }
                                                 }}
                                             >
-                                                {item}
+                                                {label}
                                             </Typography>
                                         ))}
                                     </Box>
@@ -309,7 +334,7 @@ const Footer = () => {
                             </Grid>
 
                             {/* Newsletter Subscription */}
-                            <Grid item xs={12} md={4}>
+                            <Grid size={{ xs: 12, md: 4 }} >
                                 <Box sx={{
                                     animation: 'slideInRight 0.8s ease-out 0.6s both',
                                     '@keyframes slideInRight': {

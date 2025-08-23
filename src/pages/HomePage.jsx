@@ -8,6 +8,7 @@ import {
     Security as SecurityIcon,
     ArrowForward as ArrowForwardIcon
 } from '@mui/icons-material';
+import "../styles/HomePage.css";
 
 const HomePage = () => {
     const successStories = [
@@ -68,10 +69,10 @@ const HomePage = () => {
                     top: 0,
                     left: 0,
                     background: `
-      radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.4) 0%, transparent 25%),
-      radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.3) 0%, transparent 25%),
-      radial-gradient(circle at 50% 30%, rgba(255, 230, 240, 0.5) 0%, transparent 35%)
-    `,
+                    radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.4) 0%, transparent 25%),
+                    radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.3) 0%, transparent 25%),
+                    radial-gradient(circle at 50% 30%, rgba(255, 230, 240, 0.5) 0%, transparent 35%)
+                    `,
                     zIndex: 0,
                     animation: 'pulse 15s infinite ease-in-out'
                 },
@@ -437,60 +438,6 @@ const HomePage = () => {
                         </Grid>
                     </Grid>
                 </Container>
-
-                {/* Keyframes for animations */}
-                <style>
-                    {`
-                @keyframes float {
-                0% { transform: translateY(0px) rotate(0deg); }
-                50% { transform: translateY(-20px) rotate(5deg); }
-                100% { transform: translateY(0px) rotate(0deg); }
-                }
-
-                @keyframes floatHeart {
-                0% {
-                    transform: translateY(0px) rotate(0deg) scale(1);
-                    opacity: 0.7;
-                }
-                50% {
-                    transform: translateY(-30px) rotate(10deg) scale(1.2);
-                    opacity: 1;
-                }
-                100% {
-                    transform: translateY(0px) rotate(0deg) scale(1);
-                    opacity: 0.7;
-                }
-                }
-
-                @keyframes floatStats {
-                0% { transform: translateY(0px) rotate(0deg); }
-                50% { transform: translateY(-10px) rotate(2deg); }
-                100% { transform: translateY(0px) rotate(0deg); }
-                }
-
-                @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                }
-
-                @keyframes fadeInRight {
-                from {
-                    opacity: 0;
-                    transform: translateX(50px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-                }
-                `}
-                </style>
             </Box>
 
             {/* Features Section */}
