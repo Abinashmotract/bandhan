@@ -6,9 +6,11 @@ import {
     People as PeopleIcon,
     Chat as ChatIcon,
     Security as SecurityIcon,
-    ArrowForward as ArrowForwardIcon
+    ArrowForward as ArrowForwardIcon,
+    ArrowForward
 } from '@mui/icons-material';
 import "../styles/HomePage.css";
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
     const successStories = [
@@ -712,20 +714,22 @@ const HomePage = () => {
                     <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
                         Join today and start your journey to forever happiness
                     </Typography>
-                    <Button variant="contained" size="large" sx={{
-                        borderRadius: '50px',
-                        px: 5,
-                        py: 1.5,
-                        backgroundColor: 'white',
-                        color: '#d81b60',
-                        fontWeight: 'bold',
-                        fontSize: '1.1rem',
-                        '&:hover': {
-                            backgroundColor: '#f5f5f5'
-                        }
-                    }}>
-                        Create Your Profile
-                    </Button>
+                    <Link to="/register" style={{ textDecoration: 'none' }}>
+                        <Button variant="contained" endIcon={<ArrowForward />} sx={{
+                            borderRadius: '50px',
+                            px: 5,
+                            py: 1.5,
+                            backgroundColor: 'white',
+                            color: '#d81b60',
+                            fontWeight: 'bold',
+                            fontSize: '1.1rem',
+                            '&:hover': {
+                                backgroundColor: '#f5f5f5'
+                            }
+                        }}>
+                            Create Your Profile
+                        </Button>
+                    </Link>
                 </Container>
             </Box>
 

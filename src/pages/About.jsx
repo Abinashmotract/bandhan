@@ -150,125 +150,78 @@ const About = () => {
         </Box>
 
         {/* Stats Section */}
-       <Box>
-  <Grid container spacing={4}>
-    {stats.map((stat, index) => (
-      <Grid item xs={12} sm={6} md={3} key={index}>
-        <Box sx={{
-          position: 'relative',
-          borderRadius: '20px',
-          background: 'linear-gradient(45deg, #d81b60, #880e4f)',
-          padding: '2px',
-          animation: `pulseBorder 2s infinite, fadeInUp 0.8s ease forwards ${index * 0.2 + 0.3}s`,
-          opacity: 0,
-          '&:hover': {
-            '& .stats-card': {
-              transform: 'translateY(-10px)'
-            }
-          }
-        }}>
-          <Card className="stats-card" sx={{
-            textAlign: 'center',
-            p: 3,
-            borderRadius: '18px',
-            background: 'rgba(255, 255, 255, 0.95)',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 8px 25px rgba(0,0,0,0.1)'
-          }}>
-            <Box sx={{ 
-              color: '#d81b60', 
-              mb: 2,
-              display: 'flex',
-              justifyContent: 'center'
-            }}>
-              {stat.icon}
-            </Box>
-            <Typography variant="h4" sx={{
-              color: '#d81b60',
-              fontWeight: 700,
-              mb: 1,
-              background: 'linear-gradient(45deg, #d81b60, #880e4f)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              {stat.value}
-            </Typography>
-            <Typography variant="body1" sx={{ 
-              color: '#78909c',
-              fontWeight: 500
-            }}>
-              {stat.label}
-            </Typography>
-          </Card>
+        <Box>
+          <Grid container spacing={4}>
+            {stats.map((stat, index) => (
+              <Grid item xs={12} sm={6} md={3} key={index}>
+                <Box sx={{
+                  position: 'relative',
+                  borderRadius: '20px',
+                  background: 'linear-gradient(45deg, #d81b60, #880e4f)',
+                  padding: '2px',
+                  animation: `pulseBorder 2s infinite, fadeInUp 0.8s ease forwards ${index * 0.2 + 0.3}s`,
+                  opacity: 0,
+                  '&:hover': {
+                    '& .stats-card': {
+                      transform: 'translateY(-10px)'
+                    }
+                  }
+                }}>
+                  <Card className="stats-card" sx={{
+                    textAlign: 'center',
+                    p: 3,
+                    borderRadius: '18px',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 8px 25px rgba(0,0,0,0.1)'
+                  }}>
+                    <Box sx={{
+                      color: '#d81b60',
+                      mb: 2,
+                      display: 'flex',
+                      justifyContent: 'center'
+                    }}>
+                      {stat.icon}
+                    </Box>
+                    <Typography variant="h4" sx={{
+                      color: '#d81b60',
+                      fontWeight: 700,
+                      mb: 1,
+                      background: 'linear-gradient(45deg, #d81b60, #880e4f)',
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}>
+                      {stat.value}
+                    </Typography>
+                    <Typography variant="body1" sx={{
+                      color: '#78909c',
+                      fontWeight: 500
+                    }}>
+                      {stat.label}
+                    </Typography>
+                  </Card>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
         </Box>
-      </Grid>
-    ))}
-  </Grid>
-
-  <style>
-    {`
-    @keyframes pulseBorder {
-      0% {
-        opacity: 0.7;
-        box-shadow: 0 0 0 0 rgba(216, 27, 96, 0.7);
-      }
-      70% {
-        opacity: 1;
-        box-shadow: 0 0 0 10px rgba(216, 27, 96, 0);
-      }
-      100% {
-        opacity: 0.7;
-        box-shadow: 0 0 0 0 rgba(216, 27, 96, 0);
-      }
-    }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    `}
-  </style>
-</Box>
 
         {/* Story Section - Now in two columns */}
-        <Box sx={{ py: 8 }}>
+        <Box sx={{ py: 6 }}>
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <Box >
-                <Typography variant="h3" sx={{
-                  fontWeight: 700,
-                  background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  mb: 3
-                }}>
+                <Typography variant="h3" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 3 }}>
                   Our Story
                 </Typography>
-                <Typography variant="body1" sx={{
-                  color: '#37474f',
-                  lineHeight: 1.8,
-                  mb: 3,
-                  fontSize: '1.1rem'
-                }}>
+                <Typography variant="body1" sx={{ color: '#37474f', lineHeight: 1.8, mb: 3, fontSize: '1.1rem' }}>
                   bandhnammatch was founded in 2010 with a simple vision: to create a platform where
                   people could find their life partners in a safe, trusted environment. What started as
                   a small initiative has now grown into one of the most respected matchmaking platforms,
                   with thousands of success stories.
                 </Typography>
-                <Typography variant="body1" sx={{
-                  color: '#37474f',
-                  lineHeight: 1.8,
-                  mb: 4,
-                  fontSize: '1.1rem'
-                }}>
+                <Typography variant="body1" sx={{ color: '#37474f', lineHeight: 1.8, mb: 4, fontSize: '1.1rem' }}>
                   Our unique compatibility algorithm and personalized matchmaking approach have helped
                   us maintain a success rate that is unmatched in the industry.
                 </Typography>
@@ -290,7 +243,7 @@ const About = () => {
         </Box>
 
         {/* Mission & Values - Improved Design */}
-        <Box sx={{ py: 8 }}>
+        <Box sx={{ py: 6 }}>
           <Typography variant="h3" sx={{
             textAlign: 'center',
             fontWeight: 700,
@@ -298,86 +251,96 @@ const About = () => {
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            mb: 6
+            mb: 4
           }}>
             Our Mission & Values
           </Typography>
           <Grid container spacing={3}>
             {values.map((value, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card sx={{
-                  p: 3,
-                  width: 280,
-                  height: '100%',
-                  borderRadius: '16px',
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                  transition: 'all 0.3s ease',
-                  border: '1px solid rgba(216, 27, 96, 0.1)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  '&:hover': {
-                    transform: 'translateY(-8px)',
-                    boxShadow: '0 16px 32px rgba(216, 27, 96, 0.15)',
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 245, 248, 0.9) 100%)'
-                  }
-                }}>
-                  <Box sx={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.1) 0%, rgba(136, 14, 79, 0.05) 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mb: 3,
-                    color: '#d81b60'
-                  }}>
-                    {value.icon}
+                <Card
+                  sx={{
+                    p: 3,
+                    width: 280,
+                    height: "100%",
+                    borderRadius: "16px",
+                    background: "rgba(255, 255, 255, 0.9)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+                    transition: "all 0.4s ease",
+                    border: "1px solid rgba(216, 27, 96, 0.1)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    textAlign: "center",
+                    position: "relative",
+                    overflow: "hidden",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 16px 32px rgba(216, 27, 96, 0.15)",
+                      "& .moon-background": {
+                        opacity: 1,
+                        transform: "scale(1) translate(0, 0)",
+                      },
+                      "& .card-content": {
+                        color: "#fff",
+                        zIndex: 2,
+                        position: "relative",
+                      },
+                      "& .icon-container": {
+                        background: "rgba(255, 255, 255, 0.2)",
+                        color: "#fff",
+                      },
+                      "& .card-title": {
+                        color: "#fff",
+                      },
+                      "& .card-desc": {
+                        color: "#fff",
+                      },
+                    },
+                  }}
+                >
+                  <Box
+                    className="moon-background"
+                    sx={{
+                      position: "absolute",
+                      top: "-30%",
+                      right: "-30%",
+                      width: "150%",
+                      height: "150%",
+                      background:
+                        "radial-gradient(circle at top right, #d81b60, #880e4f)",
+                      borderRadius: "50%",
+                      opacity: 0,
+                      transform: "scale(0.5) translate(20%, -20%)",
+                      transition:
+                        "all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                      zIndex: 1,
+                    }}
+                  />
+                  <Box className="card-content" sx={{ transition: "all 0.4s ease", zIndex: 2, position: "relative", }}>
+                    <Box className="icon-container" sx={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg, rgba(216, 27, 96, 0.1) 0%, rgba(136, 14, 79, 0.05) 100%)", display: "flex", alignItems: "center", justifyContent: "center", mb: 3, color: "#d81b60", transition: "all 0.4s ease", }}>
+                      {value.icon}
+                    </Box>
+                    <Typography variant="h5" className="card-title" sx={{ color: "#d81b60", mb: 2, fontWeight: 600, fontSize: "1.3rem", transition: "all 0.4s ease", }}>
+                      {value.title}
+                    </Typography>
+                    <Typography variant="body1" className="card-desc" sx={{ color: "#37474f", lineHeight: 1.6, transition: "all 0.4s ease", }}>
+                      {value.description}
+                    </Typography>
                   </Box>
-                  <Typography variant="h5" sx={{
-                    color: '#d81b60',
-                    mb: 2,
-                    fontWeight: 600,
-                    fontSize: '1.3rem'
-                  }}>
-                    {value.title}
-                  </Typography>
-                  <Typography variant="body1" sx={{
-                    color: '#37474f',
-                    lineHeight: 1.6
-                  }}>
-                    {value.description}
-                  </Typography>
                 </Card>
+
               </Grid>
             ))}
           </Grid>
         </Box>
 
         {/* Team Section - Improved Design */}
-        <Box sx={{ py: 8 }}>
-          <Typography variant="h3" sx={{
-            textAlign: 'center',
-            fontWeight: 700,
-            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            mb: 2
-          }}>
+        <Box sx={{ py: 6 }}>
+          <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 700, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 2 }}>
             Meet Our Team
           </Typography>
-          <Typography variant="body1" sx={{
-            textAlign: 'center',
-            color: '#78909c',
-            maxWidth: '600px',
-            mx: 'auto',
-            mb: 6,
-            fontSize: '1.1rem'
-          }}>
+          <Typography variant="body1" sx={{ textAlign: 'center', color: '#78909c', maxWidth: '600px', mx: 'auto', mb: 6, fontSize: '1.1rem' }}>
             Our dedicated team works tirelessly to help you find your perfect match
           </Typography>
 
@@ -406,89 +369,30 @@ const About = () => {
                     }
                   }
                 }}>
-                  <Box sx={{
-                    position: 'relative',
-                    width: 180,
-                    height: 180,
-                    mb: 3,
-                    mx: 'auto'
-                  }}>
-                    <Box
-                      className="team-image"
-                      component="img"
-                      src={member.image}
-                      alt={member.name}
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: '50%',
-                        border: '4px solid #fce4ec',
-                        boxShadow: '0 8px 20px rgba(216, 27, 96, 0.2)',
-                        transition: 'all 0.5s ease'
-                      }}
-                    />
+                  <Box sx={{ position: 'relative', width: 180, height: 180, mb: 3, mx: 'auto' }}>
+                    <Box className="team-image" component="img" src={member.image} alt={member.name} sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', border: '4px solid #fce4ec', boxShadow: '0 8px 20px rgba(216, 27, 96, 0.2)', transition: 'all 0.5s ease' }} />
 
                     {/* Decorative Circles */}
-                    <Box sx={{
-                      position: 'absolute',
-                      top: -10,
-                      left: -10,
-                      right: -10,
-                      bottom: -10,
-                      borderRadius: '50%',
-                      border: '2px solid rgba(216, 27, 96, 0.2)',
-                      animation: 'pulse 3s infinite ease-in-out',
-                      zIndex: -1
-                    }} />
+                    <Box sx={{ position: 'absolute', top: -10, left: -10, right: -10, bottom: -10, borderRadius: '50%', border: '2px solid rgba(216, 27, 96, 0.2)', animation: 'pulse 3s infinite ease-in-out', zIndex: -1 }} />
 
-                    <Box sx={{
-                      position: 'absolute',
-                      top: -15,
-                      left: -15,
-                      right: -15,
-                      bottom: -15,
-                      borderRadius: '50%',
-                      border: '1px solid rgba(216, 27, 96, 0.1)',
-                      animation: 'pulse 4s infinite ease-in-out',
-                      animationDelay: '1s',
-                      zIndex: -2
-                    }} />
+                    <Box sx={{ position: 'absolute', top: -15, left: -15, right: -15, bottom: -15, borderRadius: '50%', border: '1px solid rgba(216, 27, 96, 0.1)', animation: 'pulse 4s infinite ease-in-out', animationDelay: '1s', zIndex: -2 }} />
                   </Box>
 
                   {/* Name and Role */}
-                  <Typography variant="h6" sx={{
-                    color: '#d81b60',
-                    fontWeight: 700,
-                    mb: 0.5,
-                    fontSize: '1.3rem'
-                  }}>
+                  <Typography variant="h6" sx={{ color: '#d81b60', fontWeight: 700, mb: 0.5, fontSize: '1.3rem' }}>
                     {member.name}
                   </Typography>
-                  <Typography variant="body2" sx={{
-                    color: '#880e4f',
-                    mb: 2,
-                    fontWeight: 500,
-                    fontSize: '0.9rem'
-                  }}>
+                  <Typography variant="body2" sx={{ color: '#880e4f', mb: 2, fontWeight: 500, fontSize: '0.9rem' }}>
                     {member.role}
                   </Typography>
 
                   {/* Description */}
-                  <Typography variant="body2" sx={{
-                    color: '#37474f',
-                    lineHeight: 1.6,
-                    mb: 3
-                  }}>
+                  <Typography variant="body2" sx={{ color: '#37474f', lineHeight: 1.6, mb: 3 }}>
                     {member.description}
                   </Typography>
 
                   {/* Social Icons - Always visible with rotation on hover */}
-                  <Box sx={{
-                    display: 'flex',
-                    gap: 1,
-                    mt: 'auto'
-                  }}>
+                  <Box sx={{ display: 'flex', gap: 1, mt: 'auto' }}>
                     <IconButton sx={{
                       color: '#d81b60',
                       background: 'rgba(216, 27, 96, 0.1)',

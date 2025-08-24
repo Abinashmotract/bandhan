@@ -10,6 +10,7 @@ import Register from "./pages/Register"
 import ForgotPassword from "./pages/ForgotPassword"
 import ResetPassword from "./pages/ResetPassword"
 import Profile from "./pages/Profile"
+import SuccessStories from "./pages/SuccessStories"
 
 export default function AppRoutes() {
   return (
@@ -24,6 +25,7 @@ export default function AppRoutes() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/success-stories" element={<SuccessStories />} />
 
           {/* 404 - Page Not Found */}
           <Route
