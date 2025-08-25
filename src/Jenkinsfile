@@ -8,14 +8,12 @@ pipeline {
         HOST_PORT = "8888"
         CONTAINER_NAME = "${JOB_BASE_NAME}-container"
     }
- 
     stages {
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
- 
         stage('Login to Docker Hub') {
             steps {
                 script {
@@ -32,7 +30,6 @@ pipeline {
                 }
             }
         }
- 
         stage('Generate Next Image Tag') {
             steps {
                 script {
