@@ -309,13 +309,13 @@ const Register = ({ onToggleForm }) => {
         <Fade in={true} timeout={800}>
             <Box
                 sx={{
-                    minHeight: '100vh',
                     background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
                     overflow: 'hidden',
+                    py: 6,
                     '&::before': {
                         content: '""',
                         position: 'absolute',

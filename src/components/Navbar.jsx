@@ -81,9 +81,9 @@ const Navbar = () => {
 
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
                         {navItems.map((item) => (
-                            <a
+                            <Link
                                 key={item.text}
-                                href={item.href}
+                                to={item.href}
                                 style={{
                                     textDecoration: 'none',
                                     color: '#37474f',
@@ -113,7 +113,7 @@ const Navbar = () => {
                                     }}
                                     className="nav-underline"
                                 ></span>
-                            </a>
+                            </Link>
                         ))}
 
                         {/* Auth Buttons */}

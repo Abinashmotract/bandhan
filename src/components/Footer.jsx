@@ -226,12 +226,12 @@ const Footer = () => {
                                     </Typography>
 
                                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                        {links.map(({ label, path }) => (
+                                        {links?.map(({ label, path }) => (
                                             <Typography
                                                 key={label}
                                                 variant="body2"
-                                                component="a"
-                                                href={path}
+                                                component={Link}
+                                                to={path}
                                                 sx={{
                                                     mb: 2,
                                                     color: '#e1bee7',

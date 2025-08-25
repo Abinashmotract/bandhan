@@ -8,12 +8,17 @@ export default function MainLayout() {
   const noFooterPaths = ["/login", "/register", "/forgot-password", "/reset-password"]
 
   return (
-    <>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      {/* Navbar always at top */}
       <Navbar />
-      <main style={{ minHeight: "80vh", padding: "20px" }}>
+
+      {/* Main content should grow and push footer down */}
+      <main style={{ flex: 1, padding: "20px" }}>
         <Outlet />
       </main>
+
+      {/* Footer only if not in auth pages */}
       {!noFooterPaths.includes(location.pathname) && <Footer />}
-    </>
+    </div>
   )
 }

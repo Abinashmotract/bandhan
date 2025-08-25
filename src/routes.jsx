@@ -19,14 +19,14 @@ export default function AppRoutes() {
       {/* Layout Route */}
       <Route element={<MainLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="about" element={<About />} />
-        <Route path="contact" element={<Contact />} />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-        <Route path="forgot-password" element={<ForgotPassword />} />
-        <Route path="reset-password" element={<ResetPassword />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="success-stories" element={<SuccessStories />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/success-stories" element={<SuccessStories />} />
 
         {/* 404 - Page Not Found (keeps Navbar; Footer depends on your rule) */}
         <Route
