@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+// src/routes.jsx
+import { Routes, Route } from "react-router-dom"
 import MainLayout from "./layouts/MainLayout"
 
 // Pages
@@ -14,30 +15,29 @@ import SuccessStories from "./pages/SuccessStories"
 
 export default function AppRoutes() {
   return (
-    <Router>
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/success-stories" element={<SuccessStories />} />
+    <Routes>
+      {/* Layout Route */}
+      <Route element={<MainLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="about" element={<About />} />
+        <Route path="contact" element={<Contact />} />
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="reset-password" element={<ResetPassword />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="success-stories" element={<SuccessStories />} />
 
-          {/* 404 - Page Not Found */}
-          <Route
-            path="*"
-            element={
-              <h2 style={{ textAlign: "center", marginTop: "50px" }}>
-                404 - Page Not Found
-              </h2>
-            }
-          />
-        </Routes>
-      </MainLayout>
-    </Router>
+        {/* 404 - Page Not Found (keeps Navbar; Footer depends on your rule) */}
+        <Route
+          path="*"
+          element={
+            <h2 style={{ textAlign: "center", marginTop: "50px" }}>
+              404 - Page Not Found
+            </h2>
+          }
+        />
+      </Route>
+    </Routes>
   )
 }
