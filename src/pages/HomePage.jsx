@@ -114,7 +114,7 @@ const HomePage = () => {
                     }} />
                 ))}
 
-                <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
+                <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 2 }}>
                     <Grid container spacing={4} alignItems="center">
                         <Grid item xs={12} md={6}>
                             <Typography variant="h2" component="h1" gutterBottom sx={{
@@ -459,7 +459,7 @@ const HomePage = () => {
                     zIndex: 0
                 }
             }}>
-                <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+                <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
                     <Box sx={{
                         textAlign: 'center',
                         mb: 6,
@@ -591,10 +591,7 @@ const HomePage = () => {
                                     }}>
                                         {feature.title}
                                     </Typography>
-                                    <Typography variant="body2" sx={{
-                                        color: '#78909c',
-                                        lineHeight: 1.6
-                                    }}>
+                                    <Typography variant="body2" sx={{ color: '#78909c', lineHeight: 1.6 }}>
                                         {feature.description}
                                     </Typography>
                                 </Card>
@@ -642,7 +639,7 @@ const HomePage = () => {
 
             {/* Success Stories */}
             <Box id="stories" sx={{ py: 8, backgroundColor: '#fff9fb' }}>
-                <Container maxWidth="lg">
+                <Container maxWidth="xl">
                     <Typography variant="h3" component="h2" align="center" sx={{ color: '#d81b60', mb: 2 }}>
                         Success Stories
                     </Typography>
@@ -653,21 +650,8 @@ const HomePage = () => {
                     <Grid container spacing={4}>
                         {successStories.map((story, index) => (
                             <Grid item xs={12} md={4} key={index}>
-                                <Card sx={{
-                                    borderRadius: '15px',
-                                    overflow: 'hidden',
-                                    boxShadow: '0 8px 20px rgba(0,0,0,0.05)',
-                                    transition: 'transform 0.3s',
-                                    '&:hover': {
-                                        transform: 'translateY(-5px)'
-                                    }
-                                }}>
-                                    <CardMedia
-                                        component="img"
-                                        height="250"
-                                        image={story.image}
-                                        alt={story.name}
-                                    />
+                                <Card sx={{ borderRadius: '15px', overflow: 'hidden', boxShadow: '0 8px 20px rgba(0,0,0,0.05)', transition: 'transform 0.3s', '&:hover': { transform: 'translateY(-5px)' } }}>
+                                    <CardMedia component="img" height="250" image={story.image} alt={story.name} />
                                     <CardContent sx={{ textAlign: 'center' }}>
                                         <Typography variant="h6" component="h3" gutterBottom>
                                             {story.name}
@@ -740,7 +724,7 @@ const HomePage = () => {
                 borderTop: '1px solid #f0f0f0',
                 textAlign: 'center'
             }}>
-                <Container maxWidth="lg">
+                <Container maxWidth="xl">
                     <Typography variant="body2" sx={{ color: '#78909c' }}>
                         © 2023 bandhnammatch. All rights reserved. | Privacy Policy | Terms of Service
                     </Typography>
