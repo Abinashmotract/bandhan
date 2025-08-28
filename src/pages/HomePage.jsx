@@ -128,7 +128,7 @@ const HomePage = () => {
                         top: 0,
                         left: 0,
                         zIndex: 0,
-                        backgroundImage: `url('https://png.pngtree.com/png-vector/20250321/ourmid/pngtree-indian-gold-jewellery-set-png-image_15804105.png')`,
+                        backgroundImage: `url('https://allpngfree.com/apf-prod-storage-api/storage/thumbnails/shaadi-card-png-images-download-thumbnail-1638812589.jpg')`,
                         backgroundSize: 'contain',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center',
@@ -185,7 +185,7 @@ const HomePage = () => {
                                 </Typography>
                             </AnimatedSection>
 
-                            <AnimatedSection>
+                            {/* <AnimatedSection>
                                 <Typography variant="subtitle1" sx={{
                                     color: '#555',
                                     fontStyle: 'italic',
@@ -194,7 +194,7 @@ const HomePage = () => {
                                 }}>
                                     अपना सही जीवनसाथी खोजें
                                 </Typography>
-                            </AnimatedSection>
+                            </AnimatedSection> */}
 
                             <AnimatedSection>
                                 <Typography variant="h6" sx={{
@@ -525,6 +525,7 @@ const HomePage = () => {
                             <Typography variant="h3" component="h2" sx={{
                                 color: '#d81b60',
                                 mb: 2,
+                                fontWeight: 'bold',
                                 background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
                                 backgroundClip: 'text',
                                 WebkitBackgroundClip: 'text',
@@ -534,7 +535,7 @@ const HomePage = () => {
                                 Why Choose bandhnammatch?
                             </Typography>
                             <Typography variant="body1" sx={{
-                                color: 'white',
+                                color: 'black',
                                 maxWidth: '600px',
                                 margin: '0 auto',
                                 fontSize: '1.1rem',
@@ -678,13 +679,13 @@ const HomePage = () => {
             <Box id="stories" sx={{ py: 8 }}>
                 <Container maxWidth="xl">
                     <AnimatedSection>
-                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#d81b60', mb: 2 }}>
+                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#d81b60', mb: 2, fontWeight: 'bold', }}>
                             Success Stories
                         </Typography>
                     </AnimatedSection>
 
                     <AnimatedSection>
-                        <Typography variant="body1" align="center" sx={{ color: 'white', maxWidth: '600px', margin: '0 auto 50px', fontSize: '1.1rem' }}>
+                        <Typography variant="body1" align="center" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto 50px', fontSize: '1.1rem' }}>
                             Real couples who found their perfect match through our platform
                         </Typography>
                     </AnimatedSection>
@@ -711,20 +712,22 @@ const HomePage = () => {
 
                     <AnimatedSection>
                         <Box sx={{ textAlign: 'center', mt: 5 }}>
-                            <Button variant="outlined" sx={{
-                                borderRadius: '50px',
-                                px: 4,
-                                py: 1,
-                                color: '#d81b60',
-                                borderColor: '#d81b60',
-                                '&:hover': {
+                            <Link to="/success-stories" style={{ textDecoration: 'none' }}>
+                                <Button variant="outlined" sx={{
+                                    borderRadius: '50px',
+                                    px: 4,
+                                    py: 1,
+                                    color: '#d81b60',
                                     borderColor: '#d81b60',
-                                    backgroundColor: 'rgba(216, 27, 96, 0.04)'
-                                }
-                            }}>
-                                View More Stories
-                                <ArrowForwardIcon sx={{ ml: 1 }} />
-                            </Button>
+                                    '&:hover': {
+                                        borderColor: '#d81b60',
+                                        backgroundColor: 'rgba(216, 27, 96, 0.04)'
+                                    }
+                                }}>
+                                    View More Stories
+                                    <ArrowForwardIcon sx={{ ml: 1 }} />
+                                </Button>
+                            </Link>
                         </Box>
                     </AnimatedSection>
                 </Container>
@@ -738,13 +741,13 @@ const HomePage = () => {
             }}>
                 <Container maxWidth="md">
                     <AnimatedSection>
-                        <Typography variant="h3" component="h2" gutterBottom>
+                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#d81b60', mb: 2, fontWeight: 'bold', }}>
                             Ready to Find Your Perfect Match?
                         </Typography>
                     </AnimatedSection>
 
                     <AnimatedSection>
-                        <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
+                        <Typography variant="body1" align="center" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto 50px', fontSize: '1.1rem' }}>
                             Join today and start your journey to forever happiness
                         </Typography>
                     </AnimatedSection>

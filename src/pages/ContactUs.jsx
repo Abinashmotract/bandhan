@@ -12,7 +12,10 @@ import {
     Divider,
     Chip,
     useTheme,
-    useMediaQuery
+    useMediaQuery,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
 } from '@mui/material';
 import {
     Phone as PhoneIcon,
@@ -23,7 +26,8 @@ import {
     Facebook as FacebookIcon,
     Instagram as InstagramIcon,
     Twitter as TwitterIcon,
-    LinkedIn as LinkedInIcon
+    LinkedIn as LinkedInIcon,
+    Expand
 } from '@mui/icons-material';
 
 const ContactUs = () => {
@@ -45,9 +49,7 @@ const ContactUs = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle form submission here
         console.log(formData);
-        // Reset form
         setFormData({
             name: '',
             email: '',
@@ -99,12 +101,8 @@ const ContactUs = () => {
     ];
 
     return (
-        <Box sx={{
-            py: 8,
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #f8bbd0 0%, #fce4ec 30%, #ffffff 100%)'
-        }}>
-            <Container maxWidth="lg">
+        <Box>
+            <Container maxWidth="xl">
                 {/* Header Section */}
                 <Box textAlign="center" mb={6}>
                     <Typography
@@ -112,7 +110,7 @@ const ContactUs = () => {
                         component="h1"
                         gutterBottom
                         sx={{
-                            color: '#d81b60',
+                            color: '#551e32ff',
                             fontWeight: 800,
                             background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
                             backgroundClip: 'text',
@@ -129,7 +127,6 @@ const ContactUs = () => {
                 </Box>
 
                 <Grid container spacing={4}>
-                    {/* Contact Information */}
                     <Grid item xs={12} md={5}>
                         <Box>
                             <Typography variant="h4" gutterBottom sx={{ color: '#d81b60', fontWeight: 700, mb: 3 }}>
@@ -142,7 +139,7 @@ const ContactUs = () => {
 
                             {/* Contact Methods */}
                             <Box sx={{ mb: 4 }}>
-                                {contactMethods.map((method, index) => (
+                                {contactMethods?.map((method, index) => (
                                     <Box key={index} sx={{ display: 'flex', mb: 3 }}>
                                         <Box sx={{ mr: 2 }}>
                                             {method.icon}
@@ -354,41 +351,60 @@ const ContactUs = () => {
 
                 {/* FAQ Section */}
                 <Box sx={{ mt: 10 }}>
-                    <Typography variant="h3" align="center" gutterBottom sx={{ color: '#d81b60', mb: 1, fontWeight: 700 }}>
+                    <Typography
+                        variant="h3"
+                        align="center"
+                        gutterBottom
+                        sx={{ color: '#d81b60', mb: 1, fontWeight: 700 }}
+                    >
                         Frequently Asked Questions
                     </Typography>
-                    <Typography variant="h6" align="center" sx={{ color: '#555', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
+                    <Typography
+                        variant="h6"
+                        align="center"
+                        sx={{ color: '#555', maxWidth: '700px', margin: '0 auto', mb: 5 }}
+                    >
                         Find quick answers to common questions about Bandhan Match
                     </Typography>
 
-                    <Grid container spacing={3}>
-                        {faqs.map((faq, index) => (
-                            <Grid item xs={12} md={4} key={index}>
-                                <Card
+                    <Grid container spacing={3} justifyContent="center">
+                        <Grid item xs={12} md={10}>
+                            {faqs.map((faq, index) => (
+                                <Accordion
+                                    key={index}
                                     sx={{
-                                        height: '100%',
-                                        borderRadius: 3,
-                                        boxShadow: 3,
-                                        transition: 'transform 0.3s, box-shadow 0.3s',
-                                        '&:hover': {
-                                            transform: 'translateY(-5px)',
-                                            boxShadow: 6
-                                        }
+                                        mb: 2,
+                                        borderRadius: 2,
+                                        boxShadow: 2,
+                                        '&:before': { display: 'none' },
+                                        '&:hover': { boxShadow: 4 },
                                     }}
                                 >
-                                    <CardContent sx={{ p: 3 }}>
-                                        <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600 }}>
+                                    <AccordionSummary
+                                        expandIcon={<Expand sx={{ color: '#d81b60' }} />}
+                                        sx={{
+                                            borderRadius: 2,
+                                            minHeight: 56,
+                                            '& .MuiAccordionSummary-content': {
+                                                margin: '12px 0',
+                                            },
+                                        }}
+                                    >
+                                        <Typography variant="h6" sx={{ color: '#d81b60', fontWeight: 600 }}>
                                             {faq.question}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: '#78909c' }}>
+                                    </AccordionSummary>
+                                    <AccordionDetails sx={{ backgroundColor: '#fff' }}>
+                                        <Typography variant="body1" sx={{ color: '#555' }}>
                                             {faq.answer}
                                         </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        ))}
+                                    </AccordionDetails>
+                                </Accordion>
+                            ))}
+                        </Grid>
                     </Grid>
                 </Box>
+
 
                 {/* Map Section */}
                 <Box sx={{ mt: 10, borderRadius: 3, overflow: 'hidden', boxShadow: 3 }}>

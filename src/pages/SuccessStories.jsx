@@ -141,7 +141,7 @@ const SuccessStories = () => {
                         Success Stories
                     </Typography>
                     <Typography variant="h6" sx={{
-                        color: 'white',
+                        color: 'black',
                         maxWidth: '700px',
                         mx: 'auto',
                         fontSize: '1.2rem',
@@ -166,7 +166,7 @@ const SuccessStories = () => {
                             <Typography variant="h3" sx={{ color: '#d81b60', fontWeight: 700, mb: 1 }}>
                                 5000+
                             </Typography>
-                            <Typography variant="body1" sx={{ color: 'white' }}>
+                            <Typography variant="body1" sx={{ color: 'black' }}>
                                 Successful Matches
                             </Typography>
                         </Grid>
@@ -223,7 +223,7 @@ const SuccessStories = () => {
                                         alignItems: 'flex-end',
                                         p: 3
                                     }}>
-                                        <Typography variant="h6" sx={{ color: 'white', fontWeight: 600 }}>
+                                        <Typography variant="h6" sx={{ color: 'black', fontWeight: 600 }}>
                                             {story.coupleName}
                                         </Typography>
                                     </Box>
@@ -237,7 +237,7 @@ const SuccessStories = () => {
                                             background: 'rgba(255, 255, 255, 0.9)',
                                             '&:hover': {
                                                 background: '#d81b60',
-                                                color: 'white'
+                                                color: 'black'
                                             }
                                         }}
                                     >
@@ -350,7 +350,7 @@ const SuccessStories = () => {
                             m: 0,
                             p: 2,
                             background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                            color: 'white',
+                            color: 'black',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center'
@@ -361,7 +361,7 @@ const SuccessStories = () => {
                             <IconButton
                                 aria-label="close"
                                 onClick={handleCloseDialog}
-                                sx={{ color: 'white' }}
+                                sx={{ color: 'black' }}
                             >
                                 <Close />
                             </IconButton>
@@ -386,7 +386,7 @@ const SuccessStories = () => {
                                     alignItems: 'flex-end',
                                     p: 3
                                 }}>
-                                    <Typography variant="h5" sx={{ color: 'white', fontWeight: 600 }}>
+                                    <Typography variant="h5" sx={{ color: 'black', fontWeight: 600 }}>
                                         {selectedStory.coupleName}
                                     </Typography>
                                 </Box>

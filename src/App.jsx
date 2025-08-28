@@ -7,10 +7,10 @@ import Loader from "./components/Loader.jsx";
 function App() {
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 

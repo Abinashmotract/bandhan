@@ -5,7 +5,6 @@ import MainLayout from "./layouts/MainLayout"
 // Pages
 import HomePage from "./pages/HomePage"
 import About from "./pages/About"
-import Contact from "./pages/Contact"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import ForgotPassword from "./pages/ForgotPassword"
@@ -23,7 +22,6 @@ export default function AppRoutes() {
       <Route element={<MainLayout />}>
         <Route index element={<HomePage />} />
         <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Box } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Box, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link } from 'react-router-dom';
 import ganesh1 from '../assets/ganesh1.jpg';
 import LOGO from '../assets/LOGO.png';
 
-// Custom theme with romantic colors
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#d81b60', // Romantic pink
+            main: '#d81b60',
         },
         secondary: {
-            main: '#f8bbd0', // Light pink
+            main: '#f8bbd0',
         },
     },
     typography: {
@@ -32,16 +31,13 @@ const Navbar = () => {
         setMobileOpen(!mobileOpen);
     };
 
-    // Navigation items
     const navItems = [
-        { text: 'Home', href: 'home' },
         { text: 'Search', href: 'search' },
         { text: 'Matches', href: 'matches' },
         { text: 'Messages', href: 'messages' },
         { text: 'Profile', href: 'profile' },
     ];
 
-    // Drawer component for mobile view
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', height: '100%', color: 'white' }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
@@ -54,13 +50,13 @@ const Navbar = () => {
                     <ListItem
                         key={item.text}
                         component={Link}
-                        to={item.href} // use "to" instead of "href"
+                        to={item.href}
                         sx={{
                             color: 'white',
                             justifyContent: 'center',
                             '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
                         }}
-                        onClick={handleDrawerToggle} // close drawer on click
+                        onClick={handleDrawerToggle}
                     >
                         <ListItemText primary={item.text} />
                     </ListItem>
@@ -74,9 +70,22 @@ const Navbar = () => {
             <AppBar position="sticky" sx={{ background: 'linear-gradient(135deg, #ffffff 0%, #fff9fb 100%)', boxShadow: '0 2px 15px rgba(0, 0, 0, 0.08)' }}>
                 <Toolbar>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-                        <Link to="/" className="text-decoration-none" style={{ textDecoration: "none" }}>
-                            <img src={LOGO} alt="Bhandhan Logo" style={{ height: '80px', width: "180px" }} />
-                            <img src={ganesh1} alt="Bhandhan Logo" style={{ height: '70px', width: "50px" }} />
+                        <Link to="/" style={{ textDecoration: "none" }}>
+                            <Typography
+                                variant="h4"
+                                sx={{
+                                    fontWeight: 800,
+                                    letterSpacing: "2px",
+                                    textTransform: "uppercase",
+                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                    backgroundClip: "text",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                    fontFamily: "'Poppins', sans-serif",
+                                }}
+                            >
+                                bandhanm
+                            </Typography>
                         </Link>
                     </Box>
 

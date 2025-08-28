@@ -28,6 +28,7 @@ import {
   Handshake
 } from '@mui/icons-material';
 import "../styles/About.css";
+import { Link } from 'react-router-dom';
 
 const About = () => {
   // Team members data
@@ -138,7 +139,7 @@ const About = () => {
             About bandhnammatch
           </Typography>
           <Typography variant="h6" sx={{
-            color: 'white',
+            color: 'black',
             maxWidth: '700px',
             mx: 'auto',
             fontSize: '1.2rem',
@@ -195,7 +196,7 @@ const About = () => {
                       {stat.value}
                     </Typography>
                     <Typography variant="body1" sx={{
-                      color: 'white',
+                      color: 'black',
                       fontWeight: 500
                     }}>
                       {stat.label}
@@ -215,13 +216,13 @@ const About = () => {
                 <Typography variant="h3" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 3 }}>
                   Our Story
                 </Typography>
-                <Typography variant="body1" sx={{ color: 'white', lineHeight: 1.8, mb: 3, fontSize: '1.1rem' }}>
+                <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, mb: 3, fontSize: '1.1rem' }}>
                   bandhnammatch was founded in 2010 with a simple vision: to create a platform where
                   people could find their life partners in a safe, trusted environment. What started as
                   a small initiative has now grown into one of the most respected matchmaking platforms,
                   with thousands of success stories.
                 </Typography>
-                <Typography variant="body1" sx={{ color: 'white', lineHeight: 1.8, mb: 4, fontSize: '1.1rem' }}>
+                <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, mb: 4, fontSize: '1.1rem' }}>
                   Our unique compatibility algorithm and personalized matchmaking approach have helped
                   us maintain a success rate that is unmatched in the industry.
                 </Typography>
@@ -340,7 +341,7 @@ const About = () => {
           <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 700, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 2 }}>
             Meet Our Team
           </Typography>
-          <Typography variant="body1" sx={{ textAlign: 'center', color: 'white', maxWidth: '600px', mx: 'auto', mb: 6, fontSize: '1.1rem' }}>
+          <Typography variant="body1" sx={{ textAlign: 'center', color: 'black', maxWidth: '600px', mx: 'auto', mb: 6, fontSize: '1.1rem' }}>
             Our dedicated team works tirelessly to help you find your perfect match
           </Typography>
 
@@ -399,7 +400,7 @@ const About = () => {
                       transition: 'transform 0.6s ease',
                       '&:hover': {
                         background: '#d81b60',
-                        color: 'white',
+                        color: 'black',
                         transform: 'rotate(360deg)'
                       }
                     }}>
@@ -411,7 +412,7 @@ const About = () => {
                       transition: 'transform 0.6s ease',
                       '&:hover': {
                         background: '#d81b60',
-                        color: 'white',
+                        color: 'black',
                         transform: 'rotate(360deg)'
                       }
                     }}>
@@ -423,7 +424,7 @@ const About = () => {
                       transition: 'transform 0.6s ease',
                       '&:hover': {
                         background: '#d81b60',
-                        color: 'white',
+                        color: 'black',
                         transform: 'rotate(360deg)'
                       }
                     }}>
@@ -476,7 +477,7 @@ const About = () => {
             Ready to Find Your Perfect Match?
           </Typography>
           <Typography variant="body1" sx={{
-            color: 'white',
+            color: 'black',
             maxWidth: '600px',
             mx: 'auto',
             mb: 4,
@@ -484,19 +485,21 @@ const About = () => {
           }}>
             Join thousands of happy couples who found their life partners on bandhnammatch
           </Typography>
-          <Button variant="contained" endIcon={<ArrowForward />} sx={{
-            borderRadius: '50px',
-            px: 5,
-            py: 1.5,
-            fontSize: '1.1rem',
-            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-            fontWeight: 'bold',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
-            }
-          }}>
-            Create Your Profile
-          </Button>
+          <Link to="/register" style={{ textDecoration: 'none' }}>
+            <Button variant="contained" endIcon={<ArrowForward />} sx={{
+              borderRadius: '50px',
+              px: 5,
+              py: 1.5,
+              fontSize: '1.1rem',
+              background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+              fontWeight: 'bold',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
+              }
+            }}>
+              Create Your Profile
+            </Button>
+          </Link>
         </Box>
 
         {/* Footer */}
@@ -515,7 +518,7 @@ const About = () => {
               <LinkedIn />
             </IconButton>
           </Box>
-          <Typography variant="body2" sx={{ color: 'white' }}>
+          <Typography variant="body2" sx={{ color: 'black' }}>
             © 2023 bandhnammatch. All rights reserved.
           </Typography>
         </Box>

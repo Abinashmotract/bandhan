@@ -280,7 +280,7 @@ const PartnerMatchesPage = () => {
                         >
                             Find Your Perfect Match
                         </Typography>
-                        <Typography variant="h6" sx={{ color: 'white', maxWidth: '600px', margin: '0 auto' }}>
+                        <Typography variant="h6" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto' }}>
                             Discover profiles that match your preferences and start your journey to forever happiness
                         </Typography>
                     </Box>
