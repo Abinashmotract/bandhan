@@ -108,8 +108,8 @@ const SuccessStories = () => {
 
     return (
         <Box sx={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
+            // minHeight: '100vh',
+            // background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
             pt: 4,
             position: 'relative',
             overflow: 'hidden',
@@ -117,13 +117,13 @@ const SuccessStories = () => {
                 content: '""',
                 position: 'absolute',
                 width: '100%',
-                height: '100%',
+                // height: '100%',
                 top: 0,
                 left: 0,
-                background: `
-          radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.3) 0%, transparent 20%),
-          radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.2) 0%, transparent 20%)
-        `,
+        //         background: `
+        //   radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.3) 0%, transparent 20%),
+        //   radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.2) 0%, transparent 20%)
+        // `,
                 zIndex: 0
             }
         }}>
@@ -141,7 +141,7 @@ const SuccessStories = () => {
                         Success Stories
                     </Typography>
                     <Typography variant="h6" sx={{
-                        color: '#78909c',
+                        color: 'white',
                         maxWidth: '700px',
                         mx: 'auto',
                         fontSize: '1.2rem',
@@ -166,7 +166,7 @@ const SuccessStories = () => {
                             <Typography variant="h3" sx={{ color: '#d81b60', fontWeight: 700, mb: 1 }}>
                                 5000+
                             </Typography>
-                            <Typography variant="body1" sx={{ color: '#78909c' }}>
+                            <Typography variant="body1" sx={{ color: 'white' }}>
                                 Successful Matches
                             </Typography>
                         </Grid>

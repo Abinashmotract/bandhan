@@ -98,7 +98,7 @@ const About = () => {
   return (
     <Box sx={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
+      // background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
       position: 'relative',
       overflow: 'hidden',
       '&::before': {
@@ -108,10 +108,10 @@ const About = () => {
         height: '100%',
         top: 0,
         left: 0,
-        background: `
-          radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.3) 0%, transparent 20%),
-          radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.2) 0%, transparent 20%)
-        `,
+        // background: `
+        //   radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.3) 0%, transparent 20%),
+        //   radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.2) 0%, transparent 20%)
+        // `,
         zIndex: 0
       }
     }}>
@@ -138,7 +138,7 @@ const About = () => {
             About bandhnammatch
           </Typography>
           <Typography variant="h6" sx={{
-            color: '#78909c',
+            color: 'white',
             maxWidth: '700px',
             mx: 'auto',
             fontSize: '1.2rem',
@@ -195,7 +195,7 @@ const About = () => {
                       {stat.value}
                     </Typography>
                     <Typography variant="body1" sx={{
-                      color: '#78909c',
+                      color: 'white',
                       fontWeight: 500
                     }}>
                       {stat.label}
@@ -215,13 +215,13 @@ const About = () => {
                 <Typography variant="h3" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 3 }}>
                   Our Story
                 </Typography>
-                <Typography variant="body1" sx={{ color: '#37474f', lineHeight: 1.8, mb: 3, fontSize: '1.1rem' }}>
+                <Typography variant="body1" sx={{ color: 'white', lineHeight: 1.8, mb: 3, fontSize: '1.1rem' }}>
                   bandhnammatch was founded in 2010 with a simple vision: to create a platform where
                   people could find their life partners in a safe, trusted environment. What started as
                   a small initiative has now grown into one of the most respected matchmaking platforms,
                   with thousands of success stories.
                 </Typography>
-                <Typography variant="body1" sx={{ color: '#37474f', lineHeight: 1.8, mb: 4, fontSize: '1.1rem' }}>
+                <Typography variant="body1" sx={{ color: 'white', lineHeight: 1.8, mb: 4, fontSize: '1.1rem' }}>
                   Our unique compatibility algorithm and personalized matchmaking approach have helped
                   us maintain a success rate that is unmatched in the industry.
                 </Typography>
@@ -340,7 +340,7 @@ const About = () => {
           <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 700, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 2 }}>
             Meet Our Team
           </Typography>
-          <Typography variant="body1" sx={{ textAlign: 'center', color: '#78909c', maxWidth: '600px', mx: 'auto', mb: 6, fontSize: '1.1rem' }}>
+          <Typography variant="body1" sx={{ textAlign: 'center', color: 'white', maxWidth: '600px', mx: 'auto', mb: 6, fontSize: '1.1rem' }}>
             Our dedicated team works tirelessly to help you find your perfect match
           </Typography>
 
@@ -476,7 +476,7 @@ const About = () => {
             Ready to Find Your Perfect Match?
           </Typography>
           <Typography variant="body1" sx={{
-            color: '#78909c',
+            color: 'white',
             maxWidth: '600px',
             mx: 'auto',
             mb: 4,
@@ -515,7 +515,7 @@ const About = () => {
               <LinkedIn />
             </IconButton>
           </Box>
-          <Typography variant="body2" sx={{ color: '#78909c' }}>
+          <Typography variant="body2" sx={{ color: 'white' }}>
             © 2023 bandhnammatch. All rights reserved.
           </Typography>
         </Box>

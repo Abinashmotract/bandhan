@@ -13,7 +13,7 @@ export default function MainLayout() {
       <Navbar />
 
       {/* Main content should grow and push footer down */}
-      <main style={{ flex: 1, padding: "20px" }}>
+      <main style={{ flex: 1 }}>
         <Outlet />
       </main>
 

@@ -309,7 +309,6 @@ const Register = ({ onToggleForm }) => {
         <Fade in={true} timeout={800}>
             <Box
                 sx={{
-                    background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -320,8 +319,7 @@ const Register = ({ onToggleForm }) => {
                         content: '""',
                         position: 'absolute',
                         width: '100%',
-                        height: '100%',
-                        background: 'url("https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80") center/cover no-repeat',
+                        // height: '100%',
                         opacity: 0.1,
                         zIndex: 0
                     }

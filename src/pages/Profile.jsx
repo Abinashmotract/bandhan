@@ -88,7 +88,7 @@ const Profile = () => {
     return (
         <Box sx={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
+            // background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
             py: 4,
             position: 'relative',
             overflow: 'hidden',
@@ -99,10 +99,10 @@ const Profile = () => {
                 height: '100%',
                 top: 0,
                 left: 0,
-                background: `
-                radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.3) 0%, transparent 20%),
-                radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.2) 0%, transparent 20%)
-                `,
+                // background: `
+                // radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.3) 0%, transparent 20%),
+                // radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.2) 0%, transparent 20%)
+                // `,
                 zIndex: 0
             }
         }}>

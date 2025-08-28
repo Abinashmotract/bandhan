@@ -68,4 +68,16 @@ button:focus-visible {
 } */
 body {
   margin: 0;
+  /* background: linear-gradient(to right,
+      #b593da,
+      #c9afdf,
+      #e4d1ec,
+      #c9aee2,
+      #ae7aed,
+      #aa7ae5,
+      #b27eea,
+      #ad7deb,
+      #b282e6,
+      #ae77ec); */
+  background-color: #C8A2C8;
 }

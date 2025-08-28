@@ -5,6 +5,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link } from 'react-router-dom';
 import ganesh1 from '../assets/ganesh1.jpg';
+import LOGO from '../assets/LOGO.png';
 
 // Custom theme with romantic colors
 const theme = createTheme({
@@ -74,7 +75,7 @@ const Navbar = () => {
                 <Toolbar>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
                         <Link to="/" className="text-decoration-none" style={{ textDecoration: "none" }}>
-                            <img src="https://png.pngtree.com/png-clipart/20230105/original/pngtree-mangal-parinay-shubh-vivah-png-image_8874049.png" alt="Bhandhan Logo" style={{ height: '80px', width: "180px" }} />
+                            <img src={LOGO} alt="Bhandhan Logo" style={{ height: '80px', width: "180px" }} />
                             <img src={ganesh1} alt="Bhandhan Logo" style={{ height: '70px', width: "50px" }} />
                         </Link>
                     </Box>

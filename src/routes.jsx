@@ -12,6 +12,8 @@ import ForgotPassword from "./pages/ForgotPassword"
 import ResetPassword from "./pages/ResetPassword"
 import Profile from "./pages/Profile"
 import SuccessStories from "./pages/SuccessStories"
+import Membership from "./pages/Membership"
+import ContactUs from "./pages/ContactUs"
 
 export default function AppRoutes() {
   return (
@@ -27,6 +29,8 @@ export default function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/success-stories" element={<SuccessStories />} />
+        <Route path="/membership" element={<Membership />} />
+        <Route path="/contact-us" element={<ContactUs />} />
 
         {/* 404 - Page Not Found (keeps Navbar; Footer depends on your rule) */}
         <Route
