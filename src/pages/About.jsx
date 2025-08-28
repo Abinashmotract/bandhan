@@ -130,10 +130,11 @@ const About = () => {
         }}>
           <Typography variant="h2" sx={{
             fontWeight: 800,
-            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+            // backgroundClip: 'text',
+            // WebkitBackgroundClip: 'text',
+            // WebkitTextFillColor: 'transparent',
+            color: '#C8A2C8',
             mb: 2
           }}>
             About bandhnammatch
@@ -213,7 +214,15 @@ const About = () => {
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <Box >
-                <Typography variant="h3" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 3 }}>
+                <Typography variant="h3" sx={{
+                  fontWeight: 700,
+                  // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                  // backgroundClip: 'text',
+                  // WebkitBackgroundClip: 'text',
+                  // WebkitTextFillColor: 'transparent',
+                  color: '#C8A2C8',
+                  mb: 3
+                }}>
                   Our Story
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, mb: 3, fontSize: '1.1rem' }}>
@@ -248,10 +257,11 @@ const About = () => {
           <Typography variant="h3" sx={{
             textAlign: 'center',
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+            // backgroundClip: 'text',
+            // WebkitBackgroundClip: 'text',
+            // WebkitTextFillColor: 'transparent',
+            color: '#C8A2C8',
             mb: 4
           }}>
             Our Mission & Values
@@ -338,7 +348,15 @@ const About = () => {
 
         {/* Team Section - Improved Design */}
         <Box sx={{ py: 6 }}>
-          <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 700, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', mb: 2 }}>
+          <Typography variant="h3" sx={{
+            textAlign: 'center', fontWeight: 700,
+            // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', 
+            // backgroundClip: 'text', 
+            // WebkitBackgroundClip: 'text', 
+            // WebkitTextFillColor: 'transparent', 
+            color: '#C8A2C8',
+            mb: 2
+          }}>
             Meet Our Team
           </Typography>
           <Typography variant="body1" sx={{ textAlign: 'center', color: 'black', maxWidth: '600px', mx: 'auto', mb: 6, fontSize: '1.1rem' }}>
@@ -468,10 +486,11 @@ const About = () => {
         }}>
           <Typography variant="h3" sx={{
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+            // backgroundClip: 'text',
+            // WebkitBackgroundClip: 'text',
+            // WebkitTextFillColor: 'transparent',
+            color: '#C8A2C8',
             mb: 2
           }}>
             Ready to Find Your Perfect Match?

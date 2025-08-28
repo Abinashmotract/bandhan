@@ -132,10 +132,11 @@ const SuccessStories = () => {
                 <Box sx={{ textAlign: 'center', mb: 6 }}>
                     <Typography variant="h2" sx={{
                         fontWeight: 800,
-                        background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
+                        // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                        // backgroundClip: 'text',
+                        // WebkitBackgroundClip: 'text',
+                        // WebkitTextFillColor: 'transparent',
+                        color: '#C8A2C8',
                         mb: 2
                     }}>
                         Success Stories
@@ -301,10 +302,11 @@ const SuccessStories = () => {
                 }}>
                     <Typography variant="h3" sx={{
                         fontWeight: 700,
-                        background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                        backgroundClip: 'text',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
+                        // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                        // backgroundClip: 'text',
+                        // WebkitBackgroundClip: 'text',
+                        // WebkitTextFillColor: 'transparent',
+                        color: '#C8A2C8',
                         mb: 2
                     }}>
                         Ready to Write Your Success Story?

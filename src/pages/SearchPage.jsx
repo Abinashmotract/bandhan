@@ -89,7 +89,7 @@ const SearchPage = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" sx={{ 
-        color: '#d81b60', 
+        color: '#C8A2C8', 
         fontWeight: 700, 
         mb: 3,
         textAlign: 'center'

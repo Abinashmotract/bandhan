@@ -172,13 +172,13 @@ const HomePage = () => {
                         <Grid item xs={12} md={6}>
                             <AnimatedSection>
                                 <Typography variant="h2" component="h1" gutterBottom sx={{
-                                    color: '#d81b60',
+                                    color: '#C8A2C8',
                                     fontWeight: 800,
                                     fontSize: { xs: '2.5rem', md: '3.5rem' },
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                    backgroundClip: 'text',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
+                                    // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    // backgroundClip: 'text',
+                                    // WebkitBackgroundClip: 'text',
+                                    // WebkitTextFillColor: 'transparent',
                                     mb: 2,
                                 }}>
                                     Find Your Perfect Life Partner
@@ -284,7 +284,7 @@ const HomePage = () => {
                                                     }
                                                 }}>
                                                     <Typography variant="h4" sx={{
-                                                        color: '#d81b60',
+                                                        color: '#C8A2C8',
                                                         fontWeight: 'bold',
                                                         mb: 0.5
                                                     }}>
@@ -316,7 +316,7 @@ const HomePage = () => {
                                                     }
                                                 }}>
                                                     <Typography variant="h4" sx={{
-                                                        color: '#d81b60',
+                                                        color: '#C8A2C8',
                                                         fontWeight: 'bold',
                                                         mb: 0.5
                                                     }}>
@@ -348,7 +348,7 @@ const HomePage = () => {
                                                     }
                                                 }}>
                                                     <Typography variant="h4" sx={{
-                                                        color: '#d81b60',
+                                                        color: '#C8A2C8',
                                                         fontWeight: 'bold',
                                                         mb: 0.5
                                                     }}>
@@ -479,7 +479,7 @@ const HomePage = () => {
                                     animationDelay: '1s',
                                     zIndex: 3
                                 }}>
-                                    <Typography variant="h6" sx={{ color: '#d81b60', fontWeight: 'bold' }}>
+                                    <Typography variant="h6" sx={{ color: '#C8A2C8', fontWeight: 'bold' }}>
                                         99%
                                     </Typography>
                                     <Typography variant="caption" sx={{ color: '#78909c' }}>
@@ -512,14 +512,14 @@ const HomePage = () => {
                     <AnimatedSection>
                         <Box sx={{ textAlign: 'center', mb: 6 }}>
                             <Typography variant="h3" component="h2" sx={{
-                                color: '#d81b60',
+                                color: '#C8A2C8',
                                 mb: 2,
                                 fontWeight: 'bold',
-                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                backgroundClip: 'text',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                display: 'inline-block'
+                                // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                // backgroundClip: 'text',
+                                // WebkitBackgroundClip: 'text',
+                                // WebkitTextFillColor: 'transparent',
+                                // display: 'inline-block'
                             }}>
                                 Why Choose bandhnammatch?
                             </Typography>
@@ -668,7 +668,7 @@ const HomePage = () => {
             <Box id="stories" sx={{ py: 8 }}>
                 <Container maxWidth="xl">
                     <AnimatedSection>
-                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#d81b60', mb: 2, fontWeight: 'bold', }}>
+                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#C8A2C8', mb: 2, fontWeight: 'bold', }}>
                             Success Stories
                         </Typography>
                     </AnimatedSection>
@@ -730,7 +730,7 @@ const HomePage = () => {
             }}>
                 <Container maxWidth="md">
                     <AnimatedSection>
-                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#d81b60', mb: 2, fontWeight: 'bold', }}>
+                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#C8A2C8', mb: 2, fontWeight: 'bold', }}>
                             Ready to Find Your Perfect Match?
                         </Typography>
                     </AnimatedSection>
