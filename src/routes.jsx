@@ -14,6 +14,7 @@ import Profile from "./pages/Profile"
 import SuccessStories from "./pages/SuccessStories"
 import Membership from "./pages/Membership"
 import ContactUs from "./pages/ContactUs"
+import PartnerMatchesPage from "./pages/PartnerMatchesPage"
 
 export default function AppRoutes() {
   return (
@@ -31,6 +32,7 @@ export default function AppRoutes() {
         <Route path="/success-stories" element={<SuccessStories />} />
         <Route path="/membership" element={<Membership />} />
         <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/matches" element={<PartnerMatchesPage />} />
 
         {/* 404 - Page Not Found (keeps Navbar; Footer depends on your rule) */}
         <Route
