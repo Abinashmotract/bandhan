@@ -185,17 +185,6 @@ const HomePage = () => {
                                 </Typography>
                             </AnimatedSection>
 
-                            {/* <AnimatedSection>
-                                <Typography variant="subtitle1" sx={{
-                                    color: '#555',
-                                    fontStyle: 'italic',
-                                    fontSize: '1.2rem',
-                                    mb: 1,
-                                }}>
-                                    अपना सही जीवनसाथी खोजें
-                                </Typography>
-                            </AnimatedSection> */}
-
                             <AnimatedSection>
                                 <Typography variant="h6" sx={{
                                     color: '#37474f',
