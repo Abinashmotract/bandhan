@@ -32,7 +32,7 @@ const Navbar = () => {
     };
 
     const navItems = [
-        { text: 'Search', href: 'search' },
+        { text: 'Search', href: 'search-match' },
         { text: 'Matches', href: 'matches' },
         { text: 'Messages', href: 'messages' },
         { text: 'Profile', href: 'profile' },

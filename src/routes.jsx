@@ -34,7 +34,7 @@ export default function AppRoutes() {
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/matches" element={<PartnerMatchesPage />} />
         <Route path="/faq" element={<FAQPage />} />
-        <Route path="/search" element={<SearchPage />} />
+        <Route path="/search-match" element={<SearchPage />} />
 
         {/* 404 - Page Not Found (keeps Navbar; Footer depends on your rule) */}
         <Route
