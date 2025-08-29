@@ -135,6 +135,7 @@ const About = () => {
             // WebkitBackgroundClip: 'text',
             // WebkitTextFillColor: 'transparent',
             color: '#C8A2C8',
+            fontStyle: 'italic',
             mb: 2
           }}>
             About bandhnammatch
@@ -221,6 +222,7 @@ const About = () => {
                   // WebkitBackgroundClip: 'text',
                   // WebkitTextFillColor: 'transparent',
                   color: '#C8A2C8',
+                  fontStyle: 'italic',
                   mb: 3
                 }}>
                   Our Story
@@ -262,6 +264,7 @@ const About = () => {
             // WebkitBackgroundClip: 'text',
             // WebkitTextFillColor: 'transparent',
             color: '#C8A2C8',
+            fontStyle: 'italic',
             mb: 4
           }}>
             Our Mission & Values
@@ -355,6 +358,7 @@ const About = () => {
             // WebkitBackgroundClip: 'text', 
             // WebkitTextFillColor: 'transparent', 
             color: '#C8A2C8',
+            fontStyle: 'italic',
             mb: 2
           }}>
             Meet Our Team
@@ -491,6 +495,7 @@ const About = () => {
             // WebkitBackgroundClip: 'text',
             // WebkitTextFillColor: 'transparent',
             color: '#C8A2C8',
+            fontStyle: 'italic',
             mb: 2
           }}>
             Ready to Find Your Perfect Match?

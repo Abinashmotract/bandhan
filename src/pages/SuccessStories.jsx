@@ -137,6 +137,7 @@ const SuccessStories = () => {
                         // WebkitBackgroundClip: 'text',
                         // WebkitTextFillColor: 'transparent',
                         color: '#C8A2C8',
+                        fontStyle: 'italic',
                         mb: 2
                     }}>
                         Success Stories
@@ -302,11 +303,8 @@ const SuccessStories = () => {
                 }}>
                     <Typography variant="h3" sx={{
                         fontWeight: 700,
-                        // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                        // backgroundClip: 'text',
-                        // WebkitBackgroundClip: 'text',
-                        // WebkitTextFillColor: 'transparent',
                         color: '#C8A2C8',
+                        fontStyle: 'italic',
                         mb: 2
                     }}>
                         Ready to Write Your Success Story?

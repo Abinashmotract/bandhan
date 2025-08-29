@@ -131,18 +131,19 @@ const Membership = () => {
                         component="h1"
                         gutterBottom
                         sx={{
-                            color: '#d81b60',
+                            color: '#C8A2C8',
+                            fontStyle: 'italic',
                             fontWeight: 800,
-                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
+                            // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                            // backgroundClip: 'text',
+                            // WebkitBackgroundClip: 'text',
+                            // WebkitTextFillColor: 'transparent',
                             mb: 2
                         }}
                     >
                         Find Your Perfect Match
                     </Typography>
-                    <Typography variant="h6" sx={{ color: 'white', maxWidth: '600px', margin: '0 auto', mb: 3 }}>
+                    <Typography variant="h6" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto', mb: 3 }}>
                         Choose the membership plan that works best for your journey to finding a life partner
                     </Typography>
 
@@ -192,7 +193,7 @@ const Membership = () => {
 
                 {/* Pricing Plans */}
                 <Grid container spacing={3} justifyContent="center" sx={{ mb: 10 }}>
-                    {plans.map((plan, index) => (
+                    {plans?.map((plan, index) => (
                         <Grid item xs={12} md={4} key={index}>
                             <Card
                                 elevation={plan.popular ? 8 : 3}
@@ -283,10 +284,13 @@ const Membership = () => {
 
                 {/* Features Section */}
                 <Box sx={{ mb: 10 }}>
-                    <Typography variant="h3" align="center" gutterBottom sx={{ color: '#d81b60', mb: 1, fontWeight: 700 }}>
+                    <Typography variant="h3" align="center" gutterBottom sx={{
+                        color: '#C8A2C8',
+                        fontStyle: 'italic', mb: 1, fontWeight: 700
+                    }}>
                         Premium Features
                     </Typography>
-                    <Typography variant="h6" align="center" sx={{ color: 'white', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
+                    <Typography variant="h6" align="center" sx={{ color: 'black', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
                         Our membership plans include powerful features to help you find your perfect match
                     </Typography>
 
@@ -296,8 +300,7 @@ const Membership = () => {
                                 <Card
                                     sx={{
                                         p: 3,
-                                        width: '250px',
-                                        height: '100%',
+                                        width: '280px',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
@@ -340,7 +343,10 @@ const Membership = () => {
 
                 {/* FAQ Section */}
                 <Box sx={{ background: 'white', borderRadius: 4, p: 5, boxShadow: 3 }}>
-                    <Typography variant="h3" align="center" gutterBottom sx={{ color: '#d81b60', mb: 1, fontWeight: 700 }}>
+                    <Typography variant="h3" align="center" gutterBottom sx={{
+                        color: '#C8A2C8',
+                        fontStyle: 'italic', mb: 1, fontWeight: 700
+                    }}>
                         Frequently Asked Questions
                     </Typography>
                     <Typography variant="h6" align="center" sx={{ color: '#555', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
@@ -398,10 +404,13 @@ const Membership = () => {
 
                 {/* Final CTA */}
                 <Box textAlign="center" sx={{ mt: 8 }}>
-                    <Typography variant="h4" gutterBottom sx={{ color: '#d81b60', fontWeight: 700 }}>
+                    <Typography variant="h4" gutterBottom sx={{
+                        color: '#C8A2C8',
+                        fontStyle: 'italic', fontWeight: 700
+                    }}>
                         Ready to Find Your Life Partner?
                     </Typography>
-                    <Typography variant="h6" sx={{ color: '#555', maxWidth: '600px', margin: '0 auto', mb: 4 }}>
+                    <Typography variant="h6" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto', mb: 4 }}>
                         Join thousands of successful couples who found their perfect match through Bandhan Match
                     </Typography>
                     <Button

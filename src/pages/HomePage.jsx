@@ -175,6 +175,7 @@ const HomePage = () => {
                                     color: '#C8A2C8',
                                     fontWeight: 800,
                                     fontSize: { xs: '2.5rem', md: '3.5rem' },
+                                    fontStyle: 'italic',
                                     // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
                                     // backgroundClip: 'text',
                                     // WebkitBackgroundClip: 'text',
@@ -515,6 +516,7 @@ const HomePage = () => {
                                 color: '#C8A2C8',
                                 mb: 2,
                                 fontWeight: 'bold',
+                                fontStyle: 'italic',
                                 // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
                                 // backgroundClip: 'text',
                                 // WebkitBackgroundClip: 'text',
@@ -668,7 +670,7 @@ const HomePage = () => {
             <Box id="stories" sx={{ py: 8 }}>
                 <Container maxWidth="xl">
                     <AnimatedSection>
-                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#C8A2C8', mb: 2, fontWeight: 'bold', }}>
+                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#C8A2C8', mb: 2, fontWeight: 'bold', fontStyle: 'italic' }}>
                             Success Stories
                         </Typography>
                     </AnimatedSection>
@@ -719,46 +721,43 @@ const HomePage = () => {
                             </Link>
                         </Box>
                     </AnimatedSection>
-                </Container>
-            </Box>
 
-            {/* CTA Section */}
-            <Box sx={{
-                py: 10,
-                color: 'white',
-                textAlign: 'center'
-            }}>
-                <Container maxWidth="md">
-                    <AnimatedSection>
-                        <Typography variant="h3" component="h2" align="center" sx={{ color: '#C8A2C8', mb: 2, fontWeight: 'bold', }}>
-                            Ready to Find Your Perfect Match?
-                        </Typography>
-                    </AnimatedSection>
-
-                    <AnimatedSection>
-                        <Typography variant="body1" align="center" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto 50px', fontSize: '1.1rem' }}>
-                            Join today and start your journey to forever happiness
-                        </Typography>
-                    </AnimatedSection>
-
-                    <AnimatedSection variant={scaleIn}>
-                        <Link to="/register" style={{ textDecoration: 'none' }}>
-                            <Button variant="contained" endIcon={<ArrowForward />} sx={{
-                                borderRadius: '50px',
-                                px: 5,
-                                py: 1.5,
-                                backgroundColor: 'white',
-                                color: '#d81b60',
-                                fontWeight: 'bold',
-                                fontSize: '1.1rem',
-                                '&:hover': {
-                                    backgroundColor: '#f5f5f5'
-                                }
-                            }}>
-                                Create Your Profile
-                            </Button>
-                        </Link>
-                    </AnimatedSection>
+                    <Box sx={{
+                        textAlign: 'center',
+                        mt: 10,
+                        background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05) 0%, rgba(136, 14, 79, 0.03) 100%)',
+                        borderRadius: '30px',
+                        p: 6
+                    }}>
+                        <AnimatedSection>
+                            <Typography variant="h3" sx={{ fontWeight: 700, color: '#C8A2C8', fontStyle: 'italic', mb: 2 }}>
+                                Ready to Write Your Success Story?
+                            </Typography>
+                        </AnimatedSection>
+                        <AnimatedSection>
+                            <Typography variant="body1" sx={{ color: '#78909c', maxWidth: '600px', mx: 'auto', mb: 4, fontSize: '1.1rem' }}>
+                                Join thousands of couples who found their life partners on bandhnammatch
+                            </Typography>
+                        </AnimatedSection>
+                        <AnimatedSection variant={scaleIn}>
+                            <Link to="/register" style={{ textDecoration: 'none' }}>
+                                <Button variant="contained" endIcon={<ArrowForward />} sx={{
+                                    borderRadius: '50px',
+                                    px: 5,
+                                    py: 1.5,
+                                    backgroundColor: 'white',
+                                    color: '#d81b60',
+                                    fontWeight: 'bold',
+                                    fontSize: '1.1rem',
+                                    '&:hover': {
+                                        backgroundColor: '#f5f5f5'
+                                    }
+                                }}>
+                                    Create Your Profile
+                                </Button>
+                            </Link>
+                        </AnimatedSection>
+                    </Box>
                 </Container>
             </Box>
         </Box>

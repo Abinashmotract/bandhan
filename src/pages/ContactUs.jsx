@@ -101,7 +101,7 @@ const ContactUs = () => {
     ];
 
     return (
-        <Box>
+        <Box sx={{ py: 8 }}>
             <Container maxWidth="xl">
                 {/* Header Section */}
                 <Box textAlign="center" mb={6}>
@@ -110,12 +110,13 @@ const ContactUs = () => {
                         component="h1"
                         gutterBottom
                         sx={{
-                            color: '#551e32ff',
+                            color: '#C8A2C8',
+                            fontStyle: 'italic',
                             fontWeight: 800,
-                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                            backgroundClip: 'text',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
+                            // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                            // backgroundClip: 'text',
+                            // WebkitBackgroundClip: 'text',
+                            // WebkitTextFillColor: 'transparent',
                             mb: 2
                         }}
                     >
@@ -126,8 +127,8 @@ const ContactUs = () => {
                     </Typography>
                 </Box>
 
-                <Grid container spacing={4}>
-                    <Grid item xs={12} md={5}>
+                <Grid container spacing={2}>
+                    <Grid size={6}>
                         <Box>
                             <Typography variant="h4" gutterBottom sx={{ color: '#d81b60', fontWeight: 700, mb: 3 }}>
                                 Contact Information
@@ -239,7 +240,7 @@ const ContactUs = () => {
                     </Grid>
 
                     {/* Contact Form */}
-                    <Grid item xs={12} md={7}>
+                    <Grid size={6}>
                         <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
                             <Typography variant="h4" gutterBottom sx={{ color: '#d81b60', fontWeight: 700, mb: 3 }}>
                                 Send Us a Message
@@ -247,102 +248,92 @@ const ContactUs = () => {
 
                             <form onSubmit={handleSubmit}>
                                 <Grid container spacing={3}>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            fullWidth
-                                            label="Your Name"
-                                            name="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            required
-                                            sx={{
-                                                '& .MuiOutlinedInput-root': {
-                                                    borderRadius: 2,
-                                                    '&:hover fieldset': {
-                                                        borderColor: '#d81b60',
-                                                    },
-                                                },
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            fullWidth
-                                            label="Email Address"
-                                            name="email"
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            required
-                                            sx={{
-                                                '& .MuiOutlinedInput-root': {
-                                                    borderRadius: 2,
-                                                    '&:hover fieldset': {
-                                                        borderColor: '#d81b60',
-                                                    },
-                                                },
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Subject"
-                                            name="subject"
-                                            value={formData.subject}
-                                            onChange={handleChange}
-                                            required
-                                            sx={{
-                                                '& .MuiOutlinedInput-root': {
-                                                    borderRadius: 2,
-                                                    '&:hover fieldset': {
-                                                        borderColor: '#d81b60',
-                                                    },
-                                                },
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Your Message"
-                                            name="message"
-                                            multiline
-                                            rows={4}
-                                            value={formData.message}
-                                            onChange={handleChange}
-                                            required
-                                            sx={{
-                                                '& .MuiOutlinedInput-root': {
-                                                    borderRadius: 2,
-                                                    '&:hover fieldset': {
-                                                        borderColor: '#d81b60',
-                                                    },
-                                                },
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <Button
-                                            type="submit"
-                                            variant="contained"
-                                            size="large"
-                                            endIcon={<SendIcon />}
-                                            sx={{
-                                                py: 1.5,
-                                                px: 4,
+                                    <TextField
+                                        fullWidth
+                                        label="Your Name"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
                                                 borderRadius: 2,
-                                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                                fontWeight: 'bold',
-                                                fontSize: '1.1rem',
-                                                '&:hover': {
-                                                    background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
-                                                }
-                                            }}
-                                        >
-                                            Send Message
-                                        </Button>
-                                    </Grid>
+                                                '&:hover fieldset': {
+                                                    borderColor: '#d81b60',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        label="Email Address"
+                                        name="email"
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                                '&:hover fieldset': {
+                                                    borderColor: '#d81b60',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        label="Subject"
+                                        name="subject"
+                                        value={formData.subject}
+                                        onChange={handleChange}
+                                        required
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                                '&:hover fieldset': {
+                                                    borderColor: '#d81b60',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        label="Your Message"
+                                        name="message"
+                                        multiline
+                                        rows={4}
+                                        value={formData.message}
+                                        onChange={handleChange}
+                                        required
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                                '&:hover fieldset': {
+                                                    borderColor: '#d81b60',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        size="large"
+                                        endIcon={<SendIcon />}
+                                        sx={{
+                                            py: 1.5,
+                                            px: 4,
+                                            borderRadius: 2,
+                                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                            fontWeight: 'bold',
+                                            fontSize: '1.1rem',
+                                            '&:hover': {
+                                                background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
+                                            }
+                                        }}
+                                    >
+                                        Send Message
+                                    </Button>
                                 </Grid>
                             </form>
                         </Paper>
@@ -355,7 +346,10 @@ const ContactUs = () => {
                         variant="h3"
                         align="center"
                         gutterBottom
-                        sx={{ color: '#d81b60', mb: 1, fontWeight: 700 }}
+                        sx={{
+                            color: '#C8A2C8',
+                            fontStyle: 'italic', mb: 1, fontWeight: 700
+                        }}
                     >
                         Frequently Asked Questions
                     </Typography>

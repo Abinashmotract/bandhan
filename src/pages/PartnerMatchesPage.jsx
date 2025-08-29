@@ -269,12 +269,13 @@ const PartnerMatchesPage = () => {
                             component="h1"
                             gutterBottom
                             sx={{
-                                color: '#d81b60',
+                                color: '#C8A2C8',
+                                fontStyle: 'italic',
                                 fontWeight: 800,
-                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                backgroundClip: 'text',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
+                                // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                // backgroundClip: 'text',
+                                // WebkitBackgroundClip: 'text',
+                                // WebkitTextFillColor: 'transparent',
                                 mb: 2
                             }}
                         >

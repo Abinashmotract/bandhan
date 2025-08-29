@@ -99,8 +99,8 @@ const FAQPage = () => {
   // Filter FAQs based on search query
   const filteredCategories = faqCategories.map(category => ({
     ...category,
-    questions: category.questions.filter(q => 
-      q.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    questions: category.questions.filter(q =>
+      q.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       q.answer.toLowerCase().includes(searchQuery.toLowerCase())
     )
   })).filter(category => category.questions.length > 0);
@@ -109,11 +109,12 @@ const FAQPage = () => {
     <Container maxWidth="xl" sx={{ py: 6 }}>
       {/* Header Section */}
       <Box textAlign="center" sx={{ mb: 6 }}>
-        <Typography 
-          variant="h2" 
-          sx={{ 
-            color: '#d81b60', 
-            fontWeight: 700, 
+        <Typography
+          variant="h2"
+          sx={{
+            color: '#C8A2C8',
+            fontStyle: 'italic',
+            fontWeight: 700,
             mb: 2,
             fontSize: { xs: '2.5rem', md: '3.5rem' }
           }}
@@ -153,25 +154,25 @@ const FAQPage = () => {
       {filteredCategories.length > 0 ? (
         filteredCategories.map((category, index) => (
           <Box key={index} sx={{ mb: 5 }}>
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                color: '#d81b60', 
-                fontWeight: 600, 
+            <Typography
+              variant="h4"
+              sx={{
+                color: '#d81b60',
+                fontWeight: 600,
                 mb: 3,
                 fontSize: { xs: '1.75rem', md: '2.125rem' }
               }}
             >
               {category.title}
             </Typography>
-            
+
             {category.questions.map((item, qIndex) => (
-              <Accordion 
-                key={qIndex} 
-                expanded={expanded === `panel${index}-${qIndex}`} 
+              <Accordion
+                key={qIndex}
+                expanded={expanded === `panel${index}-${qIndex}`}
                 onChange={handleChange(`panel${index}-${qIndex}`)}
-                sx={{ 
-                  mb: 2, 
+                sx={{
+                  mb: 2,
                   borderRadius: '12px !important',
                   '&:before': {
                     display: 'none',
