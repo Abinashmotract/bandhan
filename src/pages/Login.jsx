@@ -1,26 +1,27 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Container,
-  Typography,
   TextField,
   Button,
+  Typography,
+  Container,
   Paper,
   InputAdornment,
   IconButton,
-  Fade,
-  Divider
+  Divider,
+  Alert,
+  Fade
 } from '@mui/material';
 import {
+  Email,
   Visibility,
   VisibilityOff,
-  Email,
-  Favorite,
-  Person,
-  Google,
-  Facebook
+  Favorite
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Google, Facebook } from '@mui/icons-material';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 
 const LoginPage = ({ onToggleForm }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,19 +29,81 @@ const LoginPage = ({ onToggleForm }) => {
     email: '',
     password: ''
   });
+  const [errors, setErrors] = useState({});
+  const [submitStatus, setSubmitStatus] = useState({});
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+
+    // Clear error when typing
+    if (errors[e.target.name]) {
+      setErrors({
+        ...errors,
+        [e.target.name]: ''
+      });
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log('Login data:', formData);
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.password) newErrors.password = 'Password is required';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    setSubmitStatus({ loading: true, message: "" });
+    try {
+      const payload = {
+        email: formData.email,
+        password: formData.password
+      };
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/login`,
+        payload,
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        const { accessToken, refreshToken } = response.data.data;
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
+        setSubmitStatus({
+          loading: false,
+          success: true,
+          message: "Login successful! Redirecting...",
+        });
+
+        navigate("/");
+      } else {
+        setSubmitStatus({
+          loading: false,
+          success: false,
+          message: response.data.message || "Login failed. Please try again.",
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setSubmitStatus({
+        loading: false,
+        success: false,
+        message:
+          error.response?.data?.message ||
+          "Network error. Please check your connection and try again.",
+      });
+    }
+  };
+
 
   return (
     <Fade in={true} timeout={800}>
@@ -108,6 +171,15 @@ const LoginPage = ({ onToggleForm }) => {
               </Typography>
             </Box>
 
+            {submitStatus.message && (
+              <Alert
+                severity={submitStatus.success ? "success" : "error"}
+                sx={{ mb: 3 }}
+              >
+                {submitStatus.message}
+              </Alert>
+            )}
+
             <Box component="form" onSubmit={handleSubmit}>
               <TextField
                 fullWidth
@@ -118,6 +190,8 @@ const LoginPage = ({ onToggleForm }) => {
                 onChange={handleChange}
                 margin="normal"
                 required
+                error={!!errors.email}
+                helperText={errors.email}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -144,6 +218,8 @@ const LoginPage = ({ onToggleForm }) => {
                 onChange={handleChange}
                 margin="normal"
                 required
+                error={!!errors.password}
+                helperText={errors.password}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -176,6 +252,7 @@ const LoginPage = ({ onToggleForm }) => {
                 fullWidth
                 variant="contained"
                 size="large"
+                disabled={submitStatus.loading}
                 sx={{
                   mt: 3,
                   mb: 2,
@@ -193,12 +270,12 @@ const LoginPage = ({ onToggleForm }) => {
                   }
                 }}
               >
-                Sign In
+                {submitStatus.loading ? 'Signing in...' : 'Sign In'}
               </Button>
 
               <Box sx={{ textAlign: 'center', mb: 3 }}>
                 <Link to="/forgot-password" style={{ textDecoration: 'none' }}>
-                  <Typography variant="body2" sx={{ color: '#78909c', cursor: 'pointer' }} onClick={() => {/* Add forgot password logic */ }}>
+                  <Typography variant="body2" sx={{ color: '#78909c', cursor: 'pointer' }}>
                     Forgot your password?
                   </Typography>
                 </Link>
@@ -248,21 +325,19 @@ const LoginPage = ({ onToggleForm }) => {
               </Box>
 
               <Box sx={{ textAlign: 'center' }}>
-                <Link to="/register" style={{ textDecoration: 'none' }}>
-                  <Typography variant="body2" sx={{ color: '#78909c' }}>
-                    Don't have an account?{' '}
-                    <span
-                      onClick={onToggleForm}
-                      style={{
-                        color: '#d81b60',
-                        cursor: 'pointer',
-                        fontWeight: 600
-                      }}
-                    >
-                      Sign Up
-                    </span>
-                  </Typography>
-                </Link>
+                <Typography variant="body2" sx={{ color: '#78909c' }}>
+                  Don't have an account?{' '}
+                  <span
+                    onClick={onToggleForm}
+                    style={{
+                      color: '#d81b60',
+                      cursor: 'pointer',
+                      fontWeight: 600
+                    }}
+                  >
+                    Sign Up
+                  </span>
+                </Typography>
               </Box>
             </Box>
           </Paper>

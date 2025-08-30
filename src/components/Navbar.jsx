@@ -84,7 +84,7 @@ const Navbar = () => {
                                     fontFamily: "'Poppins', sans-serif",
                                 }}
                             >
-                                bandhanm
+                                bandhnam
                             </Typography>
                         </Link>
                     </Box>

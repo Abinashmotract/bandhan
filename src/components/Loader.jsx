@@ -81,7 +81,7 @@ const Loader = ({ onComplete }) => {
           WebkitTextFillColor: "transparent",
         }}
       >
-        Bandhanm
+        Bandhnam
       </motion.div>
     </div>
   );

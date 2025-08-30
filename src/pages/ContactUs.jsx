@@ -7,10 +7,6 @@ import {
     TextField,
     Button,
     Paper,
-    Card,
-    CardContent,
-    Divider,
-    Chip,
     useTheme,
     useMediaQuery,
     Accordion,
@@ -68,7 +64,7 @@ const ContactUs = () => {
         {
             icon: <EmailIcon sx={{ fontSize: 40, color: '#d81b60' }} />,
             title: 'Email Us',
-            details: 'support@bandhanmatch.com',
+            details: 'support@bandhnammatch.com',
             subtitle: 'We respond within 24 hours'
         },
         {
