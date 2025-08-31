@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Container,
@@ -29,6 +29,9 @@ import {
     PhotoCamera,
     Person
 } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserDetails } from '../store/slices/authSlice';
+import PreferencesDialog from '../components/PreferencesDialog';
 
 // Tab panel component
 function TabPanel(props) {
@@ -54,12 +57,57 @@ function TabPanel(props) {
 const Profile = () => {
     const [tabValue, setTabValue] = useState(0);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [preferences, setPreferences] = useState({
+        ageRange: { min: 28, max: 35 },
+        height: "5'8",
+        maritalStatus: "Never Married",
+        religion: "Hindu",
+        education: "Graduate or above",
+        profession: "Employed",
+        location: "Any metro city in India",
+        diet: "Vegetarian preferred"
+    });
+
+    const dispatch = useDispatch();
+
+    const { user, loading } = useSelector((state) => state.auth);
+    console.log("User from Redux:", user);
+
+    useEffect(() => {
+        if (!user) {
+            dispatch(fetchUserDetails());
+        }
+    }, [dispatch, user]);
+
+    const calculateAge = (dob) => {
+        if (!dob) return '';
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    const handleOpenDialog = () => {
+        setDialogOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+    };
+
+    const handleSavePreferences = (newPreferences) => {
+        setPreferences(newPreferences);
+        // Here you would typically make an API call to save the preferences
+    };
+
 
     // Sample user data
-    const user = {
-        name: "Priya Sharma",
-        age: 28,
-        location: "Mumbai, India",
+    const users = {
         profession: "Software Engineer",
         education: "Master of Computer Applications",
         height: "5'4\"",
@@ -88,7 +136,6 @@ const Profile = () => {
     return (
         <Box sx={{
             minHeight: '100vh',
-            // background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
             py: 4,
             position: 'relative',
             overflow: 'hidden',
@@ -99,10 +146,6 @@ const Profile = () => {
                 height: '100%',
                 top: 0,
                 left: 0,
-                // background: `
-                // radial-gradient(circle at 10% 20%, rgba(255, 200, 220, 0.3) 0%, transparent 20%),
-                // radial-gradient(circle at 90% 70%, rgba(216, 27, 96, 0.2) 0%, transparent 20%)
-                // `,
                 zIndex: 0
             }
         }}>
@@ -136,7 +179,7 @@ const Profile = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mt: -8 }}>
                             <Box sx={{ position: 'relative' }}>
                                 <Avatar
-                                    src={user.photos[0]}
+                                    src={users.photos[0]}
                                     sx={{
                                         width: 150,
                                         height: 150,
@@ -184,20 +227,20 @@ const Profile = () => {
                         <Box sx={{ mt: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 1 }}>
                                 <Typography variant="h4" sx={{ fontWeight: 700, color: '#d81b60' }}>
-                                    {user.name}
+                                    {user?.name}
                                 </Typography>
-                                <Chip label={`${user.age} years`} variant="outlined" sx={{ color: '#d81b60', borderColor: '#d81b60' }} />
+                                <Chip label={`${calculateAge(user?.dob)} years`} variant="outlined" sx={{ color: '#d81b60', borderColor: '#d81b60' }} />
                             </Box>
 
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
                                 <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: '#78909c' }}>
-                                    <LocationOn sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {user.location}
+                                    <LocationOn sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {user?.location}
                                 </Typography>
                                 <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: '#78909c' }}>
-                                    <Work sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {user.profession}
+                                    <Work sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {user?.occupation}
                                 </Typography>
                                 <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: '#78909c' }}>
-                                    <School sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {user.education}
+                                    <School sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {users.education}
                                 </Typography>
                             </Box>
 
@@ -206,11 +249,11 @@ const Profile = () => {
                                 <Box sx={{ width: '100%', maxWidth: 300 }}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                         <Typography variant="body2" sx={{ color: '#78909c' }}>Profile Completeness</Typography>
-                                        <Typography variant="body2" sx={{ color: '#d81b60', fontWeight: 600 }}>{user.profileCompletion}%</Typography>
+                                        <Typography variant="body2" sx={{ color: '#d81b60', fontWeight: 600 }}>{users.profileCompletion}%</Typography>
                                     </Box>
                                     <Box sx={{ width: '100%', height: 8, backgroundColor: '#f5f5f5', borderRadius: 4 }}>
                                         <Box sx={{
-                                            width: `${user.profileCompletion}%`,
+                                            width: `${users.profileCompletion}%`,
                                             height: '100%',
                                             background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
                                             borderRadius: 4
@@ -219,7 +262,7 @@ const Profile = () => {
                                 </Box>
 
                                 <Box sx={{ textAlign: 'center' }}>
-                                    <Typography variant="h6" sx={{ color: '#d81b60', fontWeight: 700 }}>{user.matches}%</Typography>
+                                    <Typography variant="h6" sx={{ color: '#d81b60', fontWeight: 700 }}>{users.matches}%</Typography>
                                     <Typography variant="body2" sx={{ color: '#78909c' }}>Match Score</Typography>
                                 </Box>
                             </Box>
@@ -356,14 +399,14 @@ const Profile = () => {
                                     About Me
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: '#37474f', lineHeight: 1.7, mb: 4 }}>
-                                    {user.about}
+                                    {users.about}
                                 </Typography>
 
                                 <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600 }}>
                                     Interests
                                 </Typography>
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 4 }}>
-                                    {user.interests.map((interest, index) => (
+                                    {users.interests.map((interest, index) => (
                                         <Chip
                                             key={index}
                                             label={interest}
@@ -382,19 +425,19 @@ const Profile = () => {
                                     Basic Details
                                 </Typography>
                                 <Box sx={{ mb: 3 }}>
-                                    <DetailItem icon={<Cake />} label="Age" value={`${user.age} years`} />
-                                    <DetailItem icon={<Work />} label="Profession" value={user.profession} />
-                                    <DetailItem icon={<School />} label="Education" value={user.education} />
-                                    <DetailItem icon={<Language />} label="Mother Tongue" value={user.motherTongue} />
+                                    <DetailItem icon={<Cake />} label="Age" value={`${calculateAge(user?.dob)} years`} />
+                                    <DetailItem icon={<Work />} label="Profession" value={user?.occupation} />
+                                    <DetailItem icon={<School />} label="Education" value={user?.education || 'N/A'} />
+                                    <DetailItem icon={<Language />} label="Mother Tongue" value={user?.motherTongue || 'N/A'} />
                                 </Box>
 
                                 <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600 }}>
                                     Background
                                 </Typography>
                                 <Box>
-                                    <DetailItem label="Religion" value={user.religion} />
-                                    <DetailItem label="Caste" value={user.caste} />
-                                    <DetailItem label="Height" value={user.height} />
+                                    <DetailItem label="Religion" value={users.religion} />
+                                    <DetailItem label="Caste" value={users.caste} />
+                                    <DetailItem label="Height" value={users.height} />
                                 </Box>
                             </Grid>
                         </Grid>
@@ -405,7 +448,7 @@ const Profile = () => {
                             Photos
                         </Typography>
                         <Grid container spacing={2}>
-                            {user.photos.map((photo, index) => (
+                            {users.photos.map((photo, index) => (
                                 <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                                     <Card sx={{ borderRadius: '12px', overflow: 'hidden' }}>
                                         <CardMedia
@@ -421,9 +464,30 @@ const Profile = () => {
                     </TabPanel>
 
                     <TabPanel value={tabValue} index={2}>
-                        <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600, mb: 3 }}>
-                            Partner Preferences
-                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600, mb: 3 }}>
+                                Partner Preferences
+                            </Typography>
+                            <button
+                                onClick={handleOpenDialog}
+                                style={{
+                                    background:
+                                        'linear-gradient(135deg, #880e4f 0%, #d81b60 100%)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '25px',
+                                    padding: '10px 25px',
+                                    marginLeft: '15px',
+                                    fontWeight: '500',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s',
+                                    boxShadow:
+                                        '0 4px 8px rgba(136, 14, 79, 0.3)',
+                                }}
+                            >
+                                Update Preferences
+                            </button>
+                        </Box>
                         <Grid container spacing={4}>
                             <Grid size={{ xs: 12, md: 6 }} >
                                 <PreferenceItem title="Age Range" value="28-35 years" />
@@ -439,6 +503,12 @@ const Profile = () => {
                             </Grid>
                         </Grid>
                     </TabPanel>
+                    <PreferencesDialog
+                        open={dialogOpen}
+                        onClose={handleCloseDialog}
+                        currentPreferences={preferences}
+                        onSave={handleSavePreferences}
+                    />
                 </Paper>
             </Container>
         </Box>

@@ -22,6 +22,9 @@ import { Google, Facebook } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../utils/api';
+import Cookies from "js-cookie";
+import { useDispatch, useSelector } from 'react-redux';
+import { loginStart, loginSuccess, loginFailure } from '../store/slices/authSlice';
 
 const LoginPage = ({ onToggleForm }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -33,6 +36,8 @@ const LoginPage = ({ onToggleForm }) => {
   const [submitStatus, setSubmitStatus] = useState({});
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     setFormData({
@@ -62,7 +67,7 @@ const LoginPage = ({ onToggleForm }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    setSubmitStatus({ loading: true, message: "" });
+    dispatch(loginStart());
     try {
       const payload = {
         email: formData.email,
@@ -74,36 +79,34 @@ const LoginPage = ({ onToggleForm }) => {
         { withCredentials: true }
       );
       if (response.data.success) {
-        const { accessToken, refreshToken } = response.data.data;
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-
+        const { accessToken, refreshToken, user } = response.data.data;
+        Cookies.set("accessToken", accessToken, { expires: 1 });
+        Cookies.set("refreshToken", refreshToken, { expires: 7 });
+        localStorage.setItem("user", JSON.stringify(user));
+        dispatch(loginSuccess(user));
         setSubmitStatus({
-          loading: false,
           success: true,
-          message: "Login successful! Redirecting...",
+          message: response?.message,
         });
-
-        navigate("/");
+        const redirectPath = location.state?.from?.pathname || "/";
+        navigate(redirectPath);
       } else {
+        dispatch(loginFailure(response.data.message));
         setSubmitStatus({
-          loading: false,
           success: false,
           message: response.data.message || "Login failed. Please try again.",
         });
       }
     } catch (error) {
-      console.error("Login error:", error);
+      const errorMessage = error.response?.data?.message ||
+        "Network error. Please check your connection and try again.";
+      dispatch(loginFailure(errorMessage));
       setSubmitStatus({
-        loading: false,
         success: false,
-        message:
-          error.response?.data?.message ||
-          "Network error. Please check your connection and try again.",
+        message: errorMessage,
       });
     }
   };
-
 
   return (
     <Fade in={true} timeout={800}>

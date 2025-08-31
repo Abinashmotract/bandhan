@@ -3,9 +3,9 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Box, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { Link } from 'react-router-dom';
-import ganesh1 from '../assets/ganesh1.jpg';
-import LOGO from '../assets/LOGO.png';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logoutUser } from '../store/slices/authSlice';
 
 const theme = createTheme({
     palette: {
@@ -26,9 +26,19 @@ const theme = createTheme({
 
 const Navbar = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { isAuthenticated, loading } = useSelector((state) => state.auth);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
+    };
+
+    const handleLogout = async () => {
+        dispatch(logoutUser());
+        navigate('/login');
     };
 
     const navItems = [
@@ -61,8 +71,39 @@ const Navbar = () => {
                         <ListItemText primary={item.text} />
                     </ListItem>
                 ))}
+                {!isAuthenticated ? (
+                    <ListItem
+                        component={Link}
+                        to="/login"
+                        sx={{
+                            color: 'white',
+                            justifyContent: 'center',
+                            '&:hover': {
+                                backgroundColor: 'rgba(255,255,255,0.1)',
+                            },
+                        }}
+                    >
+                        <ListItemText primary="Login / Sign Up" />
+                    </ListItem>
+                ) : (
+                    <ListItem
+                        button
+                        sx={{
+                            color: 'white',
+                            justifyContent: 'center',
+                            '&:hover': {
+                                backgroundColor: 'rgba(255,255,255,0.1)',
+                            },
+                        }}
+                        onClick={handleLogout}
+                    >
+                        <ListItemText
+                            primary={loading ? 'Logging out...' : 'Logout'}
+                        />
+                    </ListItem>
+                )}
             </List>
-        </Box>
+        </Box >
     );
 
     return (
@@ -127,30 +168,53 @@ const Navbar = () => {
                         ))}
 
                         {/* Auth Buttons */}
-                        <Link to="/login" style={{ textDecoration: 'none' }}>
-                            <button style={{
-                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '25px',
-                                padding: '10px 25px',
-                                marginLeft: '15px',
-                                fontWeight: '500',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s',
-                                boxShadow: '0 4px 8px rgba(216, 27, 96, 0.3)'
-                            }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.boxShadow = '0 6px 12px rgba(216, 27, 96, 0.4)';
-                                    e.target.style.transform = 'translateY(-2px)';
+                        {!isAuthenticated ? (
+                            <Link to="/login" style={{ textDecoration: 'none' }}>
+                                <button style={{
+                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '25px',
+                                    padding: '10px 25px',
+                                    marginLeft: '15px',
+                                    fontWeight: '500',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s',
+                                    boxShadow: '0 4px 8px rgba(216, 27, 96, 0.3)'
                                 }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.boxShadow = '0 4px 8px rgba(216, 27, 96, 0.3)';
-                                    e.target.style.transform = 'translateY(0)';
-                                }}>
-                                Login / Sign Up
+                                    onMouseEnter={(e) => {
+                                        e.target.style.boxShadow = '0 6px 12px rgba(216, 27, 96, 0.4)';
+                                        e.target.style.transform = 'translateY(-2px)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.boxShadow = '0 4px 8px rgba(216, 27, 96, 0.3)';
+                                        e.target.style.transform = 'translateY(0)';
+                                    }}>
+                                    Login / Sign Up
+                                </button>
+                            </Link>
+                        ) : (
+                            <button
+                                onClick={handleLogout}
+                                disabled={loading}
+                                style={{
+                                    background:
+                                        'linear-gradient(135deg, #880e4f 0%, #d81b60 100%)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '25px',
+                                    padding: '10px 25px',
+                                    marginLeft: '15px',
+                                    fontWeight: '500',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s',
+                                    boxShadow:
+                                        '0 4px 8px rgba(136, 14, 79, 0.3)',
+                                }}
+                            >
+                                {loading ? 'Logging out...' : 'Logout'}
                             </button>
-                        </Link>
+                        )}
                     </Box>
 
                     {/* Mobile menu button */}
@@ -165,14 +229,12 @@ const Navbar = () => {
                     </IconButton>
                 </Toolbar>
             </AppBar>
-
-            {/* Mobile Navigation Drawer */}
             <Drawer
                 variant="temporary"
                 open={mobileOpen}
                 onClose={handleDrawerToggle}
                 ModalProps={{
-                    keepMounted: true, // Better open performance on mobile.
+                    keepMounted: true,
                 }}
                 sx={{
                     display: { xs: 'block', md: 'none' },
@@ -182,19 +244,18 @@ const Navbar = () => {
                 {drawer}
             </Drawer>
 
-            {/* Add some custom styles */}
             <style>
                 {`
-          a:hover .nav-underline {
-            width: 100% !important;
-          }
-          
-          @media (max-width: 900px) {
-            .desktop-nav {
-              display: none;
-            }
-          }
-        `}
+                a:hover .nav-underline {
+                    width: 100% !important;
+                }
+                
+                @media (max-width: 900px) {
+                    .desktop-nav {
+                    display: none;
+                    }
+                }
+                `}
             </style>
         </ThemeProvider>
     );
