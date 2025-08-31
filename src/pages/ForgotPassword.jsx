@@ -2,21 +2,19 @@ import React, { useState } from 'react';
 import {
     Box,
     Container,
+    Paper,
     Typography,
     TextField,
     Button,
-    Paper,
-    InputAdornment,
-    Fade,
     Alert,
-    CircularProgress
+    CircularProgress,
+    InputAdornment,
+    Fade
 } from '@mui/material';
-import {
-    Email,
-    ArrowBack,
-    CheckCircle
-} from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Email, ArrowBack, CheckCircle } from '@mui/icons-material';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 
 const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
     const [email, setEmail] = useState('');
@@ -24,24 +22,24 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
     const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState('');
 
+    const navigate = useNavigate();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
-
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            // Simulate success
-            setIsSuccess(true);
-
-            // If you want to automatically go back to login after success
-            // setTimeout(() => {
-            //   onBackToLogin();
-            // }, 3000);
+            const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
+            if (response.data.success) {
+                setIsSuccess(true);
+                setTimeout(() => {
+                    navigate('/verify-otp', { state: { email } });
+                }, 1000);
+            } else {
+                setError(response.data.message || 'Failed to send reset instructions');
+            }
         } catch (err) {
-            setError('Failed to send reset instructions. Please try again.');
+            setError(err.response?.data?.message || 'Failed to send reset instructions. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -96,7 +94,7 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
                             </Typography>
 
                             <Typography variant="body1" sx={{ color: '#78909c', mb: 3 }}>
-                                We've sent password reset instructions to your email address.
+                                We've sent password reset instructions to {email}
                             </Typography>
 
                             <Typography variant="body2" sx={{ color: '#78909c', mb: 4 }}>
@@ -112,25 +110,42 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
                                     try again
                                 </span>
                             </Typography>
-                            <Link to="/login" style={{ textDecoration: 'none' }}>
-                                <Button
-                                    variant="contained"
-                                    fullWidth
-                                    onClick={onBackToLogin}
-                                    sx={{
-                                        py: 1.5,
-                                        borderRadius: '12px',
-                                        background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                        fontSize: '1rem',
-                                        fontWeight: 600,
-                                        '&:hover': {
-                                            background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
-                                        }
-                                    }}
-                                >
-                                    Back to Login
-                                </Button>
-                            </Link>
+
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                onClick={() => navigate('/verify-otp', { state: { email } })}
+                                sx={{
+                                    py: 1.5,
+                                    borderRadius: '12px',
+                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    fontSize: '1rem',
+                                    fontWeight: 600,
+                                    '&:hover': {
+                                        background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
+                                    }
+                                }}
+                            >
+                                Verify OTP
+                            </Button>
+
+                            <Box sx={{ mt: 2 }}>
+                                <Link to="/login" style={{ textDecoration: 'none' }}>
+                                    <Button
+                                        onClick={onBackToLogin}
+                                        startIcon={<ArrowBack />}
+                                        sx={{
+                                            color: '#d81b60',
+                                            fontWeight: 600,
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(216, 27, 96, 0.1)'
+                                            }
+                                        }}
+                                    >
+                                        Back to Login
+                                    </Button>
+                                </Link>
+                            </Box>
                         </Paper>
                     </Container>
                 </Box>
@@ -142,22 +157,22 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
         <Fade in={true} timeout={800}>
             <Box
                 sx={{
-                  minHeight: '100vh',
-                        background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        '&::before': {
-                            content: '""',
-                            position: 'absolute',
-                            width: '100%',
-                            height: '100%',
-                            background: 'url("https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80") center/cover no-repeat',
-                            opacity: 0.1,
-                            zIndex: 0
-                        }
+                    minHeight: '100vh',
+                    background: 'linear-gradient(135deg, rgba(255,249,251,0.95) 0%, rgba(248,187,208,0.8) 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        background: 'url("https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80") center/cover no-repeat',
+                        opacity: 0.1,
+                        zIndex: 0
+                    }
                 }}
             >
                 <Container maxWidth="sm">
@@ -188,17 +203,15 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
                                 sx={{
                                     fontFamily: '"Playfair Display", serif',
                                     fontWeight: 700,
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                    backgroundClip: 'text',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
+                                    color: '#C8A2C8',
+                                    fontStyle: 'italic',
                                     mb: 1
                                 }}
                             >
                                 Reset Your Password
                             </Typography>
                             <Typography variant="body1" sx={{ color: '#78909c' }}>
-                                Enter your email and we'll send you instructions to reset your password
+                                Enter your email and we'll send you OTP to reset your password
                             </Typography>
                         </Box>
 
@@ -233,33 +246,32 @@ const ForgotPassword = ({ onBackToLogin, onSuccess }) => {
                                     }
                                 }}
                             />
-                            <Link to="/reset-password" style={{ textDecoration: 'none' }}>
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    size="large"
-                                    disabled={isLoading}
-                                    sx={{
-                                        mt: 3,
-                                        mb: 2,
-                                        py: 1.5,
-                                        borderRadius: '12px',
-                                        background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                        fontSize: '1.1rem',
-                                        fontWeight: 600,
-                                        boxShadow: '0 4px 15px rgba(216, 27, 96, 0.3)',
-                                        '&:hover': {
-                                            background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
-                                        },
-                                        '&:disabled': {
-                                            background: '#ccc'
-                                        }
-                                    }}
-                                >
-                                    {isLoading ? <CircularProgress size={24} /> : 'Send Reset Instructions'}
-                                </Button>
-                            </Link>
+
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                size="large"
+                                disabled={isLoading}
+                                sx={{
+                                    mt: 3,
+                                    mb: 2,
+                                    py: 1.5,
+                                    borderRadius: '12px',
+                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 600,
+                                    boxShadow: '0 4px 15px rgba(216, 27, 96, 0.3)',
+                                    '&:hover': {
+                                        background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
+                                    },
+                                    '&:disabled': {
+                                        background: '#ccc'
+                                    }
+                                }}
+                            >
+                                {isLoading ? <CircularProgress size={24} /> : 'Send OTP'}
+                            </Button>
 
                             <Box sx={{ textAlign: 'center' }}>
                                 <Link to="/login" style={{ textDecoration: 'none' }}>

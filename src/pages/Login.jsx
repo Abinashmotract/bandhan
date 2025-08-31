@@ -25,6 +25,7 @@ import { API_BASE_URL } from '../utils/api';
 import Cookies from "js-cookie";
 import { useDispatch, useSelector } from 'react-redux';
 import { loginStart, loginSuccess, loginFailure } from '../store/slices/authSlice';
+import { showSuccess } from '../utils/toast';
 
 const LoginPage = ({ onToggleForm }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -78,33 +79,24 @@ const LoginPage = ({ onToggleForm }) => {
         payload,
         { withCredentials: true }
       );
+      
       if (response.data.success) {
         const { accessToken, refreshToken, user } = response.data.data;
         Cookies.set("accessToken", accessToken, { expires: 1 });
         Cookies.set("refreshToken", refreshToken, { expires: 7 });
-        localStorage.setItem("user", JSON.stringify(user));
         dispatch(loginSuccess(user));
-        setSubmitStatus({
-          success: true,
-          message: response?.message,
-        });
+        showSuccess(response?.data?.message);
         const redirectPath = location.state?.from?.pathname || "/";
         navigate(redirectPath);
       } else {
         dispatch(loginFailure(response.data.message));
-        setSubmitStatus({
-          success: false,
-          message: response.data.message || "Login failed. Please try again.",
-        });
+        showError(response.data.message || "Login failed. Please try again.");
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message ||
         "Network error. Please check your connection and try again.";
       dispatch(loginFailure(errorMessage));
-      setSubmitStatus({
-        success: false,
-        message: errorMessage,
-      });
+      showError(errorMessage);
     }
   };
 
@@ -158,12 +150,9 @@ const LoginPage = ({ onToggleForm }) => {
               <Typography
                 variant="h3"
                 sx={{
-                  fontFamily: '"Playfair Display", serif',
+                  color: '#C8A2C8',
+                  fontStyle: 'italic',
                   fontWeight: 700,
-                  background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
                   mb: 1
                 }}
               >
@@ -328,19 +317,21 @@ const LoginPage = ({ onToggleForm }) => {
               </Box>
 
               <Box sx={{ textAlign: 'center' }}>
-                <Typography variant="body2" sx={{ color: '#78909c' }}>
-                  Don't have an account?{' '}
-                  <span
-                    onClick={onToggleForm}
-                    style={{
-                      color: '#d81b60',
-                      cursor: 'pointer',
-                      fontWeight: 600
-                    }}
-                  >
-                    Sign Up
-                  </span>
-                </Typography>
+                <Link to="/register" style={{ textDecoration: 'none' }}>
+                  <Typography variant="body2" sx={{ color: '#78909c' }}>
+                    Don't have an account?{' '}
+                    <span
+                      onClick={onToggleForm}
+                      style={{
+                        color: '#d81b60',
+                        cursor: 'pointer',
+                        fontWeight: 600
+                      }}
+                    >
+                      Sign Up
+                    </span>
+                  </Typography>
+                </Link>
               </Box>
             </Box>
           </Paper>

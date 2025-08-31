@@ -522,10 +522,8 @@ const Register = ({ onToggleForm }) => {
                                 sx={{
                                     fontFamily: '"Playfair Display", serif',
                                     fontWeight: 700,
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                    backgroundClip: 'text',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
+                                    color: '#C8A2C8',
+                                    fontStyle: 'italic',
                                     mb: 1
                                 }}
                             >

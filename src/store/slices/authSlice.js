@@ -36,13 +36,21 @@ export const logoutUser = createAsyncThunk(
     'auth/logoutUser',
     async (_, { rejectWithValue }) => {
         try {
-            await axios.post(`${API_BASE_URL}/auth/logout`, {}, { withCredentials: true });
-            return true;
+            const refreshToken = Cookies.get('refreshToken');
+            const response = await axios.post(
+                `${API_BASE_URL}/auth/logout`,
+                { refreshToken },
+                { withCredentials: true }
+            );
+            Cookies.remove('accessToken');
+            Cookies.remove('refreshToken');
+            return response.data.message;
         } catch (err) {
             return rejectWithValue(err.response?.data?.message || 'Logout failed');
         }
     }
 );
+
 
 const authSlice = createSlice({
     name: 'auth',
@@ -101,13 +109,14 @@ const authSlice = createSlice({
 
             // logoutUser
             .addCase(logoutUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(logoutUser.fulfilled, (state, action) => {
+                state.loading = false;
                 state.isAuthenticated = false;
                 state.user = null;
-                Cookies.remove('accessToken');
-                Cookies.remove('refreshToken');
-            })
-            .addCase(logoutUser.fulfilled, (state) => {
-                state.loading = false;
+                state.error = null;
             })
             .addCase(logoutUser.rejected, (state, action) => {
                 state.loading = false;

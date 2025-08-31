@@ -425,6 +425,7 @@ const Profile = () => {
                                     Basic Details
                                 </Typography>
                                 <Box sx={{ mb: 3 }}>
+                                    <DetailItem icon={<Cake />} label="Email Id" value={user?.email || 'N/A'} />
                                     <DetailItem icon={<Cake />} label="Age" value={`${calculateAge(user?.dob)} years`} />
                                     <DetailItem icon={<Work />} label="Profession" value={user?.occupation} />
                                     <DetailItem icon={<School />} label="Education" value={user?.education || 'N/A'} />

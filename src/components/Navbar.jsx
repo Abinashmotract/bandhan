@@ -6,6 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../store/slices/authSlice';
+import { showError, showSuccess } from '../utils/toast';
 
 const theme = createTheme({
     palette: {
@@ -37,8 +38,17 @@ const Navbar = () => {
     };
 
     const handleLogout = async () => {
-        dispatch(logoutUser());
-        navigate('/login');
+        try {
+            const resultAction = await dispatch(logoutUser());
+            if (logoutUser.fulfilled.match(resultAction)) {
+                showSuccess(resultAction.payload);
+                navigate('/login');
+            } else {
+                showError(resultAction.payload || "Logout failed. Please try again.");
+            }
+        } catch (error) {
+            showError("An error occurred during logout.");
+        }
     };
 
     const navItems = [
@@ -51,7 +61,7 @@ const Navbar = () => {
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', height: '100%', color: 'white' }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
-                <IconButton sx={{ color: 'white' }}>
+                <IconButton sx={{ color: 'white' }} onClick={handleDrawerToggle}>
                     <CloseIcon />
                 </IconButton>
             </Box>
@@ -87,7 +97,6 @@ const Navbar = () => {
                     </ListItem>
                 ) : (
                     <ListItem
-                        button
                         sx={{
                             color: 'white',
                             justifyContent: 'center',
@@ -103,7 +112,7 @@ const Navbar = () => {
                     </ListItem>
                 )}
             </List>
-        </Box >
+        </Box>
     );
 
     return (

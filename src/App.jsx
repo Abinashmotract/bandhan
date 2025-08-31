@@ -6,6 +6,7 @@ import AppRoutes from "./routes";
 import Loader from "./components/Loader.jsx";
 import store from "./store/store";
 import AuthInitializer from "./components/AuthInitializer";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -25,9 +26,9 @@ function App() {
         <ClickSpark color="#ff5722" />
         <ScrollToTop />
         <AppRoutes />
+        <Toaster />
       </AuthInitializer>
     </Provider>
   );
 }
-
 export default App;

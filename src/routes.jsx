@@ -17,6 +17,7 @@ import PartnerMatchesPage from "./pages/PartnerMatchesPage";
 import FAQPage from "./pages/FAQPage";
 import SearchPage from "./pages/SearchPage";
 import BlogPage from "./pages/BlogPage";
+import VerifyOtp from "./pages/VerifyOtp";
 
 export default function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Protected Routes */}

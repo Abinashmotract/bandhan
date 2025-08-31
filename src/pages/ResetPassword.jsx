@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Container,
@@ -19,9 +19,12 @@ import {
     ArrowBack,
     CheckCircle
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { showSuccess } from '../utils/toast';
+import { API_BASE_URL } from '../utils/api';
 
-const ResetPassword = ({ onBackToLogin, token }) => {
+const ResetPassword = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +34,30 @@ const ResetPassword = ({ onBackToLogin, token }) => {
         password: '',
         confirmPassword: ''
     });
+    const [email, setEmail] = useState('');
+    const [resetToken, setResetToken] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        // Get email and resetToken from location state
+        if (location.state?.email && location.state?.resetToken) {
+            setEmail(location.state.email);
+            setResetToken(location.state.resetToken);
+        } else {
+            // If data is not in state, try to get it from sessionStorage or redirect back
+            const savedEmail = sessionStorage.getItem('resetEmail');
+            const savedToken = sessionStorage.getItem('resetToken');
+
+            if (savedEmail && savedToken) {
+                setEmail(savedEmail);
+                setResetToken(savedToken);
+            } else {
+                // If no data found, redirect back to login
+                navigate('/login');
+            }
+        }
+    }, [location, navigate]);
 
     const handleChange = (e) => {
         setFormData({
@@ -50,24 +77,46 @@ const ResetPassword = ({ onBackToLogin, token }) => {
         }
 
         // Validate password strength
-        if (formData.password.length < 8) {
-            setError('Password must be at least 8 characters long');
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+        if (!passwordRegex.test(formData.password)) {
+            setError('Password must be at least 8 characters and include one uppercase letter, one lowercase letter, one number, and one special character.');
             return;
         }
 
         setIsLoading(true);
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const { data } = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
+                email: email,
+                newPassword: formData.password,
+                confirmPassword: formData.confirmPassword,
+                resetToken: resetToken
+            });
 
-            // Simulate success
-            setIsSuccess(true);
+            if (data.success) {
+                showSuccess('Password reset successfully!');
+                setIsSuccess(true);
+                // Clear stored data
+                sessionStorage.removeItem('resetEmail');
+                sessionStorage.removeItem('resetToken');
+
+                // Redirect to login after 3 seconds
+                setTimeout(() => {
+                    navigate('/login');
+                }, 3000);
+            } else {
+                setError(data.message || 'Failed to reset password');
+            }
+
         } catch (err) {
-            setError('Failed to reset password. Please try again.');
+            setError(err.response?.data?.message || 'Failed to reset password. Please try again.');
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleBackToLogin = () => {
+        navigate('/login');
     };
 
     if (isSuccess) {
@@ -115,17 +164,17 @@ const ResetPassword = ({ onBackToLogin, token }) => {
                                 mb: 2,
                                 fontFamily: '"Playfair Display", serif'
                             }}>
-                                Password Reset
+                                Password Reset Successful!
                             </Typography>
 
                             <Typography variant="body1" sx={{ color: '#78909c', mb: 4 }}>
-                                Your password has been successfully reset. You can now login with your new password.
+                                Your password has been successfully reset. You will be redirected to login page shortly.
                             </Typography>
 
                             <Button
                                 variant="contained"
                                 fullWidth
-                                onClick={onBackToLogin}
+                                onClick={handleBackToLogin}
                                 sx={{
                                     py: 1.5,
                                     borderRadius: '12px',
@@ -196,10 +245,8 @@ const ResetPassword = ({ onBackToLogin, token }) => {
                                 sx={{
                                     fontFamily: '"Playfair Display", serif',
                                     fontWeight: 700,
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                    backgroundClip: 'text',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
+                                    color: '#C8A2C8',
+                                    fontStyle: 'italic',
                                     mb: 1
                                 }}
                             >
@@ -251,7 +298,7 @@ const ResetPassword = ({ onBackToLogin, token }) => {
                                         }
                                     }
                                 }}
-                                helperText="Must be at least 8 characters long"
+                                helperText="Must be at least 8 characters with uppercase, lowercase, number, and special character"
                             />
 
                             <TextField
@@ -289,49 +336,47 @@ const ResetPassword = ({ onBackToLogin, token }) => {
                                     }
                                 }}
                             />
-                            <Link to="/login" style={{ textDecoration: 'none' }}>
+
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                size="large"
+                                disabled={isLoading}
+                                sx={{
+                                    mt: 3,
+                                    mb: 2,
+                                    py: 1.5,
+                                    borderRadius: '12px',
+                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 600,
+                                    boxShadow: '0 4px 15px rgba(216, 27, 96, 0.3)',
+                                    '&:hover': {
+                                        background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
+                                    },
+                                    '&:disabled': {
+                                        background: '#ccc'
+                                    }
+                                }}
+                            >
+                                {isLoading ? <CircularProgress size={24} /> : 'Reset Password'}
+                            </Button>
+
+                            <Box sx={{ textAlign: 'center' }}>
                                 <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    size="large"
-                                    disabled={isLoading}
+                                    onClick={handleBackToLogin}
+                                    startIcon={<ArrowBack />}
                                     sx={{
-                                        mt: 3,
-                                        mb: 2,
-                                        py: 1.5,
-                                        borderRadius: '12px',
-                                        background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                        fontSize: '1.1rem',
+                                        color: '#d81b60',
                                         fontWeight: 600,
-                                        boxShadow: '0 4px 15px rgba(216, 27, 96, 0.3)',
                                         '&:hover': {
-                                            background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
-                                        },
-                                        '&:disabled': {
-                                            background: '#ccc'
+                                            backgroundColor: 'rgba(216, 27, 96, 0.1)'
                                         }
                                     }}
                                 >
-                                    {isLoading ? <CircularProgress size={24} /> : 'Reset Password'}
+                                    Back to Login
                                 </Button>
-                            </Link>
-                            <Box sx={{ textAlign: 'center' }}>
-                                <Link to="/login" style={{ textDecoration: 'none' }}>
-                                    <Button
-                                        onClick={onBackToLogin}
-                                        startIcon={<ArrowBack />}
-                                        sx={{
-                                            color: '#d81b60',
-                                            fontWeight: 600,
-                                            '&:hover': {
-                                                backgroundColor: 'rgba(216, 27, 96, 0.1)'
-                                            }
-                                        }}
-                                    >
-                                        Back to Login
-                                    </Button>
-                                </Link>
                             </Box>
                         </Box>
                     </Paper>
