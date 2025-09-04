@@ -74,13 +74,11 @@ const LoginPage = ({ onToggleForm }) => {
         email: formData.email,
         password: formData.password
       };
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/login`,
-        payload,
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, payload,
         { withCredentials: true }
       );
-      
-      if (response.data.success) {
+
+      if (response?.data?.success) {
         const { accessToken, refreshToken, user } = response.data.data;
         Cookies.set("accessToken", accessToken, { expires: 1 });
         Cookies.set("refreshToken", refreshToken, { expires: 7 });
@@ -90,13 +88,16 @@ const LoginPage = ({ onToggleForm }) => {
         navigate(redirectPath);
       } else {
         dispatch(loginFailure(response.data.message));
-        showError(response.data.message || "Login failed. Please try again.");
+        setErrors(response.data.message || "Login failed. Please try again.");
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message ||
+      console.log(error.response?.data?.message, 'error')
+      const errorMessage = error?.response?.data?.message ||
         "Network error. Please check your connection and try again.";
       dispatch(loginFailure(errorMessage));
-      showError(errorMessage);
+      setSubmitStatus({ success: false, message: errorMessage });
+    } finally {
+      setSubmitStatus(prev => ({ ...prev, loading: false }));
     }
   };
 
@@ -164,11 +165,8 @@ const LoginPage = ({ onToggleForm }) => {
             </Box>
 
             {submitStatus.message && (
-              <Alert
-                severity={submitStatus.success ? "success" : "error"}
-                sx={{ mb: 3 }}
-              >
-                {submitStatus.message}
+              <Alert severity={submitStatus?.success ? "success" : "error"} sx={{ mb: 3 }}>
+                {submitStatus?.message}
               </Alert>
             )}
 

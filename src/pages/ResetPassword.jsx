@@ -40,12 +40,10 @@ const ResetPassword = () => {
     const location = useLocation();
 
     useEffect(() => {
-        // Get email and resetToken from location state
         if (location.state?.email && location.state?.resetToken) {
             setEmail(location.state.email);
             setResetToken(location.state.resetToken);
         } else {
-            // If data is not in state, try to get it from sessionStorage or redirect back
             const savedEmail = sessionStorage.getItem('resetEmail');
             const savedToken = sessionStorage.getItem('resetToken');
 
@@ -53,7 +51,6 @@ const ResetPassword = () => {
                 setEmail(savedEmail);
                 setResetToken(savedToken);
             } else {
-                // If no data found, redirect back to login
                 navigate('/login');
             }
         }
@@ -69,22 +66,16 @@ const ResetPassword = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-
-        // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
             return;
         }
-
-        // Validate password strength
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
         if (!passwordRegex.test(formData.password)) {
             setError('Password must be at least 8 characters and include one uppercase letter, one lowercase letter, one number, and one special character.');
             return;
         }
-
         setIsLoading(true);
-
         try {
             const { data } = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
                 email: email,
@@ -96,18 +87,14 @@ const ResetPassword = () => {
             if (data.success) {
                 showSuccess('Password reset successfully!');
                 setIsSuccess(true);
-                // Clear stored data
                 sessionStorage.removeItem('resetEmail');
                 sessionStorage.removeItem('resetToken');
-
-                // Redirect to login after 3 seconds
                 setTimeout(() => {
                     navigate('/login');
                 }, 3000);
             } else {
                 setError(data.message || 'Failed to reset password');
             }
-
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to reset password. Please try again.');
         } finally {

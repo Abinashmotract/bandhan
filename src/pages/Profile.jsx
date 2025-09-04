@@ -32,6 +32,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserDetails } from '../store/slices/authSlice';
 import PreferencesDialog from '../components/PreferencesDialog';
+import PersonIcon from "@mui/icons-material/Person";
 
 // Tab panel component
 function TabPanel(props) {
@@ -70,7 +71,6 @@ const Profile = () => {
     });
 
     const dispatch = useDispatch();
-
     const { user, loading } = useSelector((state) => state.auth);
     console.log("User from Redux:", user);
 
@@ -79,6 +79,7 @@ const Profile = () => {
             dispatch(fetchUserDetails());
         }
     }, [dispatch, user]);
+
 
     const calculateAge = (dob) => {
         if (!dob) return '';
@@ -134,21 +135,7 @@ const Profile = () => {
     };
 
     return (
-        <Box sx={{
-            minHeight: '100vh',
-            py: 4,
-            position: 'relative',
-            overflow: 'hidden',
-            '&::before': {
-                content: '""',
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                top: 0,
-                left: 0,
-                zIndex: 0
-            }
-        }}>
+        <Box sx={{ minHeight: '100vh', py: 4, position: 'relative', overflow: 'hidden', '&::before': { content: '""', position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0 } }}>
             <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
                 <Paper elevation={10} sx={{
                     borderRadius: '20px',
@@ -159,17 +146,8 @@ const Profile = () => {
                     mb: 4,
                     position: 'relative'
                 }}>
-                    <Box sx={{
-                        height: '200px',
-                        background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                        position: 'relative'
-                    }}>
-                        <Fab size="small" color="primary" sx={{
-                            position: 'absolute',
-                            bottom: -20,
-                            right: 20,
-                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)'
-                        }}>
+                    <Box sx={{ height: '200px', background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', position: 'relative' }}>
+                        <Fab size="small" color="primary" sx={{ position: 'absolute', bottom: -20, right: 20, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)' }}>
                             <PhotoCamera />
                         </Fab>
                     </Box>
@@ -212,6 +190,7 @@ const Profile = () => {
                                 </IconButton>
                                 <Button variant="contained" startIcon={<Message />} sx={{
                                     borderRadius: '50px',
+                                    textTransform: 'none',
                                     background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
                                     px: 3,
                                     '&:hover': {
@@ -219,6 +198,15 @@ const Profile = () => {
                                     }
                                 }}>
                                     Send Message
+                                </Button>
+                                <Button variant="contained" onClick={handleOpenDialog} startIcon={<PersonIcon />} sx={{
+                                    borderRadius: '50px',
+                                    textTransform: 'none',
+                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    px: 3,
+                                    '&:hover': { background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)' }
+                                }}>
+                                    Update Profile
                                 </Button>
                             </Box>
                         </Box>
@@ -469,25 +457,6 @@ const Profile = () => {
                             <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600, mb: 3 }}>
                                 Partner Preferences
                             </Typography>
-                            <button
-                                onClick={handleOpenDialog}
-                                style={{
-                                    background:
-                                        'linear-gradient(135deg, #880e4f 0%, #d81b60 100%)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '25px',
-                                    padding: '10px 25px',
-                                    marginLeft: '15px',
-                                    fontWeight: '500',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s',
-                                    boxShadow:
-                                        '0 4px 8px rgba(136, 14, 79, 0.3)',
-                                }}
-                            >
-                                Update Preferences
-                            </button>
                         </Box>
                         <Grid container spacing={4}>
                             <Grid size={{ xs: 12, md: 6 }} >
