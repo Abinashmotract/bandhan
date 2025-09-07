@@ -500,5 +500,4 @@ const PreferenceItem = ({ title, value }) => (
         <Typography variant="body2" sx={{ color: '#37474f' }}>{value}</Typography>
     </Box>
 );
-
 export default Profile;
