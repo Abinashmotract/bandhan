@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from "react";
 import {
     Box,
     Container,
@@ -14,8 +14,8 @@ import {
     Card,
     CardMedia,
     Rating,
-    Fab
-} from '@mui/material';
+    Fab,
+} from "@mui/material";
 import {
     Favorite,
     FavoriteBorder,
@@ -27,16 +27,22 @@ import {
     Message,
     VerifiedUser,
     PhotoCamera,
-    Person
-} from '@mui/icons-material';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserDetails } from '../store/slices/authSlice';
-import PreferencesDialog from '../components/PreferencesDialog';
+    Person,
+} from "@mui/icons-material";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchUserDetails} from "../store/slices/authSlice";
+import PreferencesDialog from "../components/PreferencesDialog";
 import PersonIcon from "@mui/icons-material/Person";
+import {Edit} from "@mui/icons-material";
+import {useRef} from "react";
+import Cookies from "js-cookie";
+import axios from "axios";
+import {API_BASE_URL} from "../utils/api";
+import { CircularProgress } from "@mui/material";
 
 // Tab panel component
 function TabPanel(props) {
-    const { children, value, index, ...other } = props;
+    const {children, value, index, ...other} = props;
 
     return (
         <div
@@ -46,11 +52,7 @@ function TabPanel(props) {
             aria-labelledby={`profile-tab-${index}`}
             {...other}
         >
-            {value === index && (
-                <Box sx={{ py: 3 }}>
-                    {children}
-                </Box>
-            )}
+            {value === index && <Box sx={{py: 3}}>{children}</Box>}
         </div>
     );
 }
@@ -60,19 +62,20 @@ const Profile = () => {
     const [isFavorite, setIsFavorite] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [preferences, setPreferences] = useState({
-        ageRange: { min: 28, max: 35 },
-        height: "5'8",
-        maritalStatus: "Never Married",
-        religion: "Hindu",
-        education: "Graduate or above",
-        profession: "Employed",
-        location: "Any metro city in India",
-        diet: "Vegetarian preferred"
+        ageRange: {min: 28, max: 35},
+        height: "",
+        maritalStatus: "",
+        religion: "",
+        education: "",
+        profession: "",
+        location: "",
+        diet: "",
     });
 
     const dispatch = useDispatch();
-    const { user, loading } = useSelector((state) => state.auth);
-    console.log("User from Redux:", user);
+    const fileInputRef = useRef(null);
+    const accessToken = Cookies.get("accessToken");
+    const {user, loading} = useSelector((state) => state.auth);
 
     useEffect(() => {
         if (!user) {
@@ -80,9 +83,24 @@ const Profile = () => {
         }
     }, [dispatch, user]);
 
+    if (loading || !user) {
+    return (
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "100vh",
+                background: "#f5f5f5",
+            }}
+        >
+            <CircularProgress color="secondary" />
+        </Box>
+    );
+}
 
     const calculateAge = (dob) => {
-        if (!dob) return '';
+        if (!dob) return "";
         const birthDate = new Date(dob);
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
@@ -103,27 +121,6 @@ const Profile = () => {
 
     const handleSavePreferences = (newPreferences) => {
         setPreferences(newPreferences);
-        // Here you would typically make an API call to save the preferences
-    };
-
-
-    // Sample user data
-    const users = {
-        profession: "Software Engineer",
-        education: "Master of Computer Applications",
-        height: "5'4\"",
-        religion: "Hindu",
-        caste: "Brahmin",
-        motherTongue: "Hindi",
-        about: "I am a cheerful and caring person who values family and relationships. I enjoy traveling, cooking, and reading in my free time. Looking for someone who is honest, caring, and family-oriented.",
-        interests: ["Travel", "Cooking", "Reading", "Music", "Dance", "Yoga"],
-        photos: [
-            "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80",
-            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80",
-            "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80"
-        ],
-        profileCompletion: 85,
-        matches: 92
     };
 
     const handleTabChange = (event, newValue) => {
@@ -134,234 +131,417 @@ const Profile = () => {
         setIsFavorite(!isFavorite);
     };
 
+    const handleProfilePictureClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleProfilePictureUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            const formData = new FormData();
+            formData.append("profileImage", file);
+            const response = await axios.put(`${API_BASE_URL}/auth/user/profile-picture`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            if (response.data.success) {
+                // Refresh user data
+                dispatch(fetchUserDetails());
+                // Show success message
+                alert("Profile picture updated successfully!");
+            }
+        } catch (error) {
+            console.error("Profile picture upload error:", error);
+            alert("Failed to upload profile picture. Please try again.");
+        }
+    };
+
     return (
-        <Box sx={{ minHeight: '100vh', py: 4, position: 'relative', overflow: 'hidden', '&::before': { content: '""', position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, zIndex: 0 } }}>
-            <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-                <Paper elevation={10} sx={{
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    backdropFilter: 'blur(10px)',
-                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
-                    mb: 4,
-                    position: 'relative'
-                }}>
-                    <Box sx={{ height: '200px', background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', position: 'relative' }}>
-                        <Fab size="small" color="primary" sx={{ position: 'absolute', bottom: -20, right: 20, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)' }}>
+        <Box
+            sx={{
+                minHeight: "100vh",
+                py: 4,
+                position: "relative",
+                overflow: "hidden",
+                "&::before": {
+                    content: '""',
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                    top: 0,
+                    left: 0,
+                    zIndex: 0,
+                },
+            }}
+        >
+            <Container maxWidth="lg" sx={{position: "relative", zIndex: 1}}>
+                <Paper
+                    elevation={10}
+                    sx={{
+                        borderRadius: "20px",
+                        overflow: "hidden",
+                        background: "rgba(255, 255, 255, 0.95)",
+                        backdropFilter: "blur(10px)",
+                        boxShadow: "0 15px 35px rgba(0, 0, 0, 0.1)",
+                        mb: 4,
+                        position: "relative",
+                    }}
+                >
+                    <Box
+                        sx={{
+                            height: "200px",
+                            background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                            position: "relative",
+                        }}
+                    >
+                        <Fab
+                            size="small"
+                            color="primary"
+                            sx={{
+                                position: "absolute",
+                                bottom: -20,
+                                right: 20,
+                                background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                            }}
+                        >
                             <PhotoCamera />
                         </Fab>
                     </Box>
 
                     {/* Profile Content */}
-                    <Box sx={{ p: 4, pt: 0 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mt: -8 }}>
-                            <Box sx={{ position: 'relative' }}>
+                    <Box sx={{p: 4, pt: 0}}>
+                        <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", mt: -8}}>
+                            <Box
+                                sx={{
+                                    position: "relative",
+                                    "&:hover .edit-icon": {
+                                        opacity: 1,
+                                    },
+                                    "&:hover .verified-icon": {
+                                        opacity: 0,
+                                    },
+                                }}
+                            >
                                 <Avatar
-                                    src={users.photos[0]}
+                                    src={
+                                        user?.profileImage ||
+                                        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80"
+                                    }
                                     sx={{
                                         width: 150,
                                         height: 150,
-                                        border: '5px solid white',
-                                        boxShadow: '0 5px 20px rgba(0,0,0,0.1)'
+                                        border: "5px solid white",
+                                        boxShadow: "0 5px 20px rgba(0,0,0,0.1)",
+                                        cursor: "pointer",
+                                        transition: "opacity 0.3s ease",
+                                        "&:hover": {
+                                            opacity: 0.8,
+                                        },
+                                    }}
+                                    onClick={handleProfilePictureClick}
+                                />
+                                <IconButton
+                                    className="edit-icon"
+                                    sx={{
+                                        position: "absolute",
+                                        bottom: 10,
+                                        right: 10,
+                                        backgroundColor: "#d81b60",
+                                        color: "white",
+                                        opacity: 0,
+                                        transition: "opacity 0.3s ease",
+                                        "&:hover": {
+                                            backgroundColor: "#880e4f",
+                                        },
+                                    }}
+                                    onClick={handleProfilePictureClick}
+                                >
+                                    <Edit fontSize="small" />
+                                </IconButton>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    hidden
+                                    accept="image/*"
+                                    onChange={handleProfilePictureUpload}
+                                />
+                                <VerifiedUser
+                                    className="verified-icon"
+                                    sx={{
+                                        position: "absolute",
+                                        bottom: 10,
+                                        right: 10,
+                                        color: "#d81b60",
+                                        background: "white",
+                                        borderRadius: "50%",
+                                        padding: "2px",
+                                        fontSize: "28px",
+                                        transition: "opacity 0.3s ease",
                                     }}
                                 />
-                                <VerifiedUser sx={{
-                                    position: 'absolute',
-                                    bottom: 10,
-                                    right: 10,
-                                    color: '#d81b60',
-                                    background: 'white',
-                                    borderRadius: '50%',
-                                    padding: '2px',
-                                    fontSize: '28px'
-                                }} />
                             </Box>
 
                             {/* Action Buttons */}
-                            <Box sx={{ display: 'flex', gap: 2 }}>
-                                <IconButton onClick={handleFavoriteClick} sx={{
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                    color: 'white',
-                                    '&:hover': {
-                                        background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
-                                    }
-                                }}>
+                            <Box sx={{display: "flex", gap: 2}}>
+                                <IconButton
+                                    onClick={handleFavoriteClick}
+                                    sx={{
+                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        color: "white",
+                                        "&:hover": {
+                                            background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
+                                        },
+                                    }}
+                                >
                                     {isFavorite ? <Favorite /> : <FavoriteBorder />}
                                 </IconButton>
-                                <Button variant="contained" startIcon={<Message />} sx={{
-                                    borderRadius: '50px',
-                                    textTransform: 'none',
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                    px: 3,
-                                    '&:hover': {
-                                        background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
-                                    }
-                                }}>
+                                <Button
+                                    variant="contained"
+                                    startIcon={<Message />}
+                                    sx={{
+                                        borderRadius: "50px",
+                                        textTransform: "none",
+                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        px: 3,
+                                        "&:hover": {
+                                            background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
+                                        },
+                                    }}
+                                >
                                     Send Message
                                 </Button>
-                                <Button variant="contained" onClick={handleOpenDialog} startIcon={<PersonIcon />} sx={{
-                                    borderRadius: '50px',
-                                    textTransform: 'none',
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                    px: 3,
-                                    '&:hover': { background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)' }
-                                }}>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleOpenDialog}
+                                    startIcon={<PersonIcon />}
+                                    sx={{
+                                        borderRadius: "50px",
+                                        textTransform: "none",
+                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        px: 3,
+                                        "&:hover": {background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)"},
+                                    }}
+                                >
                                     Update Profile
                                 </Button>
                             </Box>
                         </Box>
 
                         {/* User Info */}
-                        <Box sx={{ mt: 2 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-                                <Typography variant="h4" sx={{ fontWeight: 700, color: '#d81b60' }}>
+                        <Box sx={{mt: 2}}>
+                            <Box sx={{display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1, mb: 1}}>
+                                <Typography variant="h4" sx={{fontWeight: 700, color: "#d81b60"}}>
                                     {user?.name}
                                 </Typography>
-                                <Chip label={`${calculateAge(user?.dob)} years`} variant="outlined" sx={{ color: '#d81b60', borderColor: '#d81b60' }} />
+                                <Chip
+                                    label={`${calculateAge(user?.dob)} years`}
+                                    variant="outlined"
+                                    sx={{color: "#d81b60", borderColor: "#d81b60"}}
+                                />
                             </Box>
 
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
-                                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: '#78909c' }}>
-                                    <LocationOn sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {user?.location}
+                            <Box sx={{display: "flex", flexWrap: "wrap", gap: 2, mb: 3}}>
+                                <Typography
+                                    variant="body2"
+                                    component="a"
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                        user?.location || ""
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        color: "#78909c",
+                                        textDecoration: "none",
+                                        cursor: "pointer",
+                                        "&:hover": {
+                                            color: "blue",
+                                        },
+                                    }}
+                                >
+                                    <LocationOn sx={{fontSize: "18px", mr: 0.5, color: "#d81b60"}} />
+                                    {user?.location}
                                 </Typography>
-                                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: '#78909c' }}>
-                                    <Work sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {user?.occupation}
+
+                                <Typography
+                                    variant="body2"
+                                    sx={{display: "flex", alignItems: "center", color: "#78909c"}}
+                                >
+                                    <Work sx={{fontSize: "18px", mr: 0.5, color: "#d81b60"}} /> {user?.occupation}
                                 </Typography>
-                                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', color: '#78909c' }}>
-                                    <School sx={{ fontSize: '18px', mr: 0.5, color: '#d81b60' }} /> {users.education}
+                                <Typography
+                                    variant="body2"
+                                    sx={{display: "flex", alignItems: "center", color: "#78909c"}}
+                                >
+                                    <School sx={{fontSize: "18px", mr: 0.5, color: "#d81b60"}} /> {user?.education}
                                 </Typography>
                             </Box>
 
                             {/* Match Score */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                                <Box sx={{ width: '100%', maxWidth: 300 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography variant="body2" sx={{ color: '#78909c' }}>Profile Completeness</Typography>
-                                        <Typography variant="body2" sx={{ color: '#d81b60', fontWeight: 600 }}>{users.profileCompletion}%</Typography>
+                            <Box sx={{display: "flex", alignItems: "center", gap: 2, mb: 3}}>
+                                <Box sx={{width: "100%", maxWidth: 300}}>
+                                    <Box sx={{display: "flex", justifyContent: "space-between", mb: 0.5}}>
+                                        <Typography variant="body2" sx={{color: "#78909c"}}>
+                                            Profile Completeness
+                                        </Typography>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                color: user?.profileCompletion === 100 ? "green" : "#d81b60",
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            {user?.profileCompletion || 0}%
+                                        </Typography>
                                     </Box>
-                                    <Box sx={{ width: '100%', height: 8, backgroundColor: '#f5f5f5', borderRadius: 4 }}>
-                                        <Box sx={{
-                                            width: `${users.profileCompletion}%`,
-                                            height: '100%',
-                                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                            borderRadius: 4
-                                        }} />
+                                    <Box sx={{width: "100%", height: 8, backgroundColor: "#f5f5f5", borderRadius: 4}}>
+                                        <Box
+                                            sx={{
+                                                width: `${user?.profileCompletion || 0}%`,
+                                                height: "100%",
+                                                background:
+                                                    user?.profileCompletion === 100
+                                                        ? "linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)" // Green gradient
+                                                        : "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)", // Pink gradient
+                                                borderRadius: 4,
+                                                transition: "width 0.5s ease-in-out",
+                                            }}
+                                        />
                                     </Box>
                                 </Box>
 
-                                <Box sx={{ textAlign: 'center' }}>
-                                    <Typography variant="h6" sx={{ color: '#d81b60', fontWeight: 700 }}>{users.matches}%</Typography>
-                                    <Typography variant="body2" sx={{ color: '#78909c' }}>Match Score</Typography>
+                                <Box sx={{textAlign: "center"}}>
+                                    <Typography variant="h6" sx={{color: "#d81b60", fontWeight: 700}}>
+                                        {user?.matches || 0}%
+                                    </Typography>
+                                    <Typography variant="body2" sx={{color: "#78909c"}}>
+                                        Match Score
+                                    </Typography>
                                 </Box>
                             </Box>
                         </Box>
                     </Box>
 
                     {/* Tabs */}
-                    <Box sx={{
-                        position: 'relative',
-                        mb: 4,
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        borderRadius: '16px',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-                        mx: 'auto',
-                        maxWidth: 'fit-content',
-                        overflow: 'hidden',
-                        border: '1px solid rgba(216, 27, 96, 0.1)'
-                    }}>
+                    <Box
+                        sx={{
+                            position: "relative",
+                            mb: 4,
+                            background: "rgba(255, 255, 255, 0.95)",
+                            borderRadius: "16px",
+                            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+                            mx: "auto",
+                            maxWidth: "fit-content",
+                            overflow: "hidden",
+                            border: "1px solid rgba(216, 27, 96, 0.1)",
+                        }}
+                    >
                         <Tabs
                             value={tabValue}
                             onChange={handleTabChange}
                             sx={{
-                                '& .MuiTabs-indicator': {
-                                    height: '100%',
-                                    background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.08) 0%, rgba(136, 14, 79, 0.05) 100%)',
-                                    borderRadius: '16px',
+                                "& .MuiTabs-indicator": {
+                                    height: "100%",
+                                    background:
+                                        "linear-gradient(135deg, rgba(216, 27, 96, 0.08) 0%, rgba(136, 14, 79, 0.05) 100%)",
+                                    borderRadius: "16px",
                                     zIndex: 0,
-                                    animation: 'slideIndicator 0.4s ease-out',
-                                    '@keyframes slideIndicator': {
-                                        '0%': { opacity: 0, transform: 'scale(0.95)' },
-                                        '100%': { opacity: 1, transform: 'scale(1)' }
-                                    }
+                                    animation: "slideIndicator 0.4s ease-out",
+                                    "@keyframes slideIndicator": {
+                                        "0%": {opacity: 0, transform: "scale(0.95)"},
+                                        "100%": {opacity: 1, transform: "scale(1)"},
+                                    },
                                 },
-                                '& .MuiTab-root': {
-                                    textTransform: 'none',
-                                    fontSize: '1rem',
+                                "& .MuiTab-root": {
+                                    textTransform: "none",
+                                    fontSize: "1rem",
                                     fontWeight: 500,
-                                    color: '#78909c',
-                                    padding: '16px 32px',
-                                    transition: 'all 0.3s ease',
-                                    minHeight: '0px',
+                                    color: "#78909c",
+                                    padding: "16px 32px",
+                                    transition: "all 0.3s ease",
+                                    minHeight: "0px",
                                     zIndex: 1,
-                                    position: 'relative',
-                                    '&.Mui-selected': {
-                                        color: '#d81b60',
+                                    position: "relative",
+                                    "&.Mui-selected": {
+                                        color: "#d81b60",
                                         fontWeight: 600,
                                     },
-                                }
+                                },
                             }}
                         >
                             <Tab
-                                icon={<Person sx={{ fontSize: '20px', mb: 0.5 }} />}
+                                icon={<Person sx={{fontSize: "20px", mb: 0.5}} />}
                                 iconPosition="start"
                                 label={
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Box sx={{display: "flex", alignItems: "center"}}>
                                         About
-                                        <Box sx={{
-                                            ml: 1,
-                                            background: tabValue === 0 ? '#d81b60' : 'rgba(216, 27, 96, 0.1)',
-                                            color: tabValue === 0 ? 'white' : '#d81b60',
-                                            borderRadius: '10px',
-                                            px: 1,
-                                            py: 0.2,
-                                            fontSize: '0.7rem',
-                                            fontWeight: 'bold',
-                                            transition: 'all 0.3s ease'
-                                        }}>
+                                        <Box
+                                            sx={{
+                                                ml: 1,
+                                                background: tabValue === 0 ? "#d81b60" : "rgba(216, 27, 96, 0.1)",
+                                                color: tabValue === 0 ? "white" : "#d81b60",
+                                                borderRadius: "10px",
+                                                px: 1,
+                                                py: 0.2,
+                                                fontSize: "0.7rem",
+                                                fontWeight: "bold",
+                                                transition: "all 0.3s ease",
+                                            }}
+                                        >
                                             5
                                         </Box>
                                     </Box>
                                 }
                             />
                             <Tab
-                                icon={<PhotoCamera sx={{ fontSize: '20px', mb: 0.5 }} />}
+                                icon={<PhotoCamera sx={{fontSize: "20px", mb: 0.5}} />}
                                 iconPosition="start"
                                 label={
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Box sx={{display: "flex", alignItems: "center"}}>
                                         Photos
-                                        <Box sx={{
-                                            ml: 1,
-                                            background: tabValue === 1 ? '#d81b60' : 'rgba(216, 27, 96, 0.1)',
-                                            color: tabValue === 1 ? 'white' : '#d81b60',
-                                            borderRadius: '10px',
-                                            px: 1,
-                                            py: 0.2,
-                                            fontSize: '0.7rem',
-                                            fontWeight: 'bold',
-                                            transition: 'all 0.3s ease'
-                                        }}>
+                                        <Box
+                                            sx={{
+                                                ml: 1,
+                                                background: tabValue === 1 ? "#d81b60" : "rgba(216, 27, 96, 0.1)",
+                                                color: tabValue === 1 ? "white" : "#d81b60",
+                                                borderRadius: "10px",
+                                                px: 1,
+                                                py: 0.2,
+                                                fontSize: "0.7rem",
+                                                fontWeight: "bold",
+                                                transition: "all 0.3s ease",
+                                            }}
+                                        >
                                             12
                                         </Box>
                                     </Box>
                                 }
                             />
                             <Tab
-                                icon={<Favorite sx={{ fontSize: '20px', mb: 0.5 }} />}
+                                icon={<Favorite sx={{fontSize: "20px", mb: 0.5}} />}
                                 iconPosition="start"
                                 label={
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Box sx={{display: "flex", alignItems: "center"}}>
                                         Preferences
-                                        <Box sx={{
-                                            ml: 1,
-                                            background: tabValue === 2 ? '#d81b60' : 'rgba(216, 27, 96, 0.1)',
-                                            color: tabValue === 2 ? 'white' : '#d81b60',
-                                            borderRadius: '10px',
-                                            px: 1,
-                                            py: 0.2,
-                                            fontSize: '0.7rem',
-                                            fontWeight: 'bold',
-                                            transition: 'all 0.3s ease'
-                                        }}>
+                                        <Box
+                                            sx={{
+                                                ml: 1,
+                                                background: tabValue === 2 ? "#d81b60" : "rgba(216, 27, 96, 0.1)",
+                                                color: tabValue === 2 ? "white" : "#d81b60",
+                                                borderRadius: "10px",
+                                                px: 1,
+                                                py: 0.2,
+                                                fontSize: "0.7rem",
+                                                fontWeight: "bold",
+                                                transition: "all 0.3s ease",
+                                            }}
+                                        >
                                             8
                                         </Box>
                                     </Box>
@@ -372,74 +552,86 @@ const Profile = () => {
                 </Paper>
 
                 {/* Tab Content */}
-                <Paper elevation={10} sx={{
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    backdropFilter: 'blur(10px)',
-                    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.1)',
-                    p: 4
-                }}>
+                <Paper
+                    elevation={10}
+                    sx={{
+                        borderRadius: "20px",
+                        overflow: "hidden",
+                        background: "rgba(255, 255, 255, 0.95)",
+                        backdropFilter: "blur(10px)",
+                        boxShadow: "0 15px 35px rgba(0, 0, 0, 0.1)",
+                        p: 4,
+                    }}
+                >
                     <TabPanel value={tabValue} index={0}>
-                        <Grid container spacing={4}>
-                            <Grid size={{ xs: 12, md: 8 }}>
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600 }}>
+                        <Grid container spacing={2}>
+                            <Grid size={{xs: 12, md: 8}}>
+                                <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600}}>
                                     About Me
                                 </Typography>
-                                <Typography variant="body1" sx={{ color: '#37474f', lineHeight: 1.7, mb: 4 }}>
-                                    {users.about}
+                                <Typography variant="body1" sx={{color: "#37474f", lineHeight: 1.7, mb: 4}}>
+                                    {user?.about}
                                 </Typography>
 
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600 }}>
+                                <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600}}>
                                     Interests
                                 </Typography>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 4 }}>
-                                    {users.interests.map((interest, index) => (
+                                <Box sx={{display: "flex", flexWrap: "wrap", gap: 1, mb: 4}}>
+                                    {user?.interests.map((interest, index) => (
                                         <Chip
                                             key={index}
                                             label={interest}
                                             sx={{
-                                                background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.1) 0%, rgba(136, 14, 79, 0.05) 100%)',
-                                                color: '#d81b60',
-                                                fontWeight: 500
+                                                background:
+                                                    "linear-gradient(135deg, rgba(216, 27, 96, 0.1) 0%, rgba(136, 14, 79, 0.05) 100%)",
+                                                color: "#d81b60",
+                                                fontWeight: 500,
                                             }}
                                         />
                                     ))}
                                 </Box>
                             </Grid>
 
-                            <Grid size={{ xs: 12, md: 4 }}>
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600 }}>
+                            <Grid size={{xs: 12, md: 4}}>
+                                <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600}}>
                                     Basic Details
                                 </Typography>
-                                <Box sx={{ mb: 3 }}>
-                                    <DetailItem icon={<Cake />} label="Email Id" value={user?.email || 'N/A'} />
-                                    <DetailItem icon={<Cake />} label="Age" value={`${calculateAge(user?.dob)} years`} />
+                                <Box sx={{mb: 3}}>
+                                    <DetailItem icon={<Cake />} label="Email Id" value={user?.email || "N/A"} />
+                                    <DetailItem
+                                        icon={<Cake />}
+                                        label="Age"
+                                        value={`${calculateAge(user?.dob)} years`}
+                                    />
                                     <DetailItem icon={<Work />} label="Profession" value={user?.occupation} />
-                                    <DetailItem icon={<School />} label="Education" value={user?.education || 'N/A'} />
-                                    <DetailItem icon={<Language />} label="Mother Tongue" value={user?.motherTongue || 'N/A'} />
+                                    <DetailItem icon={<School />} label="Education" value={user?.education || "N/A"} />
+                                    <DetailItem
+                                        icon={<Language />}
+                                        label="Mother Tongue"
+                                        value={user?.motherTongue || "N/A"}
+                                    />
                                 </Box>
 
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600 }}>
+                                <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600}}>
                                     Background
                                 </Typography>
                                 <Box>
-                                    <DetailItem label="Religion" value={users.religion} />
-                                    <DetailItem label="Caste" value={users.caste} />
-                                    <DetailItem label="Height" value={users.height} />
+                                    <DetailItem label="Religion" value={user?.religion} />
+                                    <DetailItem label="Caste" value={user?.caste} />
+                                    <DetailItem label="Height" value={user?.height} />
                                 </Box>
                             </Grid>
                         </Grid>
                     </TabPanel>
 
                     <TabPanel value={tabValue} index={1}>
-                        <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600, mb: 3 }}>
+                        <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600, mb: 3}}>
                             Photos
                         </Typography>
                         <Grid container spacing={2}>
-                            {users.photos.map((photo, index) => (
-                                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
-                                    <Card sx={{ borderRadius: '12px', overflow: 'hidden' }}>
+                            {user?.photos?.map((photo, index) => (
+                                <Grid size={{xs: 12, sm: 6, md: 4}} key={index}>
+                                    <Card sx={{borderRadius: "12px", overflow: "hidden"}}>
                                         <CardMedia
                                             component="img"
                                             height="200"
@@ -453,19 +645,19 @@ const Profile = () => {
                     </TabPanel>
 
                     <TabPanel value={tabValue} index={2}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="h6" gutterBottom sx={{ color: '#d81b60', fontWeight: 600, mb: 3 }}>
+                        <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                            <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600, mb: 3}}>
                                 Partner Preferences
                             </Typography>
                         </Box>
                         <Grid container spacing={4}>
-                            <Grid size={{ xs: 12, md: 6 }} >
+                            <Grid size={{xs: 12, md: 6}}>
                                 <PreferenceItem title="Age Range" value="28-35 years" />
-                                <PreferenceItem title="Height" value={'5\'8" and above'} />
+                                <PreferenceItem title="Height" value={"5'8\" and above"} />
                                 <PreferenceItem title="Marital Status" value="Never Married" />
                                 <PreferenceItem title="Religion" value="Hindu" />
                             </Grid>
-                            <Grid item xs={12} md={6}>
+                            <Grid size={{xs: 12, md: 8}}>
                                 <PreferenceItem title="Education" value="Graduate or above" />
                                 <PreferenceItem title="Profession" value="Employed" />
                                 <PreferenceItem title="Location" value="Any metro city in India" />
@@ -476,8 +668,11 @@ const Profile = () => {
                     <PreferencesDialog
                         open={dialogOpen}
                         onClose={handleCloseDialog}
-                        currentPreferences={preferences}
-                        onSave={handleSavePreferences}
+                        currentPreferences={user?.preferences || preferences}
+                        user={user}
+                        onUpdateSuccess={(updatedUser) => {
+                            dispatch(fetchUserDetails());
+                        }}
                     />
                 </Paper>
             </Container>
@@ -486,18 +681,26 @@ const Profile = () => {
 };
 
 // Helper Components
-const DetailItem = ({ icon, label, value }) => (
-    <Box sx={{ display: 'flex', alignItems: 'center', py: 1.5, borderBottom: '1px solid #f5f5f5' }}>
-        {icon && React.cloneElement(icon, { sx: { color: '#d81b60', mr: 2 } })}
-        <Typography variant="body2" sx={{ color: '#78909c', minWidth: 120 }}>{label}</Typography>
-        <Typography variant="body2" sx={{ color: '#37474f', fontWeight: 500 }}>{value}</Typography>
+const DetailItem = ({icon, label, value}) => (
+    <Box sx={{display: "flex", alignItems: "center", py: 1.5, borderBottom: "1px solid #f5f5f5"}}>
+        {icon && React.cloneElement(icon, {sx: {color: "#d81b60", mr: 2}})}
+        <Typography variant="body2" sx={{color: "#78909c", minWidth: 120}}>
+            {label}
+        </Typography>
+        <Typography variant="body2" sx={{color: "#37474f", fontWeight: 500}}>
+            {value}
+        </Typography>
     </Box>
 );
 
-const PreferenceItem = ({ title, value }) => (
-    <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle2" sx={{ color: '#d81b60', fontWeight: 600, mb: 0.5 }}>{title}</Typography>
-        <Typography variant="body2" sx={{ color: '#37474f' }}>{value}</Typography>
+const PreferenceItem = ({title, value}) => (
+    <Box sx={{mb: 3}}>
+        <Typography variant="subtitle2" sx={{color: "#d81b60", fontWeight: 600, mb: 0.5}}>
+            {title}
+        </Typography>
+        <Typography variant="body2" sx={{color: "#37474f"}}>
+            {value}
+        </Typography>
     </Box>
 );
 export default Profile;

@@ -9,7 +9,6 @@ import {
     CardMedia,
     Button,
     Chip,
-    Avatar,
     IconButton,
     Paper,
     Slider,
@@ -33,11 +32,11 @@ import {
     LocationOn as LocationIcon,
     Work as WorkIcon,
     School as SchoolIcon,
-    Favorite as HeartIcon,
     Visibility as VisibilityIcon,
     Message as MessageIcon
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from "react-router-dom";
 
 const PartnerMatchesPage = () => {
     const theme = useTheme();
@@ -55,6 +54,9 @@ const PartnerMatchesPage = () => {
         profession: '',
         community: ''
     });
+
+    const location = useLocation();
+    const allProfiles = location.state?.allProfiles || []; 
 
     // Animation variants
     const containerVariants = {
@@ -98,104 +100,79 @@ const PartnerMatchesPage = () => {
         }
     };
 
-    // Sample profile data
+    // Process API data to match our component structure
     useEffect(() => {
-        const sampleProfiles = [
-            {
-                id: 1,
-                name: 'Priya Sharma',
-                age: 28,
-                height: 162,
-                education: 'MBA, IIM Bangalore',
-                profession: 'Marketing Manager',
-                location: 'Mumbai, India',
-                community: 'Hindu',
-                bio: 'Looking for someone who values family and career equally. Enjoy traveling and trying new cuisines.',
-                image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80',
-                interests: ['Travel', 'Music', 'Cooking', 'Reading'],
+        if (allProfiles && allProfiles.length > 0) {
+            const processedProfiles = allProfiles.map(profile => ({
+                id: profile._id,
+                name: profile.name,
+                age: calculateAge(profile.dob),
+                height: generateRandomHeight(),
+                education: generateRandomEducation(),
+                profession: profile.occupation || 'Professional',
+                location: profile.location || 'India',
+                community: generateRandomCommunity(),
+                bio: generateBio(profile.name, profile.occupation),
+                image: profile.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80',
+                interests: generateRandomInterests(),
                 liked: false,
-                compatibility: 92
-            },
-            {
-                id: 2,
-                name: 'Rahul Kapoor',
-                age: 32,
-                height: 178,
-                education: 'BTech, IIT Delhi',
-                profession: 'Software Engineer',
-                location: 'Bangalore, India',
-                community: 'Hindu',
-                bio: 'Tech enthusiast who loves outdoor activities. Looking for a partner to share adventures with.',
-                image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80',
-                interests: ['Technology', 'Hiking', 'Photography', 'Movies'],
-                liked: false,
-                compatibility: 88
-            },
-            {
-                id: 3,
-                name: 'Anjali Patel',
-                age: 26,
-                height: 165,
-                education: 'MSc Chemistry',
-                profession: 'Research Scientist',
-                location: 'Ahmedabad, India',
-                community: 'Hindu',
-                bio: 'Passionate about science and art. Looking for someone who can appreciate both logic and creativity.',
-                image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80',
-                interests: ['Science', 'Painting', 'Music', 'Dance'],
-                liked: false,
-                compatibility: 95
-            },
-            {
-                id: 4,
-                name: 'Vikram Singh',
-                age: 35,
-                height: 182,
-                education: 'CA',
-                profession: 'Chartered Accountant',
-                location: 'Delhi, India',
-                community: 'Sikh',
-                bio: 'Finance professional with a love for sports and fitness. Seeking a partner who values health and wellness.',
-                image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80',
-                interests: ['Finance', 'Cricket', 'Fitness', 'Travel'],
-                liked: false,
-                compatibility: 84
-            },
-            {
-                id: 5,
-                name: 'Neha Reddy',
-                age: 29,
-                height: 160,
-                education: 'BArch',
-                profession: 'Architect',
-                location: 'Hyderabad, India',
-                community: 'Hindu',
-                bio: 'Creative soul who loves designing spaces and experiences. Looking for someone who appreciates beauty in everyday life.',
-                image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80',
-                interests: ['Design', 'Art', 'Travel', 'Food'],
-                liked: false,
-                compatibility: 90
-            },
-            {
-                id: 6,
-                name: 'Arjun Malhotra',
-                age: 31,
-                height: 175,
-                education: 'MBA',
-                profession: 'Business Consultant',
-                location: 'Pune, India',
-                community: 'Hindu',
-                bio: 'Entrepreneur at heart who enjoys solving complex problems. Seeking an intelligent and ambitious partner.',
-                image: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80',
-                interests: ['Business', 'Reading', 'Cooking', 'Technology'],
-                liked: false,
-                compatibility: 87
-            }
-        ];
+                compatibility: Math.floor(Math.random() * 20) + 80 // Random compatibility between 80-100%
+            }));
+            
+            setProfiles(processedProfiles);
+            setFilteredProfiles(processedProfiles);
+        }
+    }, [allProfiles]);
 
-        setProfiles(sampleProfiles);
-        setFilteredProfiles(sampleProfiles);
-    }, []);
+    // Helper functions to generate missing data
+    const calculateAge = (dob) => {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        return age;
+    };
+
+    const generateRandomHeight = () => {
+        return Math.floor(Math.random() * 30) + 160; // Random height between 160-190cm
+    };
+
+    const generateRandomEducation = () => {
+        const educations = ['MBA, IIM Bangalore', 'BTech, IIT Delhi', 'MSc Chemistry', 'CA', 'BArch', 'MBA', 'MTech', 'PhD'];
+        return educations[Math.floor(Math.random() * educations.length)];
+    };
+
+    const generateRandomCommunity = () => {
+        const communities = ['Hindu', 'Muslim', 'Christian', 'Sikh'];
+        return communities[Math.floor(Math.random() * communities.length)];
+    };
+
+    const generateBio = (name, occupation) => {
+        const bios = [
+            `Looking for someone who values family and career equally. Enjoy traveling and trying new cuisines.`,
+            `Tech enthusiast who loves outdoor activities. Looking for a partner to share adventures with.`,
+            `Passionate about my work and art. Looking for someone who can appreciate both logic and creativity.`,
+            `Professional with a love for sports and fitness. Seeking a partner who values health and wellness.`,
+            `Creative soul who loves designing spaces and experiences. Looking for someone who appreciates beauty in everyday life.`,
+            `Entrepreneur at heart who enjoys solving complex problems. Seeking an intelligent and ambitious partner.`
+        ];
+        return bios[Math.floor(Math.random() * bios.length)];
+    };
+
+    const generateRandomInterests = () => {
+        const allInterests = ['Travel', 'Music', 'Cooking', 'Reading', 'Technology', 'Hiking', 'Photography', 
+                            'Movies', 'Science', 'Painting', 'Dance', 'Finance', 'Cricket', 'Fitness', 
+                            'Design', 'Art', 'Food', 'Business', 'Yoga', 'Gardening'];
+        
+        // Shuffle array and take 4-6 interests
+        const shuffled = [...allInterests].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, Math.floor(Math.random() * 3) + 4);
+    };
 
     const handleLike = (id) => {
         const updatedProfiles = profiles.map(profile =>
@@ -272,10 +249,6 @@ const PartnerMatchesPage = () => {
                                 color: '#C8A2C8',
                                 fontStyle: 'italic',
                                 fontWeight: 800,
-                                // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                // backgroundClip: 'text',
-                                // WebkitBackgroundClip: 'text',
-                                // WebkitTextFillColor: 'transparent',
                                 mb: 2
                             }}
                         >
@@ -503,39 +476,47 @@ const PartnerMatchesPage = () => {
                                                     </Box>
 
                                                     <Box sx={{ display: 'flex', gap: 1 }}>
-                                                        <Button
-                                                            variant="outlined"
-                                                            fullWidth
-                                                            startIcon={<VisibilityIcon />}
-                                                            onClick={() => openProfileDialog(profile)}
-                                                            sx={{
-                                                                borderRadius: 2,
-                                                                borderColor: '#d81b60',
-                                                                color: '#d81b60',
-                                                                '&:hover': {
-                                                                    borderColor: '#d81b60',
-                                                                    backgroundColor: 'rgba(216, 27, 96, 0.1)'
-                                                                }
-                                                            }}
-                                                        >
-                                                            View Profile
-                                                        </Button>
-                                                        <Button
-                                                            variant="contained"
-                                                            fullWidth
-                                                            startIcon={<MessageIcon />}
-                                                            sx={{
-                                                                borderRadius: 2,
-                                                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                                                fontWeight: 'bold',
-                                                                '&:hover': {
-                                                                    background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
-                                                                }
-                                                            }}
-                                                        >
-                                                            Message
-                                                        </Button>
-                                                    </Box>
+  <Button
+    variant="outlined"
+    startIcon={<VisibilityIcon />}
+    onClick={() => openProfileDialog(profile)}
+    sx={{
+      borderRadius: 2,
+      borderColor: '#d81b60',
+      color: '#d81b60',
+      px: 1.5, // horizontal padding
+      py: 0.5, // vertical padding
+      fontSize: '0.875rem', // smaller text
+      minWidth: 'auto', // allow button to shrink
+      '&:hover': {
+        borderColor: '#d81b60',
+        backgroundColor: 'rgba(216, 27, 96, 0.1)',
+      },
+    }}
+  >
+    View
+  </Button>
+
+  <Button
+    variant="contained"
+    startIcon={<MessageIcon />}
+    sx={{
+      borderRadius: 2,
+      background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+      fontWeight: 'bold',
+      px: 1.5,
+      py: 0.5,
+      fontSize: '0.875rem',
+      minWidth: 'auto',
+      '&:hover': {
+        background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
+      },
+    }}
+  >
+    Msg
+  </Button>
+</Box>
+
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
@@ -801,5 +782,4 @@ const PartnerMatchesPage = () => {
         </Box>
     );
 };
-
 export default PartnerMatchesPage;
