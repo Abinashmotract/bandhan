@@ -34,6 +34,9 @@ import {Link} from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
 import {API_BASE_URL} from "../utils/api";
+import defaultImg from "../assets/default.jpeg";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMatchedProfiles } from "../store/slices/profileSlice";
 
 // Animation variants
 const fadeInUp = {
@@ -107,36 +110,17 @@ const ProfileAvatar = ({name, image, sx = {}}) => {
 };
 
 const FeaturedProfiles = () => {
-    const [profiles, setProfiles] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    // const [error, setError] = useState(null);
     const [likedProfiles, setLikedProfiles] = useState(new Set());
 
-    const accessToken = Cookies.get("accessToken");
+    const dispatch = useDispatch();
+    const { profiles, loading, error } = useSelector((state) => state.profiles);
 
     useEffect(() => {
-        const fetchProfiles = async () => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/profiles/list`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
+        dispatch(fetchMatchedProfiles());
+    }, [dispatch]);
 
-                console.log("API Response:", response.data);
-                setProfiles(response?.data?.data || []);
-            } catch (err) {
-                setError(err.message);
-                console.error("Error fetching profiles:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (accessToken) {
-            fetchProfiles();
-        }
-    }, [accessToken]);
+    const accessToken = Cookies.get("accessToken");
 
     const handleLike = (profileId) => {
         const newLikedProfiles = new Set(likedProfiles);
@@ -147,15 +131,6 @@ const FeaturedProfiles = () => {
         }
         setLikedProfiles(newLikedProfiles);
     };
-
-    // Fallback images for profiles without images
-    const fallbackImages = [
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-    ];
 
     // Sample interests for profiles
     const sampleInterests = [
@@ -247,7 +222,7 @@ const FeaturedProfiles = () => {
                 <Grid container spacing={2}>
                     {profiles?.slice(0, 4).map((profile, index) => {
                         const age = calculateAge(profile.dob);
-                        const profileImage = profile.profileImage || fallbackImages[index % fallbackImages.length];
+                        const profileImage = profile.profileImage || defaultImg;
                         const profileInterests = sampleInterests[index % sampleInterests.length];
                         const isLiked = likedProfiles.has(profile._id);
 
@@ -457,7 +432,7 @@ const FeaturedProfiles = () => {
 
             <AnimatedSection>
                 <Box sx={{textAlign: "center", mt: 6}}>
-                    <Link to="/matches" state={{ allProfiles: profiles }} style={{textDecoration: "none"}}>
+                    <Link to="/matches" style={{textDecoration: "none"}}>
                         <Button
                             variant="contained"
                             endIcon={<ArrowForwardIcon />}

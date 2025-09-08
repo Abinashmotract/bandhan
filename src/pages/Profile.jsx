@@ -38,7 +38,7 @@ import {useRef} from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import {API_BASE_URL} from "../utils/api";
-import { CircularProgress } from "@mui/material";
+import {CircularProgress} from "@mui/material";
 
 // Tab panel component
 function TabPanel(props) {
@@ -84,20 +84,20 @@ const Profile = () => {
     }, [dispatch, user]);
 
     if (loading || !user) {
-    return (
-        <Box
-            sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: "100vh",
-                background: "#f5f5f5",
-            }}
-        >
-            <CircularProgress color="secondary" />
-        </Box>
-    );
-}
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minHeight: "100vh",
+                    background: "#f5f5f5",
+                }}
+            >
+                <CircularProgress color="secondary" />
+            </Box>
+        );
+    }
 
     const calculateAge = (dob) => {
         if (!dob) return "";
@@ -122,6 +122,7 @@ const Profile = () => {
     const handleSavePreferences = (newPreferences) => {
         setPreferences(newPreferences);
     };
+        const token = localStorage.getItem("token"); // auth token
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -148,11 +149,8 @@ const Profile = () => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-
             if (response.data.success) {
-                // Refresh user data
                 dispatch(fetchUserDetails());
-                // Show success message
                 alert("Profile picture updated successfully!");
             }
         } catch (error) {
@@ -650,18 +648,18 @@ const Profile = () => {
                                 Partner Preferences
                             </Typography>
                         </Box>
-                        <Grid container spacing={4}>
+                        <Grid container spacing={2}>
                             <Grid size={{xs: 12, md: 6}}>
-                                <PreferenceItem title="Age Range" value="28-35 years" />
-                                <PreferenceItem title="Height" value={"5'8\" and above"} />
-                                <PreferenceItem title="Marital Status" value="Never Married" />
-                                <PreferenceItem title="Religion" value="Hindu" />
+                                <PreferenceItem title="Age Range" value={`${user?.preferences?.ageRange?.min || ""} - ${user?.preferences?.ageRange?.max || ""} years`} />
+                                <PreferenceItem title="Height" value={user?.preferences?.height || "Not specified"} />
+                                <PreferenceItem title="Marital Status" value={user?.preferences?.maritalStatus || "Not specified"} />
+                                <PreferenceItem title="Religion" value={user?.preferences?.religion || "Not specified"} />
                             </Grid>
-                            <Grid size={{xs: 12, md: 8}}>
-                                <PreferenceItem title="Education" value="Graduate or above" />
-                                <PreferenceItem title="Profession" value="Employed" />
-                                <PreferenceItem title="Location" value="Any metro city in India" />
-                                <PreferenceItem title="Diet" value="Vegetarian preferred" />
+                            <Grid size={{xs: 12, md: 6}}>
+                                <PreferenceItem title="Education" value={user?.preferences?.education || "Not specified"} />
+                                <PreferenceItem title="Profession" value={user?.preferences?.profession || "Not specified"} />
+                                <PreferenceItem title="Location" value={user?.preferences?.location || "Not specified"} />
+                                <PreferenceItem title="Diet" value={user?.preferences?.diet || "Not specified"} />
                             </Grid>
                         </Grid>
                     </TabPanel>

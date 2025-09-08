@@ -194,10 +194,6 @@ const HomePage = () => {
                                         fontWeight: 800,
                                         fontSize: {xs: "2.5rem", md: "3.5rem"},
                                         fontStyle: "italic",
-                                        // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                                        // backgroundClip: 'text',
-                                        // WebkitBackgroundClip: 'text',
-                                        // WebkitTextFillColor: 'transparent',
                                         mb: 2,
                                     }}
                                 >

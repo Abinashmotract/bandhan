@@ -50,15 +50,16 @@ function DialogTabPanel(props) {
 
 const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuccess}) => {
     const [dialogTabValue, setDialogTabValue] = useState(0);
+    const [dobError, setDobError] = useState("");
     const [preferences, setPreferences] = useState({
         ageRange: {min: 28, max: 35},
-        height: "5'8",
-        maritalStatus: "Never Married",
-        religion: "Hindu",
-        education: "Graduate or above",
-        profession: "Employed",
-        location: "Any metro city in India",
-        diet: "Vegetarian preferred",
+        height: "",
+        maritalStatus: "",
+        religion: "",
+        education: "",
+        profession: "",
+        location: "",
+        diet: "",
     });
 
     const accessToken = Cookies.get("accessToken");
@@ -203,8 +204,6 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                 uploadedPhotos.push(file);
             }
             setNewPhotos(uploadedPhotos);
-
-            // Also add to photos for preview
             const newPreviewPhotos = [...photos];
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -224,8 +223,6 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
         const newPhotosList = [...photos];
         newPhotosList.splice(index, 1);
         setPhotos(newPhotosList);
-
-        // Also remove from newPhotos if it was a newly uploaded one
         if (index >= (user?.photos?.length || 0)) {
             const newUploads = [...newPhotos];
             newUploads.splice(index - (user?.photos?.length || 0), 1);
@@ -233,7 +230,30 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
         }
     };
 
+    const validateDob = (dob) => {
+        if (!dob) {
+            setDobError("Date of Birth is required");
+            return false;
+        }
+        const today = new Date();
+        const birthDate = new Date(dob);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        if (age < 18) {
+            setDobError("You must be at least 18 years old");
+            return false;
+        }
+        setDobError("");
+        return true;
+    };
+
     const handleSubmit = async () => {
+        if (!validateDob(profileData.dob)) {
+            return;
+        }
         setLoading(true);
         try {
             if (!accessToken) {
@@ -386,6 +406,8 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                     size="small"
                                     margin="normal"
                                     InputLabelProps={{shrink: true}}
+                                    error={Boolean(dobError)}
+                                    helperText={dobError}
                                 />
                                 <TextField
                                     fullWidth
