@@ -119,11 +119,6 @@ const Profile = () => {
         setDialogOpen(false);
     };
 
-    const handleSavePreferences = (newPreferences) => {
-        setPreferences(newPreferences);
-    };
-        const token = localStorage.getItem("token"); // auth token
-
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
