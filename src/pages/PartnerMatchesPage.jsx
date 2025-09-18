@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Container,
@@ -35,19 +35,19 @@ import {
     Visibility as VisibilityIcon,
     Message as MessageIcon,
 } from "@mui/icons-material";
-import {motion, AnimatePresence} from "framer-motion";
-import {useLocation} from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import defaultImg from "../assets/default.jpeg";
 import Cookies from "js-cookie";
 import axios from "axios";
-import {API_BASE_URL} from "../utils/api";
-import {useDispatch, useSelector} from "react-redux";
-import {fetchMatchedProfiles} from "../store/slices/profileSlice";
+import { API_BASE_URL } from "../utils/api";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMatchedProfiles } from "../store/slices/profileSlice";
+import { CircularProgress } from "@mui/material";
 
 const PartnerMatchesPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    // const [profiles, setProfiles] = useState([]);
     const [filteredProfiles, setFilteredProfiles] = useState([]);
     const [selectedProfile, setSelectedProfile] = useState(null);
     const [filterDialogOpen, setFilterDialogOpen] = useState(false);
@@ -63,7 +63,7 @@ const PartnerMatchesPage = () => {
 
     const dispatch = useDispatch();
 
-    const {profiles, loading, error} = useSelector((state) => state.profiles);
+    const { profiles, loading, error } = useSelector((state) => state.profiles);
     const allProfiles = profiles;
 
     useEffect(() => {
@@ -74,7 +74,7 @@ const PartnerMatchesPage = () => {
 
     // Animation variants
     const containerVariants = {
-        hidden: {opacity: 0},
+        hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
@@ -84,7 +84,7 @@ const PartnerMatchesPage = () => {
     };
 
     const itemVariants = {
-        hidden: {y: 20, opacity: 0},
+        hidden: { y: 20, opacity: 0 },
         visible: {
             y: 0,
             opacity: 1,
@@ -96,7 +96,7 @@ const PartnerMatchesPage = () => {
     };
 
     const cardVariants = {
-        hidden: {scale: 0.9, opacity: 0},
+        hidden: { scale: 0.9, opacity: 0 },
         visible: {
             scale: 1,
             opacity: 1,
@@ -118,19 +118,19 @@ const PartnerMatchesPage = () => {
     useEffect(() => {
         if (allProfiles && allProfiles.length > 0) {
             const processedProfiles = allProfiles?.map((profile) => ({
-                 id: profile?._id,
-                    name: profile?.name || 'N/A',
-                    age: calculateAge(profile?.dob)  || 'N/A',
-                    height: profile?.data?.height  || 'N/A',
-                    education: profile?.education  || 'N/A',
-                    profession: profile?.occupation  || 'N/A',
-                    location: profile?.location  || 'N/A',
-                    community: profile?.religion  || 'N/A',
-                    bio: profile?.about  || 'N/A',
-                    image: profile?.profileImage || defaultImg,
-                    interests: generateRandomInterests(),
-                    liked: false,
-                    compatibility: profile?.matchScore || 0,
+                id: profile?._id,
+                name: profile?.name || 'N/A',
+                age: calculateAge(profile?.dob) || 'N/A',
+                height: profile?.data?.height || 'N/A',
+                education: profile?.education || 'N/A',
+                profession: profile?.occupation || 'N/A',
+                location: profile?.location || 'N/A',
+                community: profile?.religion || 'N/A',
+                bio: profile?.about || 'N/A',
+                image: profile?.profileImage || defaultImg,
+                interests: generateRandomInterests(),
+                liked: false,
+                compatibility: profile?.matchScore || 0,
             }));
             // setProfiles(processedProfiles);
             setFilteredProfiles(processedProfiles);
@@ -182,7 +182,7 @@ const PartnerMatchesPage = () => {
 
     const handleLike = (id) => {
         const updatedProfiles = profiles.map((profile) =>
-            profile.id === id ? {...profile, liked: !profile.liked} : profile
+            profile.id === id ? { ...profile, liked: !profile.liked } : profile
         );
         // setProfiles(updatedProfiles);
         setFilteredProfiles(updatedProfiles);
@@ -207,19 +207,19 @@ const PartnerMatchesPage = () => {
             }).toString();
 
             const res = await axios.get(`${API_BASE_URL}/profiles/filter?${queryParams}`, {
-                headers: {Authorization: `Bearer ${accessToken}`},
+                headers: { Authorization: `Bearer ${accessToken}` },
             });
             if (res.data.success) {
                 const processedProfiles = res.data.data.map((profile) => ({
                     id: profile?._id,
                     name: profile?.name || 'N/A',
-                    age: calculateAge(profile?.dob)  || 'N/A',
-                    height: profile?.data?.height  || 'N/A',
-                    education: profile?.education  || 'N/A',
-                    profession: profile?.occupation  || 'N/A',
-                    location: profile?.location  || 'N/A',
-                    community: profile?.religion  || 'N/A',
-                    bio: profile?.about  || 'N/A',
+                    age: calculateAge(profile?.dob) || 'N/A',
+                    height: profile?.data?.height || 'N/A',
+                    education: profile?.education || 'N/A',
+                    profession: profile?.occupation || 'N/A',
+                    location: profile?.location || 'N/A',
+                    community: profile?.religion || 'N/A',
+                    bio: profile?.about || 'N/A',
                     image: profile?.profileImage || defaultImg,
                     interests: profile?.interests?.length ? profile?.interests : 'N/A',
                     liked: false,
@@ -267,43 +267,34 @@ const PartnerMatchesPage = () => {
         setProfileDialogOpen(true);
     };
 
+    if (loading) {
+        return (
+            <Box sx={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center", }}>
+                <CircularProgress size={60} thickness={4} color="secondary" />
+            </Box>
+        );
+    }
+
     return (
-        <Box
-            sx={{
-                py: 4,
-                minHeight: "100vh",
-            }}
-        >
+        <Box sx={{ py: 4, minHeight: "100vh", }}>
             <Container maxWidth="xl">
-                {/* Header Section */}
-                <motion.div initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0}} transition={{duration: 0.5}}>
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <Box textAlign="center" mb={4}>
-                        <Typography
-                            variant="h2"
-                            component="h1"
-                            gutterBottom
-                            sx={{
-                                color: "#C8A2C8",
-                                fontStyle: "italic",
-                                fontWeight: 800,
-                                mb: 2,
-                            }}
-                        >
+                        <Typography variant="h2" component="h1" gutterBottom sx={{ color: "#C8A2C8", fontStyle: "italic", fontWeight: 800, mb: 2, }}>
                             Find Your Perfect Match
                         </Typography>
-                        <Typography variant="h6" sx={{color: "black", maxWidth: "600px", margin: "0 auto"}}>
+                        <Typography variant="h6" sx={{ color: "black", maxWidth: "600px", margin: "0 auto" }}>
                             Discover profiles that match your preferences and start your journey to forever happiness
                         </Typography>
                     </Box>
                 </motion.div>
 
-                {/* Search and Filter Bar */}
                 <motion.div
-                    initial={{opacity: 0, y: 20}}
-                    animate={{opacity: 1, y: 0}}
-                    transition={{duration: 0.5, delay: 0.2}}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                    <Paper elevation={3} sx={{p: 3, mb: 4, borderRadius: 3}}>
+                    <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 3 }}>
                         <Grid container spacing={2} alignItems="center">
                             <Grid item xs={12} md={8}>
                                 <TextField
@@ -312,7 +303,7 @@ const PartnerMatchesPage = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     InputProps={{
-                                        startAdornment: <SearchIcon sx={{mr: 1, color: "#d81b60"}} />,
+                                        startAdornment: <SearchIcon sx={{ mr: 1, color: "#d81b60" }} />,
                                     }}
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
@@ -324,7 +315,7 @@ const PartnerMatchesPage = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={12} md={4} sx={{display: "flex", gap: 2}}>
+                            <Grid item xs={12} md={4} sx={{ display: "flex", gap: 2 }}>
                                 <Button
                                     variant="outlined"
                                     startIcon={<FilterIcon />}
@@ -363,9 +354,9 @@ const PartnerMatchesPage = () => {
                 </motion.div>
 
                 {/* Results Count */}
-                <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.5, delay: 0.4}}>
-                    <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3}}>
-                        <Typography variant="h6" sx={{color: "white"}}>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                        <Typography variant="h6" sx={{ color: "white" }}>
                             {filteredProfiles.length} matches found
                         </Typography>
                         <Button
@@ -390,24 +381,10 @@ const PartnerMatchesPage = () => {
                                 <Grid item xs={12} sm={6} md={4} key={profile.id}>
                                     <motion.div variants={itemVariants} layout>
                                         <motion.div variants={cardVariants} whileHover="hover">
-                                            <Card
-                                                sx={{
-                                                    borderRadius: 3,
-                                                    overflow: "hidden",
-                                                    position: "relative",
-                                                    cursor: "pointer",
-                                                    width: "350px",
-                                                }}
-                                            >
+                                            <Card sx={{ borderRadius: 3, overflow: "hidden", position: "relative", cursor: "pointer", width: "350px", }}>
                                                 {/* Profile Image */}
-                                                <Box sx={{position: "relative"}}>
-                                                    <CardMedia
-                                                        component="img"
-                                                        height="250"
-                                                        image={profile.image}
-                                                        alt={profile.name}
-                                                        onClick={() => openProfileDialog(profile)}
-                                                    />
+                                                <Box sx={{ position: "relative" }}>
+                                                    <CardMedia component="img" height="250" image={profile.image} alt={profile.name} onClick={() => openProfileDialog(profile)} />
 
                                                     {/* Compatibility Badge */}
                                                     <Chip
@@ -437,47 +414,37 @@ const PartnerMatchesPage = () => {
                                                         onClick={() => handleLike(profile.id)}
                                                     >
                                                         {profile.liked ? (
-                                                            <FavoriteIcon sx={{color: "#d81b60"}} />
+                                                            <FavoriteIcon sx={{ color: "#d81b60" }} />
                                                         ) : (
-                                                            <FavoriteBorderIcon sx={{color: "#d81b60"}} />
+                                                            <FavoriteBorderIcon sx={{ color: "#d81b60" }} />
                                                         )}
                                                     </IconButton>
                                                 </Box>
 
                                                 <CardContent>
-                                                    <Box
-                                                        sx={{
-                                                            display: "flex",
-                                                            justifyContent: "space-between",
-                                                            alignItems: "flex-start",
-                                                            mb: 2,
-                                                        }}
-                                                    >
-                                                        <Typography
-                                                            variant="h6"
-                                                            sx={{color: "#37474f", fontWeight: 600}}
-                                                        >
+                                                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2, }}>
+                                                        <Typography variant="h6" sx={{ color: "#37474f", fontWeight: 600 }}>
                                                             {profile.name}, {profile.age}
                                                         </Typography>
                                                     </Box>
 
-                                                    <Box sx={{display: "flex", alignItems: "center", mb: 1}}>
-                                                        <WorkIcon sx={{fontSize: 20, color: "#d81b60", mr: 1}} />
-                                                        <Typography variant="body2" sx={{color: "#78909c"}}>
+                                                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                                                        <WorkIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                        <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                             {profile.profession}
                                                         </Typography>
                                                     </Box>
 
-                                                    <Box sx={{display: "flex", alignItems: "center", mb: 1}}>
-                                                        <SchoolIcon sx={{fontSize: 20, color: "#d81b60", mr: 1}} />
-                                                        <Typography variant="body2" sx={{color: "#78909c"}}>
+                                                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                                                        <SchoolIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                        <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                             {profile.education}
                                                         </Typography>
                                                     </Box>
 
-                                                    <Box sx={{display: "flex", alignItems: "center", mb: 2}}>
-                                                        <LocationIcon sx={{fontSize: 20, color: "#d81b60", mr: 1}} />
-                                                        <Typography variant="body2" sx={{color: "#78909c"}}>
+                                                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                                                        <LocationIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                        <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                             {profile.location}
                                                         </Typography>
                                                     </Box>
@@ -496,7 +463,7 @@ const PartnerMatchesPage = () => {
                                                         {profile.bio}
                                                     </Typography>
 
-                                                    <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5, mb: 2}}>
+                                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 2 }}>
                                                         {profile.interests.slice(0, 3).map((interest, index) => (
                                                             <Chip
                                                                 key={index}
@@ -520,7 +487,7 @@ const PartnerMatchesPage = () => {
                                                         )}
                                                     </Box>
 
-                                                    <Box sx={{display: "flex", gap: 1}}>
+                                                    <Box sx={{ display: "flex", gap: 1 }}>
                                                         <Button
                                                             variant="outlined"
                                                             startIcon={<VisibilityIcon />}
@@ -574,13 +541,13 @@ const PartnerMatchesPage = () => {
                 </motion.div>
 
                 {/* No Results Message */}
-                {filteredProfiles.length === 0 && (
-                    <motion.div initial={{opacity: 0}} animate={{opacity: 1}} transition={{duration: 0.5}}>
-                        <Paper elevation={3} sx={{p: 4, textAlign: "center", borderRadius: 3}}>
-                            <Typography variant="h5" sx={{color: "#d81b60", mb: 2}}>
+                {filteredProfiles?.length === 0 && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+                        <Paper elevation={3} sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
+                            <Typography variant="h5" sx={{ color: "#d81b60", mb: 2 }}>
                                 No matches found
                             </Typography>
-                            <Typography variant="body1" sx={{color: "#78909c", mb: 3}}>
+                            <Typography variant="body1" sx={{ color: "#78909c", mb: 3 }}>
                                 Try adjusting your filters or search terms to see more profiles.
                             </Typography>
                             <Button
@@ -603,13 +570,13 @@ const PartnerMatchesPage = () => {
 
                 {/* Filter Dialog */}
                 <Dialog open={filterDialogOpen} onClose={() => setFilterDialogOpen(false)} maxWidth="sm" fullWidth>
-                    <DialogTitle sx={{color: "#d81b60", fontWeight: 600}}>
-                        <FilterIcon sx={{mr: 1, verticalAlign: "middle"}} />
+                    <DialogTitle sx={{ color: "#d81b60", fontWeight: 600 }}>
+                        <FilterIcon sx={{ mr: 1, verticalAlign: "middle" }} />
                         Filter Profiles
                     </DialogTitle>
                     <DialogContent>
-                        <Box sx={{pt: 2}}>
-                            <Typography gutterBottom sx={{color: "#37474f", fontWeight: 600, mt: 2}}>
+                        <Box sx={{ pt: 2 }}>
+                            <Typography gutterBottom sx={{ color: "#37474f", fontWeight: 600, mt: 2 }}>
                                 Age Range: {filters.ageRange[0]} - {filters.ageRange[1]}
                             </Typography>
                             <Slider
@@ -618,10 +585,10 @@ const PartnerMatchesPage = () => {
                                 valueLabelDisplay="auto"
                                 min={18}
                                 max={45}
-                                sx={{color: "#d81b60", mb: 3}}
+                                sx={{ color: "#d81b60", mb: 3 }}
                             />
 
-                            <Typography gutterBottom sx={{color: "#37474f", fontWeight: 600}}>
+                            <Typography gutterBottom sx={{ color: "#37474f", fontWeight: 600 }}>
                                 Height Range: {filters.heightRange[0]}cm - {filters.heightRange[1]}cm
                             </Typography>
                             <Slider
@@ -630,10 +597,10 @@ const PartnerMatchesPage = () => {
                                 valueLabelDisplay="auto"
                                 min={140}
                                 max={200}
-                                sx={{color: "#d81b60", mb: 3}}
+                                sx={{ color: "#d81b60", mb: 3 }}
                             />
 
-                            <FormControl fullWidth sx={{mb: 3}}>
+                            <FormControl fullWidth sx={{ mb: 3 }}>
                                 <InputLabel>Education</InputLabel>
                                 <Select
                                     value={filters.education}
@@ -649,7 +616,7 @@ const PartnerMatchesPage = () => {
                                 </Select>
                             </FormControl>
 
-                            <FormControl fullWidth sx={{mb: 3}}>
+                            <FormControl fullWidth sx={{ mb: 3 }}>
                                 <InputLabel>Profession</InputLabel>
                                 <Select
                                     value={filters.profession}
@@ -682,7 +649,7 @@ const PartnerMatchesPage = () => {
                         </Box>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setFilterDialogOpen(false)} sx={{color: "#78909c"}}>
+                        <Button onClick={() => setFilterDialogOpen(false)} sx={{ color: "#78909c" }}>
                             Cancel
                         </Button>
                         <Button
@@ -704,7 +671,7 @@ const PartnerMatchesPage = () => {
                 <Dialog open={profileDialogOpen} onClose={() => setProfileDialogOpen(false)} maxWidth="md" fullWidth>
                     {selectedProfile && (
                         <>
-                            <DialogTitle sx={{color: "#d81b60", fontWeight: 600}}>
+                            <DialogTitle sx={{ color: "#d81b60", fontWeight: 600 }}>
                                 {selectedProfile.name}'s Profile
                             </DialogTitle>
                             <DialogContent>
@@ -714,9 +681,9 @@ const PartnerMatchesPage = () => {
                                             component="img"
                                             image={selectedProfile.image}
                                             alt={selectedProfile.name}
-                                            sx={{borderRadius: 3}}
+                                            sx={{ borderRadius: 3 }}
                                         />
-                                        <Box sx={{display: "flex", justifyContent: "center", mt: 2}}>
+                                        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
                                             <Chip
                                                 label={`${selectedProfile.compatibility}% Match`}
                                                 sx={{
@@ -730,45 +697,45 @@ const PartnerMatchesPage = () => {
                                         </Box>
                                     </Grid>
                                     <Grid item xs={12} md={7}>
-                                        <Typography variant="h6" gutterBottom sx={{color: "#37474f", fontWeight: 600}}>
+                                        <Typography variant="h6" gutterBottom sx={{ color: "#37474f", fontWeight: 600 }}>
                                             {selectedProfile.name}, {selectedProfile.age}
                                         </Typography>
 
-                                        <Box sx={{display: "flex", alignItems: "center", mb: 1}}>
-                                            <WorkIcon sx={{fontSize: 20, color: "#d81b60", mr: 1}} />
-                                            <Typography variant="body2" sx={{color: "#78909c"}}>
+                                        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                                            <WorkIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.profession}
                                             </Typography>
                                         </Box>
 
-                                        <Box sx={{display: "flex", alignItems: "center", mb: 1}}>
-                                            <SchoolIcon sx={{fontSize: 20, color: "#d81b60", mr: 1}} />
-                                            <Typography variant="body2" sx={{color: "#78909c"}}>
+                                        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                                            <SchoolIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.education}
                                             </Typography>
                                         </Box>
 
-                                        <Box sx={{display: "flex", alignItems: "center", mb: 1}}>
-                                            <LocationIcon sx={{fontSize: 20, color: "#d81b60", mr: 1}} />
-                                            <Typography variant="body2" sx={{color: "#78909c"}}>
+                                        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                                            <LocationIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.location}
                                             </Typography>
                                         </Box>
 
-                                        <Box sx={{mb: 2}}>
-                                            <Typography variant="body2" sx={{color: "#78909c"}}>
+                                        <Box sx={{ mb: 2 }}>
+                                            <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 Community: {selectedProfile.community}
                                             </Typography>
                                         </Box>
 
-                                        <Typography variant="body1" sx={{color: "#555", mb: 2}}>
+                                        <Typography variant="body1" sx={{ color: "#555", mb: 2 }}>
                                             {selectedProfile.bio}
                                         </Typography>
 
-                                        <Typography variant="subtitle2" sx={{color: "#37474f", fontWeight: 600, mb: 1}}>
+                                        <Typography variant="subtitle2" sx={{ color: "#37474f", fontWeight: 600, mb: 1 }}>
                                             Interests:
                                         </Typography>
-                                        <Box sx={{display: "flex", flexWrap: "wrap", gap: 0.5, mb: 3}}>
+                                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 3 }}>
                                             {selectedProfile.interests.map((interest, index) => (
                                                 <Chip
                                                     key={index}
@@ -785,7 +752,7 @@ const PartnerMatchesPage = () => {
                                 </Grid>
                             </DialogContent>
                             <DialogActions>
-                                <Button onClick={() => setProfileDialogOpen(false)} sx={{color: "#78909c"}}>
+                                <Button onClick={() => setProfileDialogOpen(false)} sx={{ color: "#78909c" }}>
                                     Close
                                 </Button>
                                 <Button

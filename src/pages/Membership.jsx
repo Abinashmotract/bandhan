@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Container,
@@ -28,65 +28,71 @@ import {
     Visibility as VisibilityIcon,
     PersonSearch as SearchIcon
 } from '@mui/icons-material';
+import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
+import Cookies from "js-cookie";
 
 const Membership = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [yearlyBilling, setYearlyBilling] = useState(true);
+    const [plans, setPlans] = useState([]);
 
-    const plans = [
-        {
-            name: 'Basic',
-            price: yearlyBilling ? '₹999/year' : '₹99/month',
-            description: 'For those starting their journey to find a life partner',
-            popular: false,
-            features: [
-                'Create a detailed profile',
-                'Browse limited profiles',
-                'Send 5 interests per month',
-                'Basic match suggestions',
-                'Standard customer support'
-            ],
-            buttonText: 'Get Started',
-            color: '#9c27b0'
-        },
-        {
-            name: 'Premium',
-            price: yearlyBilling ? '₹2,999/year' : '₹299/month',
-            description: 'Our most popular plan for serious seekers',
-            popular: true,
-            features: [
-                'All Basic features',
-                'Unlimited profile browsing',
-                'Unlimited interests',
-                'Priority listing in search',
-                'Advanced matchmaking algorithm',
-                'See who viewed your profile',
-                'Priority customer support',
-                'Verified profile badge'
-            ],
-            buttonText: 'Choose Premium',
-            color: '#d81b60'
-        },
-        {
-            name: 'Elite',
-            price: yearlyBilling ? '₹4,999/year' : '₹499/month',
-            description: 'For those seeking exclusive matchmaking services',
-            popular: false,
-            features: [
-                'All Premium features',
-                'Personalized matchmaking assistant',
-                'Profile highlighting',
-                'Direct contact details access',
-                'Background verification included',
-                'Compatibility analysis report',
-                'Dedicated relationship manager',
-                'Exclusive events access'
-            ],
-            buttonText: 'Go Elite',
-            color: '#ff6f00'
-        }
-    ];
+    const accessToken = Cookies.get("accessToken");
+
+    // const plans = [
+    //     {
+    //         name: 'Basic',
+    //         price: yearlyBilling ? '₹999/year' : '₹99/month',
+    //         description: 'For those starting their journey to find a life partner',
+    //         popular: false,
+    //         features: [
+    //             'Create a detailed profile',
+    //             'Browse limited profiles',
+    //             'Send 5 interests per month',
+    //             'Basic match suggestions',
+    //             'Standard customer support'
+    //         ],
+    //         buttonText: 'Get Started',
+    //         color: '#9c27b0'
+    //     },
+    //     {
+    //         name: 'Premium',
+    //         price: yearlyBilling ? '₹2,999/year' : '₹299/month',
+    //         description: 'Our most popular plan for serious seekers',
+    //         popular: true,
+    //         features: [
+    //             'All Basic features',
+    //             'Unlimited profile browsing',
+    //             'Unlimited interests',
+    //             'Priority listing in search',
+    //             'Advanced matchmaking algorithm',
+    //             'See who viewed your profile',
+    //             'Priority customer support',
+    //             'Verified profile badge'
+    //         ],
+    //         buttonText: 'Choose Premium',
+    //         color: '#d81b60'
+    //     },
+    //     {
+    //         name: 'Elite',
+    //         price: yearlyBilling ? '₹4,999/year' : '₹499/month',
+    //         description: 'For those seeking exclusive matchmaking services',
+    //         popular: false,
+    //         features: [
+    //             'All Premium features',
+    //             'Personalized matchmaking assistant',
+    //             'Profile highlighting',
+    //             'Direct contact details access',
+    //             'Background verification included',
+    //             'Compatibility analysis report',
+    //             'Dedicated relationship manager',
+    //             'Exclusive events access'
+    //         ],
+    //         buttonText: 'Go Elite',
+    //         color: '#ff6f00'
+    //     }
+    // ];
 
     const features = [
         {
@@ -121,6 +127,53 @@ const Membership = () => {
         }
     ];
 
+    const fetchMembershipPlan = async () => {
+        try {
+            const response = await axios.get(
+                `${API_BASE_URL}/user/membership/getPlans?duration=${yearlyBilling ? "yearly" : "monthly"}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+
+            const apiPlans = response?.data?.data || [];
+
+            // Map API response -> UI-ready plans
+            const colorMap = {
+                Basic: "#9c27b0",
+                Premium: "#d81b60",
+                Elite: "#ff6f00",
+            };
+
+            const buttonTextMap = {
+                Basic: "Get Started",
+                Premium: "Choose Premium",
+                Elite: "Go Elite",
+            };
+
+            const normalizedPlans = apiPlans.map(plan => ({
+                ...plan,
+                price: `₹${plan.price}/${plan.duration}`, // match your UI price format
+                popular: plan.isPopular,                  // match with your UI `popular`
+                color: colorMap[plan.name] || "#37474f",  // fallback color
+                buttonText: buttonTextMap[plan.name] || "Subscribe",
+            }));
+
+            setPlans(normalizedPlans);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
+    useEffect(() => {
+        fetchMembershipPlan();
+    }, [yearlyBilling]);
+
+
     return (
         <Box sx={{ py: 8 }}>
             <Container maxWidth="xl">
@@ -134,10 +187,6 @@ const Membership = () => {
                             color: '#C8A2C8',
                             fontStyle: 'italic',
                             fontWeight: 800,
-                            // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                            // backgroundClip: 'text',
-                            // WebkitBackgroundClip: 'text',
-                            // WebkitTextFillColor: 'transparent',
                             mb: 2
                         }}
                     >
@@ -294,8 +343,8 @@ const Membership = () => {
                         Our membership plans include powerful features to help you find your perfect match
                     </Typography>
 
-                    <Grid container spacing={4}>
-                        {features.map((feature, index) => (
+                    <Grid container spacing={4} justifyContent="center">
+                        {features?.map((feature, index) => (
                             <Grid item xs={12} sm={6} md={3} key={index}>
                                 <Card
                                     sx={{
