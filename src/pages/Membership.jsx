@@ -16,7 +16,8 @@ import {
     Switch,
     FormControlLabel,
     useTheme,
-    useMediaQuery
+    useMediaQuery,
+    CircularProgress
 } from '@mui/material';
 import {
     CheckCircle as CheckIcon,
@@ -31,68 +32,16 @@ import {
 import axios from 'axios';
 import { API_BASE_URL } from '../utils/api';
 import Cookies from "js-cookie";
+import { useNavigate } from 'react-router-dom';
 
 const Membership = () => {
+    const [loading, setLoading] = useState(true);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [yearlyBilling, setYearlyBilling] = useState(true);
     const [plans, setPlans] = useState([]);
-
     const accessToken = Cookies.get("accessToken");
-
-    // const plans = [
-    //     {
-    //         name: 'Basic',
-    //         price: yearlyBilling ? '₹999/year' : '₹99/month',
-    //         description: 'For those starting their journey to find a life partner',
-    //         popular: false,
-    //         features: [
-    //             'Create a detailed profile',
-    //             'Browse limited profiles',
-    //             'Send 5 interests per month',
-    //             'Basic match suggestions',
-    //             'Standard customer support'
-    //         ],
-    //         buttonText: 'Get Started',
-    //         color: '#9c27b0'
-    //     },
-    //     {
-    //         name: 'Premium',
-    //         price: yearlyBilling ? '₹2,999/year' : '₹299/month',
-    //         description: 'Our most popular plan for serious seekers',
-    //         popular: true,
-    //         features: [
-    //             'All Basic features',
-    //             'Unlimited profile browsing',
-    //             'Unlimited interests',
-    //             'Priority listing in search',
-    //             'Advanced matchmaking algorithm',
-    //             'See who viewed your profile',
-    //             'Priority customer support',
-    //             'Verified profile badge'
-    //         ],
-    //         buttonText: 'Choose Premium',
-    //         color: '#d81b60'
-    //     },
-    //     {
-    //         name: 'Elite',
-    //         price: yearlyBilling ? '₹4,999/year' : '₹499/month',
-    //         description: 'For those seeking exclusive matchmaking services',
-    //         popular: false,
-    //         features: [
-    //             'All Premium features',
-    //             'Personalized matchmaking assistant',
-    //             'Profile highlighting',
-    //             'Direct contact details access',
-    //             'Background verification included',
-    //             'Compatibility analysis report',
-    //             'Dedicated relationship manager',
-    //             'Exclusive events access'
-    //         ],
-    //         buttonText: 'Go Elite',
-    //         color: '#ff6f00'
-    //     }
-    // ];
+    const navigate = useNavigate();
 
     const features = [
         {
@@ -128,6 +77,7 @@ const Membership = () => {
     ];
 
     const fetchMembershipPlan = async () => {
+        setLoading(true);
         try {
             const response = await axios.get(
                 `${API_BASE_URL}/user/membership/getPlans?duration=${yearlyBilling ? "yearly" : "monthly"}`,
@@ -138,349 +88,310 @@ const Membership = () => {
                     },
                 }
             );
-
             const apiPlans = response?.data?.data || [];
-
-            // Map API response -> UI-ready plans
-            const colorMap = {
-                Basic: "#9c27b0",
-                Premium: "#d81b60",
-                Elite: "#ff6f00",
-            };
-
-            const buttonTextMap = {
-                Basic: "Get Started",
-                Premium: "Choose Premium",
-                Elite: "Go Elite",
-            };
-
+            const colorMap = { Basic: "#9c27b0", Premium: "#d81b60", Elite: "#ff6f00", };
+            const buttonTextMap = { Basic: "Get Started", Premium: "Choose Premium", Elite: "Go Elite", };
             const normalizedPlans = apiPlans.map(plan => ({
                 ...plan,
-                price: `₹${plan.price}/${plan.duration}`, // match your UI price format
-                popular: plan.isPopular,                  // match with your UI `popular`
-                color: colorMap[plan.name] || "#37474f",  // fallback color
-                buttonText: buttonTextMap[plan.name] || "Subscribe",
+                price: `₹${plan?.price}/${plan?.duration}`,
+                popular: plan?.isPopular,
+                color: colorMap[plan?.name] || "#37474f",
+                buttonText: buttonTextMap[plan?.name] || "Subscribe",
             }));
-
             setPlans(normalizedPlans);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
-
 
     useEffect(() => {
         fetchMembershipPlan();
     }, [yearlyBilling]);
 
+    const handleChoosePlan = (planId) => {
+        console.log(planId, 'planId')
+        navigate('/payment-success');
+    }
+
 
     return (
         <Box sx={{ py: 8 }}>
-            <Container maxWidth="xl">
-                {/* Header Section */}
-                <Box textAlign="center" mb={6}>
-                    <Typography
-                        variant="h2"
-                        component="h1"
-                        gutterBottom
-                        sx={{
-                            color: '#C8A2C8',
-                            fontStyle: 'italic',
-                            fontWeight: 800,
-                            mb: 2
-                        }}
-                    >
-                        Find Your Perfect Match
-                    </Typography>
-                    <Typography variant="h6" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto', mb: 3 }}>
-                        Choose the membership plan that works best for your journey to finding a life partner
-                    </Typography>
-
-                    {/* Billing Toggle */}
-                    <Paper elevation={2} sx={{ display: 'inline-flex', alignItems: 'center', p: 1, borderRadius: 4 }}>
-                        <Typography sx={{ color: yearlyBilling ? '#888' : '#d81b60', fontWeight: yearlyBilling ? 400 : 600 }}>
-                            Monthly
-                        </Typography>
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={yearlyBilling}
-                                    onChange={() => setYearlyBilling(!yearlyBilling)}
-                                    sx={{
-                                        m: 1,
-                                        '& .MuiSwitch-switchBase.Mui-checked': {
-                                            color: '#d81b60',
-                                        },
-                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                            backgroundColor: '#ff80ab',
-                                        },
-                                    }}
-                                />
-                            }
-                            label=""
-                        />
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography sx={{ color: yearlyBilling ? '#d81b60' : '#888', fontWeight: yearlyBilling ? 600 : 400 }}>
-                                Yearly
-                            </Typography>
-                            <Box
-                                sx={{
-                                    ml: 1,
-                                    background: '#4caf50',
-                                    color: 'white',
-                                    fontSize: '12px',
-                                    px: 1,
-                                    py: 0.5,
-                                    borderRadius: 2
-                                }}
-                            >
-                                Save 20%
-                            </Box>
-                        </Box>
-                    </Paper>
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <CircularProgress />
                 </Box>
+            ) : (
+                <Container maxWidth="xl">
+                    <Box textAlign="center" mb={6}>
+                        <Typography variant="h2" component="h1" gutterBottom sx={{ color: '#C8A2C8', fontStyle: 'italic', fontWeight: 800, mb: 2 }}>
+                            Find Your Perfect Match
+                        </Typography>
+                        <Typography variant="h6" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto', mb: 3 }}>
+                            Choose the membership plan that works best for your journey to finding a life partner
+                        </Typography>
 
-                {/* Pricing Plans */}
-                <Grid container spacing={3} justifyContent="center" sx={{ mb: 10 }}>
-                    {plans?.map((plan, index) => (
-                        <Grid item xs={12} md={4} key={index}>
-                            <Card
-                                elevation={plan.popular ? 8 : 3}
-                                sx={{
-                                    height: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    position: 'relative',
-                                    overflow: 'visible',
-                                    border: plan.popular ? `2px solid ${plan.color}` : '2px solid transparent',
-                                    transition: 'transform 0.3s, box-shadow 0.3s',
-                                    '&:hover': {
-                                        transform: 'translateY(-8px)',
-                                        boxShadow: 6
-                                    }
-                                }}
-                            >
-                                {plan.popular && (
-                                    <Box
+                        {/* Billing Toggle */}
+                        <Paper elevation={2} sx={{ display: 'inline-flex', alignItems: 'center', p: 1, borderRadius: 4 }}>
+                            <Typography sx={{ color: yearlyBilling ? '#888' : '#d81b60', fontWeight: yearlyBilling ? 400 : 600 }}>
+                                Monthly
+                            </Typography>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={yearlyBilling}
+                                        onChange={() => setYearlyBilling(!yearlyBilling)}
                                         sx={{
-                                            position: 'absolute',
-                                            top: -15,
-                                            left: '50%',
-                                            transform: 'translateX(-50%)',
-                                            background: plan.color,
-                                            color: 'white',
-                                            px: 3,
-                                            py: 0.5,
-                                            borderRadius: 2,
-                                            fontSize: '14px',
-                                            fontWeight: 'bold'
+                                            m: 1,
+                                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                                color: '#d81b60',
+                                            },
+                                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                backgroundColor: '#ff80ab',
+                                            },
                                         }}
-                                    >
-                                        MOST POPULAR
-                                    </Box>
-                                )}
+                                    />
+                                }
+                                label=""
+                            />
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Typography sx={{ color: yearlyBilling ? '#d81b60' : '#888', fontWeight: yearlyBilling ? 600 : 400 }}>
+                                    Yearly
+                                </Typography>
+                                <Box sx={{ ml: 1, background: '#4caf50', color: 'white', fontSize: '12px', px: 1, py: 0.5, borderRadius: 2 }}>
+                                    Save 20%
+                                </Box>
+                            </Box>
+                        </Paper>
+                    </Box>
 
-                                <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                                    <Typography variant="h5" component="h2" gutterBottom sx={{ color: plan.color, fontWeight: 700 }}>
-                                        {plan.name}
-                                    </Typography>
-                                    <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 2 }}>
-                                        <Typography variant="h4" component="div" sx={{ fontWeight: 800, color: '#37474f' }}>
-                                            {plan.price.split('/')[0]}
-                                        </Typography>
-                                        <Typography variant="h6" component="div" sx={{ color: 'text.secondary', ml: 1 }}>
-                                            /{plan.price.split('/')[1]}
-                                        </Typography>
-                                    </Box>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                        {plan.description}
-                                    </Typography>
-
-                                    <List dense sx={{ mb: 2, flexGrow: 1 }}>
-                                        {plan.features.map((feature, idx) => (
-                                            <ListItem key={idx} sx={{ px: 0 }}>
-                                                <ListItemIcon sx={{ minWidth: 36 }}>
-                                                    <CheckIcon sx={{ color: plan.color }} />
-                                                </ListItemIcon>
-                                                <ListItemText primary={feature} />
-                                            </ListItem>
-                                        ))}
-                                    </List>
-
-                                    <Button
-                                        variant="contained"
-                                        fullWidth
-                                        size="large"
-                                        sx={{
-                                            mt: 'auto',
-                                            py: 1.5,
-                                            borderRadius: 2,
-                                            background: `linear-gradient(135deg, ${plan.color} 0%, ${plan.color}80 100%)`,
-                                            fontWeight: 'bold',
-                                            fontSize: '1.1rem',
-                                            '&:hover': {
-                                                background: `linear-gradient(135deg, ${plan.color} 0%, ${plan.color}60 100%)`,
-                                            }
-                                        }}
-                                    >
-                                        {plan.buttonText}
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-
-                {/* Features Section */}
-                <Box sx={{ mb: 10 }}>
-                    <Typography variant="h3" align="center" gutterBottom sx={{
-                        color: '#C8A2C8',
-                        fontStyle: 'italic', mb: 1, fontWeight: 700
-                    }}>
-                        Premium Features
-                    </Typography>
-                    <Typography variant="h6" align="center" sx={{ color: 'black', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
-                        Our membership plans include powerful features to help you find your perfect match
-                    </Typography>
-
-                    <Grid container spacing={4} justifyContent="center">
-                        {features?.map((feature, index) => (
-                            <Grid item xs={12} sm={6} md={3} key={index}>
+                    {/* Pricing Plans */}
+                    <Grid container spacing={3} justifyContent="center" sx={{ mb: 10 }}>
+                        {plans?.map((plan, index) => (
+                            <Grid item xs={12} md={4} key={index}>
                                 <Card
+                                    elevation={plan?.popular ? 8 : 3}
                                     sx={{
-                                        p: 3,
-                                        width: '280px',
+                                        height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        alignItems: 'center',
-                                        textAlign: 'center',
-                                        borderRadius: 3,
-                                        background: 'linear-gradient(145deg, #ffffff 0%, #fafafa 100%)',
-                                        boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                                        transition: 'all 0.3s ease',
-                                        border: '1px solid rgba(216, 27, 96, 0.1)',
+                                        position: 'relative',
+                                        overflow: 'visible',
+                                        border: plan?.popular ? `2px solid ${plan?.color}` : '2px solid transparent',
+                                        transition: 'transform 0.3s, box-shadow 0.3s',
                                         '&:hover': {
-                                            transform: 'translateY(-5px)',
-                                            boxShadow: '0 15px 35px rgba(216, 27, 96, 0.15)'
+                                            transform: 'translateY(-8px)',
+                                            boxShadow: 6
                                         }
                                     }}
                                 >
-                                    <Box sx={{
-                                        fontSize: 50,
-                                        mb: 4,
-                                        width: 80,
-                                        height: 80,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: '50%',
-                                        background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.1) 0%, rgba(136, 14, 79, 0.05) 100%)'
-                                    }}>
-                                        {feature.icon}
-                                    </Box>
-                                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#37474f', mb: 2 }}>
-                                        {feature.title}
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ color: '#78909c', lineHeight: 1.6 }}>
-                                        {feature.description}
-                                    </Typography>
+                                    {plan?.popular && (
+                                        <Box sx={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', background: plan?.color, color: 'white', px: 3, py: 0.5, borderRadius: 2, fontSize: '14px', fontWeight: 'bold' }}>
+                                            MOST POPULAR
+                                        </Box>
+                                    )}
+
+                                    <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                                        <Typography variant="h5" component="h2" gutterBottom sx={{ color: plan?.color, fontWeight: 700 }}>
+                                            {plan?.name}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 2 }}>
+                                            <Typography variant="h4" component="div" sx={{ fontWeight: 800, color: '#37474f' }}>
+                                                {plan?.price.split('/')[0]}
+                                            </Typography>
+                                            <Typography variant="h6" component="div" sx={{ color: 'text.secondary', ml: 1 }}>
+                                                /{plan?.price.split('/')[1]}
+                                            </Typography>
+                                        </Box>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                            {plan?.description}
+                                        </Typography>
+
+                                        <List dense sx={{ mb: 2, flexGrow: 1 }}>
+                                            {plan?.features.map((feature, idx) => (
+                                                <ListItem key={idx} sx={{ px: 0 }}>
+                                                    <ListItemIcon sx={{ minWidth: 36 }}>
+                                                        <CheckIcon sx={{ color: plan?.color }} />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary={feature} />
+                                                </ListItem>
+                                            ))}
+                                        </List>
+
+                                        <Button
+                                            variant="contained"
+                                            fullWidth
+                                            size="large"
+                                            sx={{
+                                                mt: 'auto',
+                                                py: 1.5,
+                                                borderRadius: 2,
+                                                background: `linear-gradient(135deg, ${plan?.color} 0%, ${plan?.color}80 100%)`,
+                                                fontWeight: 'bold',
+                                                fontSize: '1.1rem',
+                                                '&:hover': {
+                                                    background: `linear-gradient(135deg, ${plan?.color} 0%, ${plan?.color}60 100%)`,
+                                                }
+                                            }}
+                                            onClick={() => handleChoosePlan(plan?._id)}
+                                        >
+                                            {plan?.buttonText}
+                                        </Button>
+                                    </CardContent>
                                 </Card>
                             </Grid>
                         ))}
                     </Grid>
-                </Box>
 
-                {/* FAQ Section */}
-                <Box sx={{ background: 'white', borderRadius: 4, p: 5, boxShadow: 3 }}>
-                    <Typography variant="h3" align="center" gutterBottom sx={{
-                        color: '#C8A2C8',
-                        fontStyle: 'italic', mb: 1, fontWeight: 700
-                    }}>
-                        Frequently Asked Questions
-                    </Typography>
-                    <Typography variant="h6" align="center" sx={{ color: '#555', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
-                        Everything you need to know about our membership plans
-                    </Typography>
+                    {/* Features Section */}
+                    <Box sx={{ mb: 10 }}>
+                        <Typography variant="h3" align="center" gutterBottom sx={{ color: '#C8A2C8', fontStyle: 'italic', mb: 1, fontWeight: 700 }}>
+                            Premium Features
+                        </Typography>
+                        <Typography variant="h6" align="center" sx={{ color: 'black', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
+                            Our membership plans include powerful features to help you find your perfect match
+                        </Typography>
 
-                    <Grid container spacing={4}>
-                        <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
-                                Can I change my plan later?
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
-                                Yes, you can upgrade or downgrade your plan at any time. When upgrading, the new rate will be applied immediately. When downgrading, the change will take effect at the end of your current billing cycle.
-                            </Typography>
-
-                            <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
-                                Is my payment information secure?
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
-                                Absolutely. We use industry-standard encryption to protect your payment information. We don't store your credit card details on our servers.
-                            </Typography>
-
-                            <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
-                                How do I cancel my subscription?
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#78909c' }}>
-                                You can cancel your subscription at any time from your account settings. After cancellation, you'll still have access to premium features until the end of your billing period.
-                            </Typography>
+                        <Grid container spacing={4} justifyContent="center">
+                            {features?.map((feature, index) => (
+                                <Grid item xs={12} sm={6} md={3} key={index}>
+                                    <Card
+                                        sx={{
+                                            p: 3,
+                                            width: '280px',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            textAlign: 'center',
+                                            borderRadius: 3,
+                                            background: 'linear-gradient(145deg, #ffffff 0%, #fafafa 100%)',
+                                            boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
+                                            transition: 'all 0.3s ease',
+                                            border: '1px solid rgba(216, 27, 96, 0.1)',
+                                            '&:hover': {
+                                                transform: 'translateY(-5px)',
+                                                boxShadow: '0 15px 35px rgba(216, 27, 96, 0.15)'
+                                            }
+                                        }}
+                                    >
+                                        <Box sx={{
+                                            fontSize: 50,
+                                            mb: 4,
+                                            width: 80,
+                                            height: 80,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            borderRadius: '50%',
+                                            background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.1) 0%, rgba(136, 14, 79, 0.05) 100%)'
+                                        }}>
+                                            {feature.icon}
+                                        </Box>
+                                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#37474f', mb: 2 }}>
+                                            {feature.title}
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#78909c', lineHeight: 1.6 }}>
+                                            {feature.description}
+                                        </Typography>
+                                    </Card>
+                                </Grid>
+                            ))}
                         </Grid>
+                    </Box>
 
-                        <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
-                                What payment methods do you accept?
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
-                                We accept all major credit cards, debit cards, UPI payments, and net banking. All payments are processed through secure payment gateways.
-                            </Typography>
+                    {/* FAQ Section */}
+                    <Box sx={{ background: 'white', borderRadius: 4, p: 5, boxShadow: 3 }}>
+                        <Typography variant="h3" align="center" gutterBottom sx={{
+                            color: '#C8A2C8',
+                            fontStyle: 'italic', mb: 1, fontWeight: 700
+                        }}>
+                            Frequently Asked Questions
+                        </Typography>
+                        <Typography variant="h6" align="center" sx={{ color: '#555', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
+                            Everything you need to know about our membership plans
+                        </Typography>
 
-                            <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
-                                Do you offer refunds?
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
-                                We offer a 7-day money-back guarantee for all annual plans. If you're not satisfied with our service, you can request a full refund within 7 days of purchase.
-                            </Typography>
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} md={6}>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                    Can I change my plan later?
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
+                                    Yes, you can upgrade or downgrade your plan at any time. When upgrading, the new rate will be applied immediately. When downgrading, the change will take effect at the end of your current billing cycle.
+                                </Typography>
 
-                            <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
-                                Are there any hidden fees?
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: '#78909c' }}>
-                                No, there are no hidden fees. The price you see is what you pay. All taxes are included in the displayed price.
-                            </Typography>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                    Is my payment information secure?
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
+                                    Absolutely. We use industry-standard encryption to protect your payment information. We don't store your credit card details on our servers.
+                                </Typography>
+
+                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                    How do I cancel my subscription?
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#78909c' }}>
+                                    You can cancel your subscription at any time from your account settings. After cancellation, you'll still have access to premium features until the end of your billing period.
+                                </Typography>
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                    What payment methods do you accept?
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
+                                    We accept all major credit cards, debit cards, UPI payments, and net banking. All payments are processed through secure payment gateways.
+                                </Typography>
+
+                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                    Do you offer refunds?
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
+                                    We offer a 7-day money-back guarantee for all annual plans. If you're not satisfied with our service, you can request a full refund within 7 days of purchase.
+                                </Typography>
+
+                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                    Are there any hidden fees?
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#78909c' }}>
+                                    No, there are no hidden fees. The price you see is what you pay. All taxes are included in the displayed price.
+                                </Typography>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </Box>
+                    </Box>
 
-                {/* Final CTA */}
-                <Box textAlign="center" sx={{ mt: 8 }}>
-                    <Typography variant="h4" gutterBottom sx={{
-                        color: '#C8A2C8',
-                        fontStyle: 'italic', fontWeight: 700
-                    }}>
-                        Ready to Find Your Life Partner?
-                    </Typography>
-                    <Typography variant="h6" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto', mb: 4 }}>
-                        Join thousands of successful couples who found their perfect match through Bandhan Match
-                    </Typography>
-                    <Button
-                        variant="contained"
-                        size="large"
-                        sx={{
-                            px: 5,
-                            py: 1.5,
-                            borderRadius: 3,
-                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
-                            fontWeight: 'bold',
-                            fontSize: '1.1rem',
-                            '&:hover': {
-                                background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
-                            }
-                        }}
-                    >
-                        Get Started Today
-                    </Button>
-                </Box>
-            </Container>
+                    {/* Final CTA */}
+                    <Box textAlign="center" sx={{ mt: 8 }}>
+                        <Typography variant="h4" gutterBottom sx={{
+                            color: '#C8A2C8',
+                            fontStyle: 'italic', fontWeight: 700
+                        }}>
+                            Ready to Find Your Life Partner?
+                        </Typography>
+                        <Typography variant="h6" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto', mb: 4 }}>
+                            Join thousands of successful couples who found their perfect match through Bandhan Match
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            size="large"
+                            sx={{
+                                px: 5,
+                                py: 1.5,
+                                borderRadius: 3,
+                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                fontWeight: 'bold',
+                                fontSize: '1.1rem',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
+                                }
+                            }}
+                        >
+                            Get Started Today
+                        </Button>
+                    </Box>
+                </Container>
+            )}
         </Box>
     );
 };

@@ -21,37 +21,37 @@ import {
     ArrowForward,
 } from "@mui/icons-material";
 import "../styles/HomePage.css";
-import {Link} from "react-router-dom";
-import {motion, useAnimation} from "framer-motion";
-import {useInView} from "react-intersection-observer";
-import {useEffect} from "react";
+import { Link } from "react-router-dom";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
 import FeaturedProfiles from './FeaturedProfiles';
 
 // Animation variants
 const fadeInUp = {
-    hidden: {opacity: 0, y: 60},
-    visible: {opacity: 1, y: 0, transition: {duration: 0.6}},
+    hidden: { opacity: 0, y: 60 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
 const fadeInRight = {
-    hidden: {opacity: 0, x: 60},
-    visible: {opacity: 1, x: 0, transition: {duration: 0.6}},
+    hidden: { opacity: 0, x: 60 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
 };
 
 const fadeInLeft = {
-    hidden: {opacity: 0, x: -60},
-    visible: {opacity: 1, x: 0, transition: {duration: 0.6}},
+    hidden: { opacity: 0, x: -60 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
 };
 
 const scaleIn = {
-    hidden: {opacity: 0, scale: 0.8},
-    visible: {opacity: 1, scale: 1, transition: {duration: 0.5}},
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
 };
 
 // Custom hook to detect when element is in viewport
 const useInViewport = (threshold = 0.1) => {
     const controls = useAnimation();
-    const [ref, inView] = useInView({triggerOnce: true, threshold});
+    const [ref, inView] = useInView({ triggerOnce: true, threshold });
 
     useEffect(() => {
         if (inView) {
@@ -59,12 +59,12 @@ const useInViewport = (threshold = 0.1) => {
         }
     }, [controls, inView]);
 
-    return {ref, controls};
+    return { ref, controls };
 };
 
 // Animated component wrapper
-const AnimatedSection = ({children, variant = fadeInUp, threshold = 0.1}) => {
-    const {ref, controls} = useInViewport(threshold);
+const AnimatedSection = ({ children, variant = fadeInUp, threshold = 0.1 }) => {
+    const { ref, controls } = useInViewport(threshold);
 
     return (
         <motion.div ref={ref} initial="hidden" animate={controls} variants={variant}>
@@ -77,46 +77,51 @@ const HomePage = () => {
     const successStories = [
         {
             name: "Amit & Priya",
-            image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
-            story: "Met through bandhnammatch in 2021 and married in 2022",
+            image: "	https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/ajinkya_ashwini.jpg",
+            story: "Swipe, match, chat. Our connection on the matrimonial site was instant, deeper than just profiles. We found shared values, humor, and dreams. After a few months of intense conversations and a memorable first meeting, it was clear: this wasn't just a match, it was the match",
         },
         {
             name: "Rahul & Sneha",
-            image: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
+            image: "https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/rohit_sonam.jpg",
             story: "Found their perfect match within 3 months of joining",
         },
         {
             name: "Vikram & Anjali",
-            image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
+            image: "https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/piyas_anindita.jpg",
+            story: "Connected through our advanced matching system",
+        },
+        {
+            name: "Vikram & Anjali",
+            image: "https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/piyas_anindita.jpg",
             story: "Connected through our advanced matching system",
         },
     ];
 
     const features = [
         {
-            icon: <PeopleIcon sx={{fontSize: 40}} />,
+            icon: <PeopleIcon sx={{ fontSize: 40 }} />,
             title: "Smart Matching",
             description: "Advanced algorithm to find your perfect partner based on preferences",
         },
         {
-            icon: <SecurityIcon sx={{fontSize: 40}} />,
+            icon: <SecurityIcon sx={{ fontSize: 40 }} />,
             title: "Privacy Protection",
             description: "Your data is secure with our advanced privacy controls",
         },
         {
-            icon: <ChatIcon sx={{fontSize: 40}} />,
+            icon: <ChatIcon sx={{ fontSize: 40 }} />,
             title: "Secure Chat",
             description: "Get to know your matches with our safe messaging system",
         },
         {
-            icon: <FavoriteIcon sx={{fontSize: 40}} />,
+            icon: <FavoriteIcon sx={{ fontSize: 40 }} />,
             title: "Verified Profiles",
             description: "All profiles are verified to ensure authenticity",
         },
     ];
 
     return (
-        <Box sx={{padding: "0px"}}>
+        <Box sx={{ padding: "0px" }}>
             {/* Hero Section */}
             <Box
                 id="home"
@@ -181,7 +186,7 @@ const HomePage = () => {
                     />
                 ))}
 
-                <Container maxWidth="xl" sx={{position: "relative", zIndex: 2}}>
+                <Container maxWidth="xl" sx={{ position: "relative", zIndex: 2 }}>
                     <Grid container spacing={4} alignItems="center">
                         <Grid item xs={12} md={6}>
                             <AnimatedSection>
@@ -192,7 +197,7 @@ const HomePage = () => {
                                     sx={{
                                         color: "#C8A2C8",
                                         fontWeight: 800,
-                                        fontSize: {xs: "2.5rem", md: "3.5rem"},
+                                        fontSize: { xs: "2.5rem", md: "3.5rem" },
                                         fontStyle: "italic",
                                         mb: 2,
                                     }}
@@ -254,7 +259,7 @@ const HomePage = () => {
                                             },
                                         }}
                                         sx={{
-                                            "& fieldset": {border: "none"},
+                                            "& fieldset": { border: "none" },
                                         }}
                                     />
                                     <Button
@@ -283,7 +288,7 @@ const HomePage = () => {
 
                             {/* Enhanced Stats Section */}
                             <AnimatedSection>
-                                <Box sx={{mt: 4}}>
+                                <Box sx={{ mt: 4 }}>
                                     <Typography
                                         variant="body2"
                                         sx={{
@@ -425,7 +430,7 @@ const HomePage = () => {
                                             justifyContent: "center",
                                         }}
                                     >
-                                        <Box sx={{display: "flex", mr: 2}}>
+                                        <Box sx={{ display: "flex", mr: 2 }}>
                                             {[1, 2, 3, 4, 5].map((item) => (
                                                 <Box
                                                     key={item}
@@ -454,7 +459,7 @@ const HomePage = () => {
                                                 </Box>
                                             ))}
                                         </Box>
-                                        <Typography variant="body2" sx={{color: "#78909c"}}>
+                                        <Typography variant="body2" sx={{ color: "#78909c" }}>
                                             Join our community
                                         </Typography>
                                     </Box>
@@ -467,7 +472,7 @@ const HomePage = () => {
                             xs={12}
                             md={6}
                             sx={{
-                                display: {xs: "none", md: "block"},
+                                display: { xs: "none", md: "block" },
                             }}
                         >
                             <AnimatedSection variant={fadeInRight}>
@@ -526,10 +531,10 @@ const HomePage = () => {
                                         zIndex: 3,
                                     }}
                                 >
-                                    <Typography variant="h6" sx={{color: "#d81b60", fontWeight: "bold"}}>
+                                    <Typography variant="h6" sx={{ color: "#d81b60", fontWeight: "bold" }}>
                                         500K+
                                     </Typography>
-                                    <Typography variant="caption" sx={{color: "#78909c"}}>
+                                    <Typography variant="caption" sx={{ color: "#78909c" }}>
                                         Successful Matches
                                     </Typography>
                                 </Box>
@@ -548,10 +553,10 @@ const HomePage = () => {
                                         zIndex: 3,
                                     }}
                                 >
-                                    <Typography variant="h6" sx={{color: "#C8A2C8", fontWeight: "bold"}}>
+                                    <Typography variant="h6" sx={{ color: "#C8A2C8", fontWeight: "bold" }}>
                                         99%
                                     </Typography>
-                                    <Typography variant="caption" sx={{color: "#78909c"}}>
+                                    <Typography variant="caption" sx={{ color: "#78909c" }}>
                                         Satisfaction Rate
                                     </Typography>
                                 </Box>
@@ -581,24 +586,24 @@ const HomePage = () => {
                     },
                 }}
             >
-                <Container maxWidth="xl" sx={{position: "relative", zIndex: 1}}>
-                        <Box sx={{ position: "relative", pb: 4 }}>
-  <FeaturedProfiles />
+                <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1 }}>
+                    <Box sx={{ position: "relative", pb: 4 }}>
+                        <FeaturedProfiles />
 
-  {/* 👇 Marriage style border line */}
-  <Box
-    sx={{
-      mt: 6,
-      height: "4px",
-      width: "100%",
-      background: "linear-gradient(90deg, #d81b60, #C8A2C8, #ffd700)",
-      borderRadius: "50px",
-    }}
-  />
-</Box>
+                        {/* 👇 Marriage style border line */}
+                        <Box
+                            sx={{
+                                mt: 6,
+                                height: "4px",
+                                width: "100%",
+                                background: "linear-gradient(90deg, #d81b60, #C8A2C8, #ffd700)",
+                                borderRadius: "50px",
+                            }}
+                        />
+                    </Box>
 
                     <AnimatedSection>
-                        <Box sx={{textAlign: "center", mb: 6}}>
+                        <Box sx={{ textAlign: "center", mb: 6 }}>
                             <Typography
                                 variant="h3"
                                 component="h2"
@@ -704,7 +709,7 @@ const HomePage = () => {
                                             }}
                                         >
                                             {React.cloneElement(feature.icon, {
-                                                sx: {fontSize: 40, position: "relative", zIndex: 1},
+                                                sx: { fontSize: 40, position: "relative", zIndex: 1 },
                                             })}
                                         </Box>
                                         <Typography
@@ -722,7 +727,7 @@ const HomePage = () => {
                                         >
                                             {feature.title}
                                         </Typography>
-                                        <Typography variant="body2" sx={{color: "#78909c", lineHeight: 1.6}}>
+                                        <Typography variant="body2" sx={{ color: "#78909c", lineHeight: 1.6 }}>
                                             {feature.description}
                                         </Typography>
                                     </Card>
@@ -776,14 +781,14 @@ const HomePage = () => {
             </Box>
 
             {/* Success Stories */}
-            <Box id="stories" sx={{py: 8}}>
+            <Box id="stories" sx={{ py: 8 }}>
                 <Container maxWidth="xl">
                     <AnimatedSection>
                         <Typography
                             variant="h3"
                             component="h2"
                             align="center"
-                            sx={{color: "#C8A2C8", mb: 2, fontWeight: "bold", fontStyle: "italic"}}
+                            sx={{ color: "#C8A2C8", mb: 2, fontWeight: "bold", fontStyle: "italic" }}
                         >
                             Success Stories
                         </Typography>
@@ -793,15 +798,15 @@ const HomePage = () => {
                         <Typography
                             variant="body1"
                             align="center"
-                            sx={{color: "black", maxWidth: "600px", margin: "0 auto 50px", fontSize: "1.1rem"}}
+                            sx={{ color: "black", maxWidth: "600px", margin: "0 auto 50px", fontSize: "1.1rem" }}
                         >
                             Real couples who found their perfect match through our platform
                         </Typography>
                     </AnimatedSection>
 
-                    <Grid container spacing={4}>
-                        {successStories.map((story, index) => (
-                            <Grid item xs={12} md={4} key={index}>
+                    <Grid container spacing={2} justifyContent="center">
+                        {successStories?.map((story, index) => (
+                            <Grid item xs={12} sm={6} md={3} key={index}>
                                 <AnimatedSection variant={fadeInUp} threshold={0.1}>
                                     <Card
                                         sx={{
@@ -809,17 +814,20 @@ const HomePage = () => {
                                             overflow: "hidden",
                                             boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
                                             transition: "transform 0.3s",
-                                            "&:hover": {transform: "translateY(-5px)"},
+                                            "&:hover": { transform: "translateY(-5px)" },
+                                            height: "100%",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            maxWidth: 350,
+                                            margin: "0 auto",
                                         }}
                                     >
-                                        <CardMedia component="img" height="250" image={story.image} alt={story.name} />
-                                        <CardContent sx={{textAlign: "center"}}>
-                                            <Typography variant="h6" component="h3" gutterBottom>
+                                        <CardMedia component="img" height="200" image={story.image} alt={story.name} />
+                                        <CardContent sx={{ textAlign: "center", flexGrow: 1, whiteSpace: "normal", wordBreak: "break-word", }}>
+                                            <Typography variant="h6" component="h3" gutterBottom noWrap={false} >
                                                 {story.name}
                                             </Typography>
-                                            <Typography variant="body2" sx={{color: "white"}}>
-                                                {story.story}
-                                            </Typography>
+                                            <Typography variant="body2">{story.story}</Typography>
                                         </CardContent>
                                     </Card>
                                 </AnimatedSection>
@@ -828,8 +836,8 @@ const HomePage = () => {
                     </Grid>
 
                     <AnimatedSection>
-                        <Box sx={{textAlign: "center", mt: 5}}>
-                            <Link to="/success-stories" style={{textDecoration: "none"}}>
+                        <Box sx={{ textAlign: "center", mt: 5 }}>
+                            <Link to="/success-stories" style={{ textDecoration: "none" }}>
                                 <Button
                                     variant="outlined"
                                     sx={{
@@ -845,7 +853,7 @@ const HomePage = () => {
                                     }}
                                 >
                                     View More Stories
-                                    <ArrowForwardIcon sx={{ml: 1}} />
+                                    <ArrowForwardIcon sx={{ ml: 1 }} />
                                 </Button>
                             </Link>
                         </Box>
@@ -864,7 +872,7 @@ const HomePage = () => {
                         <AnimatedSection>
                             <Typography
                                 variant="h3"
-                                sx={{fontWeight: 700, color: "#C8A2C8", fontStyle: "italic", mb: 2}}
+                                sx={{ fontWeight: 700, color: "#C8A2C8", fontStyle: "italic", mb: 2 }}
                             >
                                 Ready to Write Your Success Story?
                             </Typography>
@@ -872,13 +880,13 @@ const HomePage = () => {
                         <AnimatedSection>
                             <Typography
                                 variant="body1"
-                                sx={{color: "#78909c", maxWidth: "600px", mx: "auto", mb: 4, fontSize: "1.1rem"}}
+                                sx={{ color: "#78909c", maxWidth: "600px", mx: "auto", mb: 4, fontSize: "1.1rem" }}
                             >
                                 Join thousands of couples who found their life partners on bandhnammatch
                             </Typography>
                         </AnimatedSection>
                         <AnimatedSection variant={scaleIn}>
-                            <Link to="/register" style={{textDecoration: "none"}}>
+                            <Link to="/register" style={{ textDecoration: "none" }}>
                                 <Button
                                     variant="contained"
                                     endIcon={<ArrowForward />}

@@ -18,48 +18,57 @@ import FAQPage from "./pages/FAQPage";
 import SearchPage from "./pages/SearchPage";
 import BlogPage from "./pages/BlogPage";
 import VerifyOtp from "./pages/VerifyOtp";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+
+// Protected routes array - यहाँ सभी protected routes डालें
+const protectedRoutes = [
+  { path: "/profile", component: Profile },
+  { path: "/success-stories", component: SuccessStories },
+  { path: "/membership", component: Membership },
+  { path: "/payment-success", component: PaymentSuccessPage },
+  { path: "/matches", component: PartnerMatchesPage },
+  { path: "/search-match", component: SearchPage }
+];
+
+// Public routes array
+const publicRoutes = [
+  { path: "/", component: HomePage },
+  { path: "/about", component: About },
+  { path: "/login", component: Login },
+  { path: "/register", component: Register },
+  { path: "/forgot-password", component: ForgotPassword },
+  { path: "/verify-otp", component: VerifyOtp },
+  { path: "/reset-password", component: ResetPassword },
+  { path: "/contact-us", component: ContactUs },
+  { path: "/faq", component: FAQPage },
+  { path: "/blog", component: BlogPage }
+];
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/verify-otp" element={<VerifyOtp />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-
+        {/* Public Routes */}
+        {publicRoutes.map((route) => (
+          <Route 
+            key={route.path} 
+            path={route.path} 
+            element={<route.component />} 
+          />
+        ))}
+        
         {/* Protected Routes */}
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        } />
-        <Route path="/success-stories" element={
-          <ProtectedRoute>
-            <SuccessStories />
-          </ProtectedRoute>
-        } />
-        <Route path="/membership" element={
-          <ProtectedRoute>
-            <Membership />
-          </ProtectedRoute>
-        } />
-        <Route path="/contact-us" element={<ContactUs />} />
-        <Route path="/matches" element={
-          <ProtectedRoute>
-            <PartnerMatchesPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/faq" element={<FAQPage />} />
-        <Route path="/search-match" element={
-          <ProtectedRoute>
-            <SearchPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/blog" element={<BlogPage />} />
+        {protectedRoutes.map((route) => (
+          <Route 
+            key={route.path} 
+            path={route.path} 
+            element={
+              <ProtectedRoute>
+                <route.component />
+              </ProtectedRoute>
+            } 
+          />
+        ))}
 
         {/* 404 - Page Not Found */}
         <Route
