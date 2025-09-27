@@ -55,6 +55,7 @@ const Navbar = () => {
     const navItems = [
         { text: 'Search', href: 'search-match' },
         { text: 'Matches', href: 'matches' },
+        { text: 'Favorites', href: 'favorites' },
         { text: 'Messages', href: 'chat' },
         { text: 'Notifications', href: 'notifications', showBadge: true },
         { text: 'Verification', href: 'verification' },

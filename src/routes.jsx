@@ -23,6 +23,7 @@ import ChatPage from "./pages/ChatPage";
 import VerificationPage from "./pages/VerificationPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import AdminPanel from "./pages/AdminPanel";
+import FavoritesPage from "./pages/FavoritesPage";
 
 // Protected routes array - यहाँ सभी protected routes डालें
 const protectedRoutes = [
@@ -35,6 +36,7 @@ const protectedRoutes = [
   { path: "/chat", component: ChatPage },
   { path: "/verification", component: VerificationPage },
   { path: "/notifications", component: NotificationsPage },
+  { path: "/favorites", component: FavoritesPage },
   { path: "/admin", component: AdminPanel }
 ];
 

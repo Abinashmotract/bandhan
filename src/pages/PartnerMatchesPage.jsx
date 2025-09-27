@@ -626,7 +626,7 @@ const PartnerMatchesPage = () => {
 
                                                         <Button
                                                             variant="outlined"
-                                                            startIcon={<FavoriteBorderIcon />}
+                                                            startIcon={isFavourite(profile.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                                                             onClick={() => isFavourite(profile.id) 
                                                                 ? handleRemoveFromFavourites(profile.id)
                                                                 : handleAddToFavourites(profile.id)
@@ -645,7 +645,7 @@ const PartnerMatchesPage = () => {
                                                                 },
                                                             }}
                                                         >
-                                                            {isFavourite(profile.id) ? 'Fav' : 'Fav'}
+                                                            {isFavourite(profile.id) ? 'Favorited' : 'Favorite'}
                                                         </Button>
                                                     </Box>
                                                 </CardContent>
