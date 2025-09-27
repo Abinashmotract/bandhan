@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Container,
   Box,
@@ -18,7 +19,22 @@ import {
   FormControlLabel,
   Radio,
   Slider,
-  InputAdornment
+  InputAdornment,
+  Alert,
+  CircularProgress,
+  Card,
+  CardContent,
+  CardMedia,
+  Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton as MuiIconButton
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -27,20 +43,56 @@ import {
   AccountBalance as AccountBalanceIcon,
   Language as LanguageIcon,
   RecordVoiceOver as VoiceIcon,
-  Public as PublicIcon
+  Public as PublicIcon,
+  Favorite as FavoriteIcon,
+  FavoriteBorder as FavoriteBorderIcon,
+  Star as StarIcon,
+  StarBorder as StarBorderIcon,
+  Save as SaveIcon,
+  BookmarkBorder as BookmarkBorderIcon,
+  Close as CloseIcon,
+  Delete as DeleteIcon
 } from '@mui/icons-material';
+import { 
+  searchProfiles, 
+  getRecommendations, 
+  saveSearchFilter, 
+  getSavedFilters, 
+  deleteSavedFilter,
+  clearSearchResults 
+} from '../store/slices/searchSlice';
+import { showSuccess, showError } from '../utils/toast';
 
 const SearchPage = () => {
+  const dispatch = useDispatch();
+  const { searchResults, recommendations, savedFilters, loading, error } = useSelector(state => state.search);
+  
   const [searchCriteria, setSearchCriteria] = useState({
-    searchFor: 'Bride',
-    ageRange: [21, 35],
-    heightRange: [122, 213], // in cm
-    religion: 'Doesn\'t Matter',
-    motherTongue: 'Doesn\'t Matter',
-    country: 'Doesn\'t Matter',
-    residentialStatus: 'Doesn\'t Matter',
-    incomeRange: [0, 25000]
+    gender: 'female',
+    ageMin: 21,
+    ageMax: 35,
+    heightMin: 122,
+    heightMax: 213,
+    religion: '',
+    caste: '',
+    education: '',
+    location: '',
+    occupation: '',
+    annualIncome: ''
   });
+  
+  const [profileId, setProfileId] = useState('');
+  const [showResults, setShowResults] = useState(false);
+  const [showSavedFilters, setShowSavedFilters] = useState(false);
+  const [saveFilterDialog, setSaveFilterDialog] = useState(false);
+  const [filterName, setFilterName] = useState('');
+
+  useEffect(() => {
+    // Load saved filters on component mount
+    dispatch(getSavedFilters());
+    // Load recommendations
+    dispatch(getRecommendations({ limit: 10 }));
+  }, [dispatch]);
 
   const handleChange = (field, value) => {
     setSearchCriteria(prev => ({
@@ -51,15 +103,88 @@ const SearchPage = () => {
 
   const handleReset = () => {
     setSearchCriteria({
-      searchFor: 'Bride',
-      ageRange: [21, 35],
-      heightRange: [122, 213],
-      religion: 'Doesn\'t Matter',
-      motherTongue: 'Doesn\'t Matter',
-      country: 'Doesn\'t Matter',
-      residentialStatus: 'Doesn\'t Matter',
-      incomeRange: [0, 25000]
+      gender: 'female',
+      ageMin: 21,
+      ageMax: 35,
+      heightMin: 122,
+      heightMax: 213,
+      religion: '',
+      caste: '',
+      education: '',
+      location: '',
+      occupation: '',
+      annualIncome: ''
     });
+    setProfileId('');
+    setShowResults(false);
+    dispatch(clearSearchResults());
+  };
+
+  const handleSearch = async () => {
+    try {
+      const filters = { ...searchCriteria };
+      // Remove empty values
+      Object.keys(filters).forEach(key => {
+        if (filters[key] === '' || filters[key] === null || filters[key] === undefined) {
+          delete filters[key];
+        }
+      });
+      
+      await dispatch(searchProfiles(filters)).unwrap();
+      setShowResults(true);
+      showSuccess('Search completed successfully!');
+    } catch (error) {
+      showError(error || 'Search failed. Please try again.');
+    }
+  };
+
+  const handleSearchByProfileId = async () => {
+    if (!profileId.trim()) {
+      showError('Please enter a profile ID');
+      return;
+    }
+    
+    try {
+      await dispatch(searchProfiles({ profileId: profileId.trim() })).unwrap();
+      setShowResults(true);
+      showSuccess('Profile search completed!');
+    } catch (error) {
+      showError(error || 'Profile not found. Please check the ID.');
+    }
+  };
+
+  const handleSaveFilter = async () => {
+    if (!filterName.trim()) {
+      showError('Please enter a filter name');
+      return;
+    }
+    
+    try {
+      await dispatch(saveSearchFilter({
+        name: filterName,
+        filters: searchCriteria
+      })).unwrap();
+      setSaveFilterDialog(false);
+      setFilterName('');
+      showSuccess('Search filter saved successfully!');
+    } catch (error) {
+      showError(error || 'Failed to save filter');
+    }
+  };
+
+  const handleDeleteFilter = async (filterId) => {
+    try {
+      await dispatch(deleteSavedFilter(filterId)).unwrap();
+      showSuccess('Filter deleted successfully!');
+    } catch (error) {
+      showError(error || 'Failed to delete filter');
+    }
+  };
+
+  const handleLoadFilter = (filter) => {
+    setSearchCriteria(filter.filters);
+    setSaveFilterDialog(false);
+    showSuccess('Filter loaded successfully!');
   };
 
   const religions = [
@@ -116,6 +241,8 @@ const SearchPage = () => {
               placeholder="Enter Profile ID"
               variant="outlined"
               size="small"
+              value={profileId}
+              onChange={(e) => setProfileId(e.target.value)}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
@@ -127,6 +254,8 @@ const SearchPage = () => {
             />
             <Button
               variant="contained"
+              onClick={handleSearchByProfileId}
+              disabled={loading}
               sx={{
                 borderRadius: 2,
                 px: 3,
@@ -137,7 +266,7 @@ const SearchPage = () => {
                 }
               }}
             >
-              Search
+              {loading ? <CircularProgress size={20} color="inherit" /> : 'Search'}
             </Button>
           </Box>
         </Box>
@@ -166,16 +295,16 @@ const SearchPage = () => {
               </Typography>
               <RadioGroup
                 row
-                value={searchCriteria.searchFor}
-                onChange={(e) => handleChange('searchFor', e.target.value)}
+                value={searchCriteria.gender}
+                onChange={(e) => handleChange('gender', e.target.value)}
               >
                 <FormControlLabel 
-                  value="Bride" 
+                  value="female" 
                   control={<Radio sx={{ color: '#d81b60', '&.Mui-checked': { color: '#d81b60' } }} />} 
                   label="Bride" 
                 />
                 <FormControlLabel 
-                  value="Groom" 
+                  value="male" 
                   control={<Radio sx={{ color: '#d81b60', '&.Mui-checked': { color: '#d81b60' } }} />} 
                   label="Groom" 
                 />
@@ -185,32 +314,26 @@ const SearchPage = () => {
             {/* Age Range */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 2, fontWeight: 600 }}>
-                Age
+                Age Range
               </Typography>
-              <Slider
-                value={searchCriteria.ageRange}
-                onChange={(e, newValue) => handleChange('ageRange', newValue)}
-                valueLabelDisplay="auto"
-                valueLabelFormat={(value) => `${value} years`}
-                min={18}
-                max={60}
-                sx={{
-                  color: '#d81b60',
-                  '& .MuiSlider-valueLabel': {
-                    backgroundColor: '#d81b60'
-                  }
-                }}
-              />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Chip 
-                  label={`${searchCriteria.ageRange[0]} years`} 
-                  variant="outlined" 
-                  sx={{ borderColor: '#d81b60', color: '#d81b60' }}
+              <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                <TextField
+                  label="Min Age"
+                  type="number"
+                  size="small"
+                  value={searchCriteria.ageMin}
+                  onChange={(e) => handleChange('ageMin', parseInt(e.target.value) || 18)}
+                  inputProps={{ min: 18, max: 60 }}
+                  sx={{ flex: 1 }}
                 />
-                <Chip 
-                  label={`${searchCriteria.ageRange[1]} years`} 
-                  variant="outlined" 
-                  sx={{ borderColor: '#d81b60', color: '#d81b60' }}
+                <TextField
+                  label="Max Age"
+                  type="number"
+                  size="small"
+                  value={searchCriteria.ageMax}
+                  onChange={(e) => handleChange('ageMax', parseInt(e.target.value) || 60)}
+                  inputProps={{ min: 18, max: 60 }}
+                  sx={{ flex: 1 }}
                 />
               </Box>
             </Box>
@@ -219,32 +342,26 @@ const SearchPage = () => {
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                 <HeightIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
-                Height
+                Height Range (cm)
               </Typography>
-              <Slider
-                value={searchCriteria.heightRange}
-                onChange={(e, newValue) => handleChange('heightRange', newValue)}
-                valueLabelDisplay="auto"
-                valueLabelFormat={(value) => cmToFeet(value)}
-                min={122}
-                max={213}
-                sx={{
-                  color: '#d81b60',
-                  '& .MuiSlider-valueLabel': {
-                    backgroundColor: '#d81b60'
-                  }
-                }}
-              />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Chip 
-                  label={cmToFeet(searchCriteria.heightRange[0])} 
-                  variant="outlined" 
-                  sx={{ borderColor: '#d81b60', color: '#d81b60', fontSize: '0.75rem' }}
+              <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                <TextField
+                  label="Min Height"
+                  type="number"
+                  size="small"
+                  value={searchCriteria.heightMin}
+                  onChange={(e) => handleChange('heightMin', parseInt(e.target.value) || 122)}
+                  inputProps={{ min: 122, max: 213 }}
+                  sx={{ flex: 1 }}
                 />
-                <Chip 
-                  label={cmToFeet(searchCriteria.heightRange[1])} 
-                  variant="outlined" 
-                  sx={{ borderColor: '#d81b60', color: '#d81b60', fontSize: '0.75rem' }}
+                <TextField
+                  label="Max Height"
+                  type="number"
+                  size="small"
+                  value={searchCriteria.heightMax}
+                  onChange={(e) => handleChange('heightMax', parseInt(e.target.value) || 213)}
+                  inputProps={{ min: 122, max: 213 }}
+                  sx={{ flex: 1 }}
                 />
               </Box>
             </Box>
@@ -279,6 +396,7 @@ const SearchPage = () => {
                 <Select
                   value={searchCriteria.religion}
                   onChange={(e) => handleChange('religion', e.target.value)}
+                  displayEmpty
                   sx={{
                     borderRadius: 2,
                     '&:hover .MuiOutlinedInput-notchedOutline': {
@@ -286,127 +404,96 @@ const SearchPage = () => {
                     },
                   }}
                 >
-                  {religions.map((religion) => (
-                    <MenuItem key={religion} value={religion}>{religion}</MenuItem>
+                  <MenuItem value="">All Religions</MenuItem>
+                  {religions.filter(r => r !== 'Doesn\'t Matter').map((religion) => (
+                    <MenuItem key={religion} value={religion.toLowerCase()}>{religion}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Box>
 
-            {/* Mother Tongue */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-                <VoiceIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
-                Mother Tongue
-              </Typography>
-              <FormControl fullWidth size="small">
-                <Select
-                  value={searchCriteria.motherTongue}
-                  onChange={(e) => handleChange('motherTongue', e.target.value)}
-                  sx={{
-                    borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#d81b60',
-                    },
-                  }}
-                >
-                  {languages.map((language) => (
-                    <MenuItem key={language} value={language}>{language}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Country */}
+            {/* Location */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                 <PublicIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
-                Country
+                Location
               </Typography>
-              <FormControl fullWidth size="small">
-                <Select
-                  value={searchCriteria.country}
-                  onChange={(e) => handleChange('country', e.target.value)}
-                  sx={{
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Enter city or state"
+                value={searchCriteria.location}
+                onChange={(e) => handleChange('location', e.target.value)}
+                sx={{
+                  borderRadius: 2,
+                  '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                    '&:hover fieldset': {
                       borderColor: '#d81b60',
                     },
-                  }}
-                >
-                  {countries.map((country) => (
-                    <MenuItem key={country} value={country}>{country}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  },
+                }}
+              />
             </Box>
 
-            {/* Residential Status */}
+            {/* Education */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
+                <VoiceIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
+                Education
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Enter education level"
+                value={searchCriteria.education}
+                onChange={(e) => handleChange('education', e.target.value)}
+                sx={{
+                  borderRadius: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover fieldset': {
+                      borderColor: '#d81b60',
+                    },
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Occupation */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                 <LanguageIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
-                Residential Status
+                Occupation
               </Typography>
-              <FormControl fullWidth size="small">
-                <Select
-                  value={searchCriteria.residentialStatus}
-                  onChange={(e) => handleChange('residentialStatus', e.target.value)}
-                  sx={{
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Enter occupation"
+                value={searchCriteria.occupation}
+                onChange={(e) => handleChange('occupation', e.target.value)}
+                sx={{
+                  borderRadius: 2,
+                  '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                    '&:hover fieldset': {
                       borderColor: '#d81b60',
                     },
-                  }}
-                >
-                  {residentialStatuses.map((status) => (
-                    <MenuItem key={status} value={status}>{status}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Income Range */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 2, fontWeight: 600 }}>
-                Annual Income (₹)
-              </Typography>
-              <Slider
-                value={searchCriteria.incomeRange}
-                onChange={(e, newValue) => handleChange('incomeRange', newValue)}
-                valueLabelDisplay="auto"
-                valueLabelFormat={(value) => `₹${value.toLocaleString()}`}
-                min={0}
-                max={1000000}
-                step={50000}
-                sx={{
-                  color: '#d81b60',
-                  '& .MuiSlider-valueLabel': {
-                    backgroundColor: '#d81b60'
-                  }
+                  },
                 }}
               />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Chip 
-                  label={`₹${searchCriteria.incomeRange[0].toLocaleString()}`} 
-                  variant="outlined" 
-                  sx={{ borderColor: '#d81b60', color: '#d81b60' }}
-                />
-                <Chip 
-                  label={`₹${searchCriteria.incomeRange[1].toLocaleString()}+`} 
-                  variant="outlined" 
-                  sx={{ borderColor: '#d81b60', color: '#d81b60' }}
-                />
-              </Box>
             </Box>
           </Grid>
         </Grid>
 
-        {/* Search Button */}
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
+        {/* Search Buttons */}
+        <Box sx={{ textAlign: 'center', mt: 4, display: 'flex', gap: 2, justifyContent: 'center' }}>
           <Button
             variant="contained"
             size="large"
             startIcon={<SearchIcon />}
+            onClick={handleSearch}
+            disabled={loading}
             sx={{
               py: 1.5,
               px: 6,
@@ -419,10 +506,238 @@ const SearchPage = () => {
               }
             }}
           >
-            Search Matches
+            {loading ? <CircularProgress size={20} color="inherit" /> : 'Search Matches'}
+          </Button>
+          
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<SaveIcon />}
+            onClick={() => setSaveFilterDialog(true)}
+            sx={{
+              py: 1.5,
+              px: 4,
+              borderRadius: 2,
+              borderColor: '#d81b60',
+              color: '#d81b60',
+              fontWeight: 'bold',
+              '&:hover': {
+                borderColor: '#d81b60',
+                backgroundColor: 'rgba(216, 27, 96, 0.04)'
+              }
+            }}
+          >
+            Save Filter
+          </Button>
+          
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<BookmarkBorderIcon />}
+            onClick={() => setShowSavedFilters(true)}
+            sx={{
+              py: 1.5,
+              px: 4,
+              borderRadius: 2,
+              borderColor: '#d81b60',
+              color: '#d81b60',
+              fontWeight: 'bold',
+              '&:hover': {
+                borderColor: '#d81b60',
+                backgroundColor: 'rgba(216, 27, 96, 0.04)'
+              }
+            }}
+          >
+            Saved Filters
           </Button>
         </Box>
       </Paper>
+
+      {/* Error Display */}
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Search Results */}
+      {showResults && searchResults.length > 0 && (
+        <Paper elevation={2} sx={{ p: 3, borderRadius: 3, mt: 4 }}>
+          <Typography variant="h5" sx={{ color: '#37474f', mb: 3, fontWeight: 600 }}>
+            Search Results ({searchResults.length} profiles found)
+          </Typography>
+          <Grid container spacing={3}>
+            {searchResults.map((profile) => (
+              <Grid item xs={12} sm={6} md={4} key={profile._id}>
+                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={profile.profileImage || '/api/placeholder/300/200'}
+                    alt={profile.name}
+                    sx={{ objectFit: 'cover' }}
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" component="h2" gutterBottom>
+                      {profile.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      {profile.age} years • {profile.height} • {profile.location}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {profile.religion} • {profile.education}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      {profile.about?.substring(0, 100)}...
+                    </Typography>
+                  </CardContent>
+                  <Box sx={{ p: 2, display: 'flex', gap: 1 }}>
+                    <Button
+                      size="small"
+                      startIcon={<FavoriteBorderIcon />}
+                      sx={{ flex: 1, borderColor: '#d81b60', color: '#d81b60' }}
+                      variant="outlined"
+                    >
+                      Like
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<StarBorderIcon />}
+                      sx={{ flex: 1, borderColor: '#d81b60', color: '#d81b60' }}
+                      variant="outlined"
+                    >
+                      Super Like
+                    </Button>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Paper>
+      )}
+
+      {/* Recommendations */}
+      {recommendations.length > 0 && !showResults && (
+        <Paper elevation={2} sx={{ p: 3, borderRadius: 3, mt: 4 }}>
+          <Typography variant="h5" sx={{ color: '#37474f', mb: 3, fontWeight: 600 }}>
+            Recommended Matches
+          </Typography>
+          <Grid container spacing={3}>
+            {recommendations.slice(0, 6).map((profile) => (
+              <Grid item xs={12} sm={6} md={4} key={profile._id}>
+                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={profile.profileImage || '/api/placeholder/300/200'}
+                    alt={profile.name}
+                    sx={{ objectFit: 'cover' }}
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" component="h2" gutterBottom>
+                      {profile.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      {profile.age} years • {profile.height} • {profile.location}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {profile.religion} • {profile.education}
+                    </Typography>
+                  </CardContent>
+                  <Box sx={{ p: 2, display: 'flex', gap: 1 }}>
+                    <Button
+                      size="small"
+                      startIcon={<FavoriteBorderIcon />}
+                      sx={{ flex: 1, borderColor: '#d81b60', color: '#d81b60' }}
+                      variant="outlined"
+                    >
+                      Like
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<StarBorderIcon />}
+                      sx={{ flex: 1, borderColor: '#d81b60', color: '#d81b60' }}
+                      variant="outlined"
+                    >
+                      Super Like
+                    </Button>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Paper>
+      )}
+
+      {/* Save Filter Dialog */}
+      <Dialog open={saveFilterDialog} onClose={() => setSaveFilterDialog(false)}>
+        <DialogTitle>Save Search Filter</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Filter Name"
+            fullWidth
+            variant="outlined"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSaveFilterDialog(false)}>Cancel</Button>
+          <Button onClick={handleSaveFilter} variant="contained" sx={{ background: '#d81b60' }}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Saved Filters Dialog */}
+      <Dialog 
+        open={showSavedFilters} 
+        onClose={() => setShowSavedFilters(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Saved Search Filters</DialogTitle>
+        <DialogContent>
+          {savedFilters.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No saved filters found.
+            </Typography>
+          ) : (
+            <List>
+              {savedFilters.map((filter) => (
+                <ListItem key={filter._id}>
+                  <ListItemText
+                    primary={filter.name}
+                    secondary={`Created: ${new Date(filter.createdAt).toLocaleDateString()}`}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      edge="end"
+                      onClick={() => handleLoadFilter(filter)}
+                      sx={{ color: '#d81b60', mr: 1 }}
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      onClick={() => handleDeleteFilter(filter._id)}
+                      sx={{ color: 'error.main' }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowSavedFilters(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

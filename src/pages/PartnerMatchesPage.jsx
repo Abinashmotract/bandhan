@@ -36,18 +36,27 @@ import {
     Message as MessageIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import defaultImg from "../assets/default.jpeg";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { API_BASE_URL } from "../utils/api";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMatchedProfiles } from "../store/slices/profileSlice";
+import { 
+  likeProfile, 
+  superlikeProfile, 
+  addToFavourites, 
+  removeFromFavourites,
+  getFavourites 
+} from "../store/slices/interactionSlice";
 import { CircularProgress } from "@mui/material";
+import { showSuccess, showError } from "../utils/toast";
 
 const PartnerMatchesPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const navigate = useNavigate();
     const [filteredProfiles, setFilteredProfiles] = useState([]);
     const [selectedProfile, setSelectedProfile] = useState(null);
     const [filterDialogOpen, setFilterDialogOpen] = useState(false);
@@ -64,10 +73,12 @@ const PartnerMatchesPage = () => {
     const dispatch = useDispatch();
 
     const { profiles, loading, error } = useSelector((state) => state.profiles);
+    const { favourites } = useSelector((state) => state.interaction);
     const allProfiles = profiles;
 
     useEffect(() => {
         dispatch(fetchMatchedProfiles());
+        dispatch(getFavourites());
     }, [dispatch]);
 
     const accessToken = Cookies.get("accessToken");
@@ -180,13 +191,13 @@ const PartnerMatchesPage = () => {
         return shuffled.slice(0, Math.floor(Math.random() * 3) + 4);
     };
 
-    const handleLike = (id) => {
-        const updatedProfiles = profiles.map((profile) =>
-            profile.id === id ? { ...profile, liked: !profile.liked } : profile
-        );
-        // setProfiles(updatedProfiles);
-        setFilteredProfiles(updatedProfiles);
-    };
+    // const handleLike = (id) => {
+    //     const updatedProfiles = profiles.map((profile) =>
+    //         profile.id === id ? { ...profile, liked: !profile.liked } : profile
+    //     );
+    //     // setProfiles(updatedProfiles);
+    //     setFilteredProfiles(updatedProfiles);
+    // };
 
     const handleFilterChange = (filter, value) => {
         setFilters({
@@ -265,6 +276,72 @@ const PartnerMatchesPage = () => {
     const openProfileDialog = (profile) => {
         setSelectedProfile(profile);
         setProfileDialogOpen(true);
+    };
+
+    // Interaction handlers
+    const handleLike = async (profileId) => {
+        try {
+            await dispatch(likeProfile(profileId)).unwrap();
+            showSuccess('Profile liked successfully!');
+            // Update local state
+            setFilteredProfiles(prev => 
+                prev.map(profile => 
+                    profile.id === profileId 
+                        ? { ...profile, liked: !profile.liked }
+                        : profile
+                )
+            );
+        } catch (error) {
+            showError(error || 'Failed to like profile');
+        }
+    };
+
+    const handleSuperLike = async (profileId) => {
+        try {
+            await dispatch(superlikeProfile(profileId)).unwrap();
+            showSuccess('Super like sent!');
+        } catch (error) {
+            showError(error || 'Failed to send super like');
+        }
+    };
+
+    const handleAddToFavourites = async (profileId) => {
+        try {
+            await dispatch(addToFavourites(profileId)).unwrap();
+            showSuccess('Added to favourites!');
+            // Update local state
+            setFilteredProfiles(prev => 
+                prev.map(profile => 
+                    profile.id === profileId 
+                        ? { ...profile, favourited: true }
+                        : profile
+                )
+            );
+        } catch (error) {
+            showError(error || 'Failed to add to favourites');
+        }
+    };
+
+    const handleRemoveFromFavourites = async (profileId) => {
+        try {
+            await dispatch(removeFromFavourites(profileId)).unwrap();
+            showSuccess('Removed from favourites!');
+            // Update local state
+            setFilteredProfiles(prev => 
+                prev.map(profile => 
+                    profile.id === profileId 
+                        ? { ...profile, favourited: false }
+                        : profile
+                )
+            );
+        } catch (error) {
+            showError(error || 'Failed to remove from favourites');
+        }
+    };
+
+    // Check if profile is in favourites
+    const isFavourite = (profileId) => {
+        return favourites.some(fav => fav.userId === profileId || fav._id === profileId);
     };
 
     if (loading) {
@@ -400,25 +477,42 @@ const PartnerMatchesPage = () => {
                                                         }}
                                                     />
 
-                                                    {/* Like Button */}
-                                                    <IconButton
-                                                        sx={{
-                                                            position: "absolute",
-                                                            bottom: 16,
-                                                            right: 16,
-                                                            backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                                            "&:hover": {
-                                                                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                                                            },
-                                                        }}
-                                                        onClick={() => handleLike(profile.id)}
-                                                    >
-                                                        {profile.liked ? (
-                                                            <FavoriteIcon sx={{ color: "#d81b60" }} />
-                                                        ) : (
-                                                            <FavoriteBorderIcon sx={{ color: "#d81b60" }} />
-                                                        )}
-                                                    </IconButton>
+                                                    {/* Like and Super Like Buttons */}
+                                                    <Box sx={{ 
+                                                        position: "absolute", 
+                                                        bottom: 16, 
+                                                        right: 16, 
+                                                        display: "flex", 
+                                                        gap: 1 
+                                                    }}>
+                                                        <IconButton
+                                                            sx={{
+                                                                backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                                                "&:hover": {
+                                                                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                                                },
+                                                            }}
+                                                            onClick={() => handleLike(profile.id)}
+                                                        >
+                                                            {profile.liked ? (
+                                                                <FavoriteIcon sx={{ color: "#d81b60" }} />
+                                                            ) : (
+                                                                <FavoriteBorderIcon sx={{ color: "#d81b60" }} />
+                                                            )}
+                                                        </IconButton>
+                                                        
+                                                        <IconButton
+                                                            sx={{
+                                                                backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                                                "&:hover": {
+                                                                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                                                },
+                                                            }}
+                                                            onClick={() => handleSuperLike(profile.id)}
+                                                        >
+                                                            <FavoriteIcon sx={{ color: "#ff5722", transform: "scale(1.2)" }} />
+                                                        </IconButton>
+                                                    </Box>
                                                 </Box>
 
                                                 <CardContent>
@@ -487,7 +581,7 @@ const PartnerMatchesPage = () => {
                                                         )}
                                                     </Box>
 
-                                                    <Box sx={{ display: "flex", gap: 1 }}>
+                                                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                                                         <Button
                                                             variant="outlined"
                                                             startIcon={<VisibilityIcon />}
@@ -496,10 +590,10 @@ const PartnerMatchesPage = () => {
                                                                 borderRadius: 2,
                                                                 borderColor: "#d81b60",
                                                                 color: "#d81b60",
-                                                                px: 1.5, // horizontal padding
-                                                                py: 0.5, // vertical padding
-                                                                fontSize: "0.875rem", // smaller text
-                                                                minWidth: "auto", // allow button to shrink
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                fontSize: "0.875rem",
+                                                                minWidth: "auto",
                                                                 "&:hover": {
                                                                     borderColor: "#d81b60",
                                                                     backgroundColor: "rgba(216, 27, 96, 0.1)",
@@ -510,24 +604,48 @@ const PartnerMatchesPage = () => {
                                                         </Button>
 
                                                         <Button
-                                                            variant="contained"
+                                                            variant="outlined"
                                                             startIcon={<MessageIcon />}
+                                                            onClick={() => navigate('/chat')}
                                                             sx={{
                                                                 borderRadius: 2,
-                                                                background:
-                                                                    "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
-                                                                fontWeight: "bold",
+                                                                borderColor: "#4caf50",
+                                                                color: "#4caf50",
                                                                 px: 1.5,
                                                                 py: 0.5,
                                                                 fontSize: "0.875rem",
                                                                 minWidth: "auto",
                                                                 "&:hover": {
-                                                                    background:
-                                                                        "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
+                                                                    borderColor: "#4caf50",
+                                                                    backgroundColor: "rgba(76, 175, 80, 0.1)",
                                                                 },
                                                             }}
                                                         >
                                                             Msg
+                                                        </Button>
+
+                                                        <Button
+                                                            variant="outlined"
+                                                            startIcon={<FavoriteBorderIcon />}
+                                                            onClick={() => isFavourite(profile.id) 
+                                                                ? handleRemoveFromFavourites(profile.id)
+                                                                : handleAddToFavourites(profile.id)
+                                                            }
+                                                            sx={{
+                                                                borderRadius: 2,
+                                                                borderColor: isFavourite(profile.id) ? "#ff9800" : "#ff9800",
+                                                                color: isFavourite(profile.id) ? "#ff9800" : "#ff9800",
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                fontSize: "0.875rem",
+                                                                minWidth: "auto",
+                                                                "&:hover": {
+                                                                    borderColor: "#ff9800",
+                                                                    backgroundColor: "rgba(255, 152, 0, 0.1)",
+                                                                },
+                                                            }}
+                                                        >
+                                                            {isFavourite(profile.id) ? 'Fav' : 'Fav'}
                                                         </Button>
                                                     </Box>
                                                 </CardContent>

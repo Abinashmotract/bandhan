@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Box, Typography } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Box, Typography, Badge } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import { Link, useNavigate } from 'react-router-dom';
@@ -32,6 +32,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { isAuthenticated, loading } = useSelector((state) => state.auth);
+    const { unreadCount } = useSelector((state) => state.notification);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -54,9 +55,19 @@ const Navbar = () => {
     const navItems = [
         { text: 'Search', href: 'search-match' },
         { text: 'Matches', href: 'matches' },
-        { text: 'Messages', href: 'messages' },
+        { text: 'Messages', href: 'chat' },
+        { text: 'Notifications', href: 'notifications', showBadge: true },
+        { text: 'Verification', href: 'verification' },
         { text: 'Profile', href: 'profile' },
     ];
+
+    // Add admin link if user is admin
+    const user = useSelector((state) => state.auth.user);
+    const isAdmin = user?.role === 'admin';
+    
+    if (isAdmin) {
+        navItems.push({ text: 'Admin Panel', href: 'admin' });
+    }
 
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', height: '100%', color: 'white' }}>
@@ -78,7 +89,17 @@ const Navbar = () => {
                         }}
                         onClick={handleDrawerToggle}
                     >
-                        <ListItemText primary={item.text} />
+                        <ListItemText 
+                            primary={
+                                item.showBadge && unreadCount > 0 ? (
+                                    <Badge badgeContent={unreadCount} color="error">
+                                        {item.text}
+                                    </Badge>
+                                ) : (
+                                    item.text
+                                )
+                            } 
+                        />
                     </ListItem>
                 ))}
                 {!isAuthenticated ? (

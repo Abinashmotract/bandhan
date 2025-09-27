@@ -19,6 +19,10 @@ import SearchPage from "./pages/SearchPage";
 import BlogPage from "./pages/BlogPage";
 import VerifyOtp from "./pages/VerifyOtp";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import ChatPage from "./pages/ChatPage";
+import VerificationPage from "./pages/VerificationPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import AdminPanel from "./pages/AdminPanel";
 
 // Protected routes array - यहाँ सभी protected routes डालें
 const protectedRoutes = [
@@ -27,7 +31,11 @@ const protectedRoutes = [
   { path: "/membership", component: Membership },
   { path: "/payment-success", component: PaymentSuccessPage },
   { path: "/matches", component: PartnerMatchesPage },
-  { path: "/search-match", component: SearchPage }
+  { path: "/search-match", component: SearchPage },
+  { path: "/chat", component: ChatPage },
+  { path: "/verification", component: VerificationPage },
+  { path: "/notifications", component: NotificationsPage },
+  { path: "/admin", component: AdminPanel }
 ];
 
 // Public routes array

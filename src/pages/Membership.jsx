@@ -17,7 +17,13 @@ import {
     FormControlLabel,
     useTheme,
     useMediaQuery,
-    CircularProgress
+    CircularProgress,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Chip,
+    Alert
 } from '@mui/material';
 import {
     CheckCircle as CheckIcon,
@@ -27,21 +33,36 @@ import {
     Security as SecurityIcon,
     Chat as ChatIcon,
     Visibility as VisibilityIcon,
-    PersonSearch as SearchIcon
+    PersonSearch as SearchIcon,
+    Cancel as CancelIcon,
+    CheckCircleOutline as ActiveIcon
 } from '@mui/icons-material';
-import axios from 'axios';
-import { API_BASE_URL } from '../utils/api';
-import Cookies from "js-cookie";
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import {
+    getSubscriptionPlans,
+    subscribeToPlan,
+    getSubscriptionStatus,
+    cancelSubscription
+} from '../store/slices/subscriptionSlice';
+import { showSuccess, showError } from '../utils/toast';
 
 const Membership = () => {
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [yearlyBilling, setYearlyBilling] = useState(true);
-    const [plans, setPlans] = useState([]);
-    const accessToken = Cookies.get("accessToken");
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+    const [selectedPlanForCancel, setSelectedPlanForCancel] = useState(null);
     const navigate = useNavigate();
+
+    const { 
+        subscriptionPlans: plans, 
+        currentSubscription, 
+        loading, 
+        error,
+        subscriptionStatus 
+    } = useSelector(state => state.subscription);
 
     const features = [
         {
@@ -76,44 +97,65 @@ const Membership = () => {
         }
     ];
 
-    const fetchMembershipPlan = async () => {
-        setLoading(true);
+    useEffect(() => {
+        dispatch(getSubscriptionPlans({ duration: yearlyBilling ? "yearly" : "monthly" }));
+        dispatch(getSubscriptionStatus());
+    }, [dispatch, yearlyBilling]);
+
+    const handleChoosePlan = async (planId) => {
         try {
-            const response = await axios.get(
-                `${API_BASE_URL}/user/membership/getPlans?duration=${yearlyBilling ? "yearly" : "monthly"}`,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-            const apiPlans = response?.data?.data || [];
-            const colorMap = { Basic: "#9c27b0", Premium: "#d81b60", Elite: "#ff6f00", };
-            const buttonTextMap = { Basic: "Get Started", Premium: "Choose Premium", Elite: "Go Elite", };
-            const normalizedPlans = apiPlans.map(plan => ({
-                ...plan,
-                price: `₹${plan?.price}/${plan?.duration}`,
-                popular: plan?.isPopular,
-                color: colorMap[plan?.name] || "#37474f",
-                buttonText: buttonTextMap[plan?.name] || "Subscribe",
-            }));
-            setPlans(normalizedPlans);
+            await dispatch(subscribeToPlan({ planId })).unwrap();
+            showSuccess('Subscription initiated! Redirecting to payment...');
+            navigate('/payment-success');
         } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
+            showError(error || 'Failed to subscribe to plan');
         }
     };
 
-    useEffect(() => {
-        fetchMembershipPlan();
-    }, [yearlyBilling]);
+    const handleCancelSubscription = async () => {
+        if (!selectedPlanForCancel) return;
+        
+        try {
+            await dispatch(cancelSubscription()).unwrap();
+            showSuccess('Subscription cancelled successfully');
+            setCancelDialogOpen(false);
+            setSelectedPlanForCancel(null);
+            dispatch(getSubscriptionStatus()); // Refresh status
+        } catch (error) {
+            showError(error || 'Failed to cancel subscription');
+        }
+    };
 
-    const handleChoosePlan = (planId) => {
-        console.log(planId, 'planId')
-        navigate('/payment-success');
-    }
+    const openCancelDialog = (subscription) => {
+        setSelectedPlanForCancel(subscription);
+        setCancelDialogOpen(true);
+    };
+
+    const getButtonText = (plan) => {
+        if (currentSubscription && currentSubscription.planId === plan._id) {
+            return currentSubscription.status === 'active' ? 'Current Plan' : 'Expired';
+        }
+        const buttonTextMap = { Basic: "Get Started", Premium: "Choose Premium", Elite: "Go Elite" };
+        return buttonTextMap[plan?.name] || "Subscribe";
+    };
+
+    const getButtonColor = (plan) => {
+        if (currentSubscription && currentSubscription.planId === plan._id) {
+            return currentSubscription.status === 'active' ? '#4caf50' : '#ff9800';
+        }
+        const colorMap = { Basic: "#9c27b0", Premium: "#d81b60", Elite: "#ff6f00" };
+        return colorMap[plan?.name] || "#37474f";
+    };
+
+    const isCurrentPlan = (plan) => {
+        return currentSubscription && currentSubscription.planId === plan._id && currentSubscription.status === 'active';
+    };
+
+    const canCancel = (plan) => {
+        return currentSubscription && currentSubscription.planId === plan._id && 
+               currentSubscription.status === 'active' && 
+               currentSubscription.autoRenew === true;
+    };
 
 
     return (
@@ -166,82 +208,147 @@ const Membership = () => {
                         </Paper>
                     </Box>
 
+                    {/* Current Subscription Status */}
+                    {currentSubscription && (
+                        <Box sx={{ mb: 4 }}>
+                            <Alert 
+                                severity={currentSubscription.status === 'active' ? 'success' : 'warning'} 
+                                sx={{ mb: 2 }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Box>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                            Current Plan: {plans.find(p => p._id === currentSubscription.planId)?.name || 'Unknown'}
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            Status: {currentSubscription.status} | 
+                                            Expires: {new Date(currentSubscription.endDate).toLocaleDateString()} |
+                                            Auto-renewal: {currentSubscription.autoRenew ? 'Enabled' : 'Disabled'}
+                                        </Typography>
+                                    </Box>
+                                    {canCancel(currentSubscription) && (
+                                        <Button
+                                            variant="outlined"
+                                            color="error"
+                                            startIcon={<CancelIcon />}
+                                            onClick={() => openCancelDialog(currentSubscription)}
+                                        >
+                                            Cancel Subscription
+                                        </Button>
+                                    )}
+                                </Box>
+                            </Alert>
+                        </Box>
+                    )}
+
                     {/* Pricing Plans */}
                     <Grid container spacing={3} justifyContent="center" sx={{ mb: 10 }}>
-                        {plans?.map((plan, index) => (
-                            <Grid item xs={12} md={4} key={index}>
-                                <Card
-                                    elevation={plan?.popular ? 8 : 3}
-                                    sx={{
-                                        height: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        position: 'relative',
-                                        overflow: 'visible',
-                                        border: plan?.popular ? `2px solid ${plan?.color}` : '2px solid transparent',
-                                        transition: 'transform 0.3s, box-shadow 0.3s',
-                                        '&:hover': {
-                                            transform: 'translateY(-8px)',
-                                            boxShadow: 6
-                                        }
-                                    }}
-                                >
-                                    {plan?.popular && (
-                                        <Box sx={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', background: plan?.color, color: 'white', px: 3, py: 0.5, borderRadius: 2, fontSize: '14px', fontWeight: 'bold' }}>
-                                            MOST POPULAR
-                                        </Box>
-                                    )}
+                        {plans?.map((plan, index) => {
+                            const colorMap = { Basic: "#9c27b0", Premium: "#d81b60", Elite: "#ff6f00" };
+                            const planColor = colorMap[plan?.name] || "#37474f";
+                            const buttonColor = getButtonColor(plan);
+                            const buttonText = getButtonText(plan);
+                            const isCurrent = isCurrentPlan(plan);
+                            
+                            return (
+                                <Grid item xs={12} md={4} key={index}>
+                                    <Card
+                                        elevation={plan?.popular ? 8 : 3}
+                                        sx={{
+                                            height: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            position: 'relative',
+                                            overflow: 'visible',
+                                            border: isCurrent ? '2px solid #4caf50' : plan?.popular ? `2px solid ${planColor}` : '2px solid transparent',
+                                            transition: 'transform 0.3s, box-shadow 0.3s',
+                                            '&:hover': {
+                                                transform: 'translateY(-8px)',
+                                                boxShadow: 6
+                                            }
+                                        }}
+                                    >
+                                        {plan?.popular && !isCurrent && (
+                                            <Box sx={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', background: planColor, color: 'white', px: 3, py: 0.5, borderRadius: 2, fontSize: '14px', fontWeight: 'bold' }}>
+                                                MOST POPULAR
+                                            </Box>
+                                        )}
+                                        
+                                        {isCurrent && (
+                                            <Box sx={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', background: '#4caf50', color: 'white', px: 3, py: 0.5, borderRadius: 2, fontSize: '14px', fontWeight: 'bold' }}>
+                                                <ActiveIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                                                CURRENT
+                                            </Box>
+                                        )}
 
-                                    <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                                        <Typography variant="h5" component="h2" gutterBottom sx={{ color: plan?.color, fontWeight: 700 }}>
-                                            {plan?.name}
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 2 }}>
-                                            <Typography variant="h4" component="div" sx={{ fontWeight: 800, color: '#37474f' }}>
-                                                {plan?.price.split('/')[0]}
+                                        <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                                                <Typography variant="h5" component="h2" sx={{ color: planColor, fontWeight: 700 }}>
+                                                    {plan?.name}
+                                                </Typography>
+                                                {isCurrent && (
+                                                    <Chip 
+                                                        label="Active" 
+                                                        color="success" 
+                                                        size="small" 
+                                                        icon={<ActiveIcon />}
+                                                    />
+                                                )}
+                                            </Box>
+                                            
+                                            <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 2 }}>
+                                                <Typography variant="h4" component="div" sx={{ fontWeight: 800, color: '#37474f' }}>
+                                                    ₹{plan?.price}
+                                                </Typography>
+                                                <Typography variant="h6" component="div" sx={{ color: 'text.secondary', ml: 1 }}>
+                                                    /{plan?.duration}
+                                                </Typography>
+                                            </Box>
+                                            
+                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                                {plan?.description}
                                             </Typography>
-                                            <Typography variant="h6" component="div" sx={{ color: 'text.secondary', ml: 1 }}>
-                                                /{plan?.price.split('/')[1]}
-                                            </Typography>
-                                        </Box>
-                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                            {plan?.description}
-                                        </Typography>
 
-                                        <List dense sx={{ mb: 2, flexGrow: 1 }}>
-                                            {plan?.features.map((feature, idx) => (
-                                                <ListItem key={idx} sx={{ px: 0 }}>
-                                                    <ListItemIcon sx={{ minWidth: 36 }}>
-                                                        <CheckIcon sx={{ color: plan?.color }} />
-                                                    </ListItemIcon>
-                                                    <ListItemText primary={feature} />
-                                                </ListItem>
-                                            ))}
-                                        </List>
+                                            <List dense sx={{ mb: 2, flexGrow: 1 }}>
+                                                {plan?.features.map((feature, idx) => (
+                                                    <ListItem key={idx} sx={{ px: 0 }}>
+                                                        <ListItemIcon sx={{ minWidth: 36 }}>
+                                                            <CheckIcon sx={{ color: planColor }} />
+                                                        </ListItemIcon>
+                                                        <ListItemText primary={feature} />
+                                                    </ListItem>
+                                                ))}
+                                            </List>
 
-                                        <Button
-                                            variant="contained"
-                                            fullWidth
-                                            size="large"
-                                            sx={{
-                                                mt: 'auto',
-                                                py: 1.5,
-                                                borderRadius: 2,
-                                                background: `linear-gradient(135deg, ${plan?.color} 0%, ${plan?.color}80 100%)`,
-                                                fontWeight: 'bold',
-                                                fontSize: '1.1rem',
-                                                '&:hover': {
-                                                    background: `linear-gradient(135deg, ${plan?.color} 0%, ${plan?.color}60 100%)`,
-                                                }
-                                            }}
-                                            onClick={() => handleChoosePlan(plan?._id)}
-                                        >
-                                            {plan?.buttonText}
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        ))}
+                                            <Button
+                                                variant="contained"
+                                                fullWidth
+                                                size="large"
+                                                disabled={isCurrent}
+                                                sx={{
+                                                    mt: 'auto',
+                                                    py: 1.5,
+                                                    borderRadius: 2,
+                                                    background: `linear-gradient(135deg, ${buttonColor} 0%, ${buttonColor}80 100%)`,
+                                                    fontWeight: 'bold',
+                                                    fontSize: '1.1rem',
+                                                    '&:hover': {
+                                                        background: `linear-gradient(135deg, ${buttonColor} 0%, ${buttonColor}60 100%)`,
+                                                    },
+                                                    '&:disabled': {
+                                                        background: '#e0e0e0',
+                                                        color: '#9e9e9e'
+                                                    }
+                                                }}
+                                                onClick={() => !isCurrent && handleChoosePlan(plan?._id)}
+                                            >
+                                                {buttonText}
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                            );
+                        })}
                     </Grid>
 
                     {/* Features Section */}
@@ -392,6 +499,55 @@ const Membership = () => {
                     </Box>
                 </Container>
             )}
+
+            {/* Cancel Subscription Dialog */}
+            <Dialog 
+                open={cancelDialogOpen} 
+                onClose={() => setCancelDialogOpen(false)}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle sx={{ color: '#d81b60', fontWeight: 'bold' }}>
+                    Cancel Subscription
+                </DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                        Are you sure you want to cancel your subscription to{' '}
+                        <strong>{plans.find(p => p._id === selectedPlanForCancel?.planId)?.name}</strong>?
+                    </Typography>
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                        <Typography variant="body2">
+                            • Your subscription will remain active until {new Date(selectedPlanForCancel?.endDate).toLocaleDateString()}
+                        </Typography>
+                        <Typography variant="body2">
+                            • You'll lose access to premium features after the current billing period
+                        </Typography>
+                        <Typography variant="body2">
+                            • You can reactivate your subscription anytime before it expires
+                        </Typography>
+                    </Alert>
+                    <Typography variant="body2" color="text.secondary">
+                        This action cannot be undone. Are you sure you want to proceed?
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 3 }}>
+                    <Button 
+                        onClick={() => setCancelDialogOpen(false)}
+                        variant="outlined"
+                        sx={{ mr: 1 }}
+                    >
+                        Keep Subscription
+                    </Button>
+                    <Button 
+                        onClick={handleCancelSubscription}
+                        variant="contained"
+                        color="error"
+                        disabled={loading}
+                    >
+                        {loading ? <CircularProgress size={20} /> : 'Yes, Cancel Subscription'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
