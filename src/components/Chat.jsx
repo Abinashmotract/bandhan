@@ -23,17 +23,17 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material';
-import {
+import { 
   Send as SendIcon,
   AttachFile as AttachFileIcon,
   EmojiEmotions as EmojiIcon,
   MoreVert as MoreVertIcon,
   Search as SearchIcon,
-  Online as OnlineIcon,
-  Offline as OfflineIcon,
   Favorite as FavoriteIcon,
-  FavoriteBorder as FavoriteBorderIcon
+  FavoriteBorder as FavoriteBorderIcon,
+  OnlinePrediction as OnlineIcon // optional alternative
 } from '@mui/icons-material';
+
 import {
   sendMessage,
   getChatHistory,

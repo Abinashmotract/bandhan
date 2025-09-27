@@ -1,3 +1,36 @@
+// Thunk to update user profile
+export const updateProfile = createAsyncThunk(
+  'profile/updateProfile',
+  async ({ profileData, token }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('name', profileData.name);
+      formData.append('email', profileData.email);
+      formData.append('dob', profileData.dob);
+      formData.append('location', profileData.location);
+      formData.append('occupation', profileData.occupation);
+      formData.append('education', profileData.education);
+      formData.append('motherTongue', profileData.motherTongue);
+      formData.append('religion', profileData.religion);
+      formData.append('caste', profileData.caste);
+      formData.append('about', profileData.about);
+      formData.append('interests', JSON.stringify(profileData.interests));
+      formData.append('preferences', JSON.stringify(profileData.preferences));
+      const response = await axios.put(
+        `${API_BASE_URL}/auth/user/update`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 // src/redux/slices/profileSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Cookies from 'js-cookie';

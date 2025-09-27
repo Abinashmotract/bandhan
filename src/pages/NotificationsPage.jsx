@@ -46,8 +46,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { formatTimeAgo } from '../utils/dateUtils';
 import {
     getNotifications,
-    markNotificationAsRead,
-    markAllNotificationsAsRead,
+    markNotificationRead,
+    markAllNotificationsRead,
     deleteNotification,
     deleteAllNotifications
 } from '../store/slices/notificationSlice';
@@ -85,7 +85,7 @@ const NotificationsPage = () => {
 
     const handleMarkAsRead = async (notificationId) => {
         try {
-            await dispatch(markNotificationAsRead(notificationId)).unwrap();
+            await dispatch(markNotificationRead(notificationId)).unwrap();
             showSuccess('Notification marked as read');
         } catch (error) {
             showError(error || 'Failed to mark notification as read');
@@ -94,7 +94,7 @@ const NotificationsPage = () => {
 
     const handleMarkAllAsRead = async () => {
         try {
-            await dispatch(markAllNotificationsAsRead()).unwrap();
+            await dispatch(markAllNotificationsRead()).unwrap();
             showSuccess('All notifications marked as read');
         } catch (error) {
             showError(error || 'Failed to mark all notifications as read');

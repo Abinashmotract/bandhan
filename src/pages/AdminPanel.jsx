@@ -62,7 +62,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { formatTimeAgo, formatDate } from '../utils/dateUtils';
 import {
     getDashboardStats,
-    getUsers,
+        getAllUsers,
     getUserDetails,
     updateUserStatus,
     blockUser,
@@ -116,7 +116,7 @@ const AdminPanel = () => {
 
     useEffect(() => {
         dispatch(getDashboardStats());
-        dispatch(getUsers({ page: usersPage + 1, limit: usersPerPage }));
+        dispatch(getAllUsers({ page: usersPage + 1, limit: usersPerPage }));
         dispatch(getReports({ page: reportsPage + 1, limit: reportsPerPage }));
         dispatch(getAnalytics());
         dispatch(getSystemNotifications());
@@ -130,7 +130,7 @@ const AdminPanel = () => {
         try {
             await dispatch(updateUserStatus({ userId, status })).unwrap();
             showSuccess(`User ${status} successfully`);
-            dispatch(getUsers({ page: usersPage + 1, limit: usersPerPage }));
+                dispatch(getAllUsers({ page: usersPage + 1, limit: usersPerPage }));
         } catch (error) {
             showError(error || 'Failed to update user status');
         }
@@ -140,7 +140,7 @@ const AdminPanel = () => {
         try {
             await dispatch(blockUser(userId)).unwrap();
             showSuccess('User blocked successfully');
-            dispatch(getUsers({ page: usersPage + 1, limit: usersPerPage }));
+                dispatch(getAllUsers({ page: usersPage + 1, limit: usersPerPage }));
         } catch (error) {
             showError(error || 'Failed to block user');
         }
@@ -150,7 +150,7 @@ const AdminPanel = () => {
         try {
             await dispatch(unblockUser(userId)).unwrap();
             showSuccess('User unblocked successfully');
-            dispatch(getUsers({ page: usersPage + 1, limit: usersPerPage }));
+                dispatch(getAllUsers({ page: usersPage + 1, limit: usersPerPage }));
         } catch (error) {
             showError(error || 'Failed to unblock user');
         }

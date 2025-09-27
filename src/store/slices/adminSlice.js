@@ -1,3 +1,76 @@
+// Update user status
+export const updateUserStatus = createAsyncThunk(
+  'admin/updateUserStatus',
+  async ({ userId, status }, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.updateUserStatus(userId, status);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update user status');
+    }
+  }
+);
+// Get system notifications
+export const getSystemNotifications = createAsyncThunk(
+  'admin/getSystemNotifications',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getSystemNotifications(params);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to get system notifications');
+    }
+  }
+);
+// Get report details
+export const getReportDetails = createAsyncThunk(
+  'admin/getReportDetails',
+  async (reportId, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.getReportDetails(reportId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to get report details');
+    }
+  }
+);
+// Delete system notification
+export const deleteSystemNotification = createAsyncThunk(
+  'admin/deleteSystemNotification',
+  async (notificationId, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.deleteSystemNotification(notificationId);
+      return { notificationId, data: response.data };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete system notification');
+    }
+  }
+);
+// Block user
+export const blockUser = createAsyncThunk(
+  'admin/blockUser',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.blockUser(userId);
+      return { userId, data: response.data };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to block user');
+    }
+  }
+);
+
+// Unblock user
+export const unblockUser = createAsyncThunk(
+  'admin/unblockUser',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await adminAPI.unblockUser(userId);
+      return { userId, data: response.data };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to unblock user');
+    }
+  }
+);
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { adminAPI } from '../../services/apiService';
 

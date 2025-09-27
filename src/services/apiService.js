@@ -259,6 +259,14 @@ export const notificationAPI = {
 // ADMIN PANEL
 // ================================
 export const adminAPI = {
+  // Update user status (ban, suspend, activate, etc.)
+  updateUserStatus: (userId, status) => apiClient.patch(`/admin/panel/users/${userId}/status`, { status }),
+  // Get all system notifications
+  getSystemNotifications: (params = {}) => apiClient.get('/admin/panel/notifications', { params }),
+  // Get details of a specific report
+  getReportDetails: (reportId) => apiClient.get(`/admin/panel/reports/${reportId}`),
+  // Delete a system notification
+  deleteSystemNotification: (notificationId) => apiClient.delete(`/admin/panel/notifications/${notificationId}`),
   // List all users with filters
   getAllUsers: (params = {}) => apiClient.get('/admin/panel/users', { params }),
   

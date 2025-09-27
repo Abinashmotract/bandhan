@@ -341,7 +341,7 @@ const PartnerMatchesPage = () => {
 
     // Check if profile is in favourites
     const isFavourite = (profileId) => {
-        return favourites.some(fav => fav.userId === profileId || fav._id === profileId);
+        return Array.isArray(favourites) && favourites.some(fav => fav.userId === profileId || fav._id === profileId);
     };
 
     if (loading) {
@@ -558,7 +558,7 @@ const PartnerMatchesPage = () => {
                                                     </Typography>
 
                                                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 2 }}>
-                                                        {profile.interests.slice(0, 3).map((interest, index) => (
+                                                        {(Array.isArray(profile.interests) ? profile.interests : []).slice(0, 3).map((interest, index) => (
                                                             <Chip
                                                                 key={index}
                                                                 label={interest}
@@ -569,7 +569,7 @@ const PartnerMatchesPage = () => {
                                                                 }}
                                                             />
                                                         ))}
-                                                        {profile.interests.length > 3 && (
+                                                        {Array.isArray(profile.interests) && profile.interests.length > 3 && (
                                                             <Chip
                                                                 label={`+${profile.interests.length - 3}`}
                                                                 size="small"
