@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Container,
@@ -30,11 +30,14 @@ import {
     ArrowForward
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import apiClient from '../services/apiService';
 
 const SuccessStories = () => {
     const [tabValue, setTabValue] = useState(0);
     const [selectedStory, setSelectedStory] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
+    const [stories, setStories] = useState([]);
+    const [loading, setLoading] = useState(false);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -48,63 +51,30 @@ const SuccessStories = () => {
         setSelectedStory(null);
     };
 
-    // Success stories data
-    const successStories = [
-        {
-            id: 1,
-            coupleName: "Rahul & Priya",
-            marriageDate: "Married on February 14, 2022",
-            image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
-            story: "We met through bandhnammatch in 2021 and instantly connected over our love for travel and photography. After six months of dating, Rahul proposed during a sunrise hike in the mountains. Our wedding was an intimate affair with close family and friends.",
-            video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            tags: ["Intercaste", "Love Marriage", "Travel Lovers"]
-        },
-        {
-            id: 2,
-            coupleName: "Amit & Sunita",
-            marriageDate: "Married on November 5, 2021",
-            image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
-            story: "Both coming from traditional families, we were hesitant about online matchmaking. But bandhnammatch made the process comfortable and secure. We found we had similar values and life goals. Today, we're happily married and expecting our first child!",
-            video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            tags: ["Arranged Marriage", "Traditional", "Family Values"]
-        },
-        {
-            id: 3,
-            coupleName: "Vikram & Neha",
-            marriageDate: "Married on June 18, 2022",
-            image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db1604?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
-            story: "We were both focused on our careers and had almost given up on finding the right partner. bandhnammatch's compatibility matching brought us together. We bonded over our love for cooking and now run a food blog together!",
-            video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            tags: ["Career-oriented", "Food Lovers", "Compatibility Match"]
-        },
-        {
-            id: 4,
-            coupleName: "Raj & Meera",
-            marriageDate: "Married on September 10, 2021",
-            image: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
-            story: "After our previous marriages ended, we were both cautious about finding love again. bandhnammatch gave us a safe space to connect without judgment. We took things slow and built a strong foundation of friendship first.",
-            video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            tags: ["Second Chance", "Mature Love", "Blended Family"]
-        },
-        {
-            id: 5,
-            coupleName: "Sanjay & Pooja",
-            marriageDate: "Married on December 3, 2022",
-            image: "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
-            story: "As single parents, we wanted to find someone who would understand our responsibilities. bandhnammatch helped us connect with others in similar situations. Our children are now the best of friends!",
-            video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            tags: ["Single Parents", "Understanding", "Family First"]
-        },
-        {
-            id: 6,
-            coupleName: "Anil & Kavita",
-            marriageDate: "Married on April 22, 2022",
-            image: "https://images.unsplash.com/photo-1548449112-96a38a643324?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80",
-            story: "We both believed that everyone deserves a second chance at happiness. bandhnammatch made us believe in love again. Our wedding was a celebration of new beginnings with all our loved ones.",
-            video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-            tags: ["New Beginnings", "Happiness", "Second Chance"]
-        }
-    ]
+    useEffect(() => {
+        const fetchStories = async () => {
+            try {
+                setLoading(true);
+                const res = await apiClient.get('/success-stories');
+                const list = res.data?.data?.stories || [];
+                const normalized = list.map(s => ({
+                    id: s._id,
+                    coupleName: s.title || `${s.groom?.name || 'Groom'} & ${s.bride?.name || 'Bride'}`,
+                    marriageDate: s.weddingDate ? `Married on ${new Date(s.weddingDate).toLocaleDateString()}` : '',
+                    image: (Array.isArray(s.photos) && s.photos[0]) || s.coverImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                    story: s.story || s.testimonial || '',
+                    video: Array.isArray(s.videos) ? s.videos[0] : undefined,
+                    tags: Array.isArray(s.tags) ? s.tags : []
+                }));
+                setStories(normalized);
+            } catch (e) {
+                setStories([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStories();
+    }, []);
 
     return (
         <Box sx={{
@@ -192,7 +162,7 @@ const SuccessStories = () => {
                 </Box>
 
                 <Grid container spacing={4}>
-                    {successStories.map((story) => (
+                    {(loading ? [] : stories).map((story) => (
                         <Grid item xs={12} md={6} lg={4} key={story.id}>
                             <Card
                                 sx={{

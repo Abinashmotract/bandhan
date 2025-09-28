@@ -209,7 +209,7 @@ const interactionSlice = createSlice({
       })
       .addCase(removeFromFavourites.fulfilled, (state, action) => {
         state.loading = false;
-        state.favourites = state.favourites.filter(fav => fav.userId !== action.payload.userId);
+        state.favourites = state.favourites.filter(fav => (fav.user?._id || fav._id) !== action.payload.userId);
       })
       .addCase(removeFromFavourites.rejected, (state, action) => {
         state.loading = false;
@@ -292,8 +292,9 @@ const interactionSlice = createSlice({
       })
       .addCase(getFavourites.fulfilled, (state, action) => {
         state.loading = false;
-        state.favourites = action.payload.data || [];
-        state.pagination = action.payload.pagination || null;
+        const payloadData = action.payload?.data || {};
+        state.favourites = payloadData.favourites || payloadData || [];
+        state.pagination = payloadData.pagination || null;
       })
       .addCase(getFavourites.rejected, (state, action) => {
         state.loading = false;

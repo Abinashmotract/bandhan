@@ -167,7 +167,7 @@ const FavoritesPage = () => {
                 {/* Results Count */}
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                        <Typography variant="h6" sx={{ color: "white" }}>
+                        <Typography variant="h6">
                             {favourites?.length || 0} favorites found
                         </Typography>
                     </Box>
@@ -498,3 +498,4 @@ const FavoritesPage = () => {
 };
 
 export default FavoritesPage;
+

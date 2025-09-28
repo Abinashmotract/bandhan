@@ -65,28 +65,46 @@ const VerificationPage = () => {
         {
             label: 'Email Verification',
             icon: <EmailIcon />,
-            status: verificationStatus?.email?.verified ? 'completed' : verificationStatus?.email?.pending ? 'pending' : 'not-started'
+            status: verificationStatus?.email?.verified ? 'completed' : (verificationStatus?.email?.status === 'pending' ? 'pending' : 'not-started')
         },
         {
             label: 'Phone Verification',
             icon: <PhoneIcon />,
-            status: verificationStatus?.phone?.verified ? 'completed' : verificationStatus?.phone?.pending ? 'pending' : 'not-started'
+            status: verificationStatus?.phone?.verified ? 'completed' : (verificationStatus?.phone?.status === 'pending' ? 'pending' : 'not-started')
         },
         {
             label: 'ID Document Verification',
             icon: <BadgeIcon />,
-            status: verificationStatus?.idDocument?.verified ? 'completed' : verificationStatus?.idDocument?.pending ? 'pending' : 'not-started'
+            status: verificationStatus?.id?.verified ? 'completed' : (verificationStatus?.id?.status === 'pending' ? 'pending' : 'not-started')
         },
         {
             label: 'Photo Verification',
             icon: <PhotoIcon />,
-            status: verificationStatus?.photo?.verified ? 'completed' : verificationStatus?.photo?.pending ? 'pending' : 'not-started'
+            status: verificationStatus?.photo?.verified ? 'completed' : (verificationStatus?.photo?.status === 'pending' ? 'pending' : 'not-started')
         }
     ];
 
     useEffect(() => {
         dispatch(getVerificationStatus());
     }, [dispatch]);
+
+    // Move the active step automatically to the first incomplete step
+    useEffect(() => {
+        if (!verificationStatus) return;
+        if (!verificationStatus?.email?.verified) {
+            setActiveStep(0);
+            return;
+        }
+        if (!verificationStatus?.phone?.verified) {
+            setActiveStep(1);
+            return;
+        }
+        if (!verificationStatus?.id?.verified) {
+            setActiveStep(2);
+            return;
+        }
+        setActiveStep(3);
+    }, [verificationStatus]);
 
     const handleSendEmailVerification = async () => {
         try {
@@ -119,6 +137,7 @@ const VerificationPage = () => {
             await dispatch(sendPhoneVerification()).unwrap();
             showSuccess('Verification SMS sent! Please check your phone.');
             setActiveStep(1);
+            dispatch(getVerificationStatus());
         } catch (error) {
             showError(error || 'Failed to send verification SMS');
         }
@@ -135,6 +154,7 @@ const VerificationPage = () => {
             showSuccess('Phone verified successfully!');
             setPhoneOtp('');
             setActiveStep(2);
+            dispatch(getVerificationStatus());
         } catch (error) {
             showError(error || 'Invalid verification code');
         }
@@ -163,8 +183,15 @@ const VerificationPage = () => {
         }
 
         const formData = new FormData();
-        formData.append('document', selectedFile);
-        formData.append('type', uploadType);
+        if (uploadType === 'idDocument') {
+            // Backend expects frontImage (required) and optional backImage, plus documentType & documentNumber
+            formData.append('frontImage', selectedFile);
+            formData.append('documentType', 'Aadhaar');
+            formData.append('documentNumber', 'TEST1234');
+        } else if (uploadType === 'photo') {
+            // Backend expects field name "photos" (array)
+            formData.append('photos', selectedFile);
+        }
 
         try {
             if (uploadType === 'idDocument') {
@@ -298,7 +325,7 @@ const VerificationPage = () => {
                         Phone verified successfully!
                     </Box>
                 </Alert>
-            ) : verificationStatus?.phone?.pending ? (
+            ) : verificationStatus?.phone?.status === 'pending' ? (
                 <Box>
                     <Alert severity="info" sx={{ mb: 2 }}>
                         Verification SMS sent! Please check your phone and enter the code below.
@@ -352,14 +379,14 @@ const VerificationPage = () => {
                 Upload a clear photo of your government-issued ID (Aadhaar, Passport, Driving License, or Voter ID).
             </Typography>
             
-            {verificationStatus?.idDocument?.verified ? (
+            {verificationStatus?.id?.verified ? (
                 <Alert severity="success" sx={{ mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <CheckIcon sx={{ mr: 1 }} />
                         ID document verified successfully!
                     </Box>
                 </Alert>
-            ) : verificationStatus?.idDocument?.pending ? (
+            ) : verificationStatus?.id?.status === 'pending' ? (
                 <Alert severity="warning" sx={{ mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <CircularProgress size={16} sx={{ mr: 1 }} />
