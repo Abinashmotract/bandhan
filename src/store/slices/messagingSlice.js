@@ -174,8 +174,9 @@ const messagingSlice = createSlice({
       .addCase(getChatHistory.fulfilled, (state, action) => {
         state.loading = false;
         const { userId, data } = action.payload;
-        state.messages[userId] = data.data || [];
-        state.pagination = data.pagination || null;
+        const payloadData = data?.data || {};
+        state.messages[userId] = payloadData.messages || [];
+        state.pagination = payloadData.pagination || null;
       })
       .addCase(getChatHistory.rejected, (state, action) => {
         state.loading = false;
@@ -189,8 +190,9 @@ const messagingSlice = createSlice({
       })
       .addCase(getChatRooms.fulfilled, (state, action) => {
         state.loading = false;
-        state.chatRooms = action.payload.data || [];
-        state.pagination = action.payload.pagination || null;
+        const payloadData = action.payload?.data || {};
+        state.chatRooms = payloadData.rooms || [];
+        state.pagination = payloadData.pagination || null;
       })
       .addCase(getChatRooms.rejected, (state, action) => {
         state.loading = false;

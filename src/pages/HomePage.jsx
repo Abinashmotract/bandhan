@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     Container,
     Box,
@@ -26,6 +26,7 @@ import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import FeaturedProfiles from './FeaturedProfiles';
+import apiClient from "../services/apiService";
 
 // Animation variants
 const fadeInUp = {
@@ -74,28 +75,23 @@ const AnimatedSection = ({ children, variant = fadeInUp, threshold = 0.1 }) => {
 };
 
 const HomePage = () => {
-    const successStories = [
-        {
-            name: "Amit & Priya",
-            image: "	https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/ajinkya_ashwini.jpg",
-            story: "Swipe, match, chat. Our connection on the matrimonial site was instant, deeper than just profiles. We found shared values, humor, and dreams. After a few months of intense conversations and a memorable first meeting, it was clear: this wasn't just a match, it was the match",
-        },
-        {
-            name: "Rahul & Sneha",
-            image: "https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/rohit_sonam.jpg",
-            story: "Found their perfect match within 3 months of joining",
-        },
-        {
-            name: "Vikram & Anjali",
-            image: "https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/piyas_anindita.jpg",
-            story: "Connected through our advanced matching system",
-        },
-        {
-            name: "Vikram & Anjali",
-            image: "https://img2.shaadi.com/assests/2025/images/homepage/shaadi_reviews/piyas_anindita.jpg",
-            story: "Connected through our advanced matching system",
-        },
-    ];
+    const [successStories, setSuccessStories] = useState([]);
+    useEffect(() => {
+        const loadFeatured = async () => {
+            try {
+                const res = await apiClient.get('/success-stories/featured', { params: { limit: 4 } });
+                const list = res.data?.data || [];
+                setSuccessStories(list.map(s => ({
+                    name: s.title || `${s.groom?.name || 'Groom'} & ${s.bride?.name || 'Bride'}`,
+                    image: (Array.isArray(s.photos) && s.photos[0]) || s.coverImage || 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=600&q=80',
+                    story: s.story || s.testimonial || ''
+                })));
+            } catch {
+                setSuccessStories([]);
+            }
+        };
+        loadFeatured();
+    }, []);
 
     const features = [
         {

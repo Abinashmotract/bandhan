@@ -1,4 +1,5 @@
 import React from 'react';
+import jsPDF from 'jspdf';
 import { Box, Typography, Button, Container, Paper } from '@mui/material';
 import { CheckCircle, ArrowForward, Download } from '@mui/icons-material';
 
@@ -9,11 +10,26 @@ const PaymentSuccessPage = () => {
 
   // Mock payment data
   const paymentData = {
-    amount: '$149.99',
+    amount: 149.99,
     transactionId: 'TXN-789456123',
     date: new Date().toLocaleDateString(),
     time: new Date().toLocaleTimeString(),
     product: 'Premium Subscription',
+  };
+
+  const formattedAmount = `₹${paymentData.amount}`;
+
+  const handleDownload = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Payment Receipt', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Product: ${paymentData.product}`, 20, 40);
+    doc.text(`Amount: ${formattedAmount}`, 20, 50);
+    doc.text(`Transaction ID: ${paymentData.transactionId}`, 20, 60);
+    doc.text(`Date: ${paymentData.date}`, 20, 70);
+    doc.text(`Time: ${paymentData.time}`, 20, 80);
+    doc.save(`receipt-${paymentData.transactionId}.pdf`);
   };
 
   return (
@@ -92,7 +108,7 @@ const PaymentSuccessPage = () => {
                     Amount Paid
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    {paymentData.amount}
+                    {formattedAmount}
                   </Typography>
                 </div>
                 <div className="col-md-6 mb-3">
@@ -147,8 +163,8 @@ const PaymentSuccessPage = () => {
                     },
                     py: 1.5
                   }}
-                >
-                  Download Receipt
+                onClick={handleDownload}>
+                  Download Receipt (PDF)
                 </Button>
               </div>
               <div className="col-md-6">
@@ -165,7 +181,7 @@ const PaymentSuccessPage = () => {
                     }
                   }}
                 >
-                  Continue Shopping
+                  Continue to Dashboard
                 </Button>
               </div>
             </div>
