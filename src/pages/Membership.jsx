@@ -41,7 +41,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
     getSubscriptionPlans,
-    subscribeToPlan,
+    createSubscription,
     getSubscriptionStatus,
     cancelSubscription
 } from '../store/slices/subscriptionSlice';
@@ -57,12 +57,16 @@ const Membership = () => {
     const navigate = useNavigate();
 
     const { 
-        subscriptionPlans: plans, 
+        plans, 
         currentSubscription, 
         loading, 
         error,
         subscriptionStatus 
     } = useSelector(state => state.subscription);
+
+    console.log('Membership component - plans:', plans);
+    console.log('Membership component - loading:', loading);
+    console.log('Membership component - error:', error);
 
     const features = [
         {
@@ -98,13 +102,14 @@ const Membership = () => {
     ];
 
     useEffect(() => {
-        dispatch(getSubscriptionPlans({ duration: yearlyBilling ? "yearly" : "monthly" }));
+        console.log('Fetching subscription plans with duration:', yearlyBilling ? "yearly" : "quarterly");
+        dispatch(getSubscriptionPlans({ duration: yearlyBilling ? "yearly" : "quarterly" }));
         dispatch(getSubscriptionStatus());
     }, [dispatch, yearlyBilling]);
 
     const handleChoosePlan = async (planId) => {
         try {
-            await dispatch(subscribeToPlan({ planId })).unwrap();
+            await dispatch(createSubscription({ planId })).unwrap();
             showSuccess('Subscription initiated! Redirecting to payment...');
             navigate('/payment-success');
         } catch (error) {
@@ -160,6 +165,11 @@ const Membership = () => {
 
     return (
         <Box sx={{ py: 8 }}>
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <CircularProgress />
@@ -218,7 +228,7 @@ const Membership = () => {
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <Box>
                                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                            Current Plan: {plans.find(p => p._id === currentSubscription.planId)?.name || 'Unknown'}
+                                            Current Plan: {plans?.find(p => p._id === currentSubscription.planId)?.name || 'Unknown'}
                                         </Typography>
                                         <Typography variant="body2">
                                             Status: {currentSubscription.status} | 
@@ -358,6 +368,9 @@ const Membership = () => {
                         </Typography>
                         <Typography variant="h6" align="center" sx={{ color: 'black', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
                             Our membership plans include powerful features to help you find your perfect match
+                        </Typography>
+                        <Typography variant="body2" align="center" sx={{ color: 'gray', mb: 2 }}>
+                            Debug: Found {plans?.length || 0} plans
                         </Typography>
 
                         <Grid container spacing={4} justifyContent="center">
@@ -513,7 +526,7 @@ const Membership = () => {
                 <DialogContent>
                     <Typography variant="body1" sx={{ mb: 2 }}>
                         Are you sure you want to cancel your subscription to{' '}
-                        <strong>{plans.find(p => p._id === selectedPlanForCancel?.planId)?.name}</strong>?
+                        <strong>{plans?.find(p => p._id === selectedPlanForCancel?.planId)?.name || 'this plan'}</strong>?
                     </Typography>
                     <Alert severity="warning" sx={{ mb: 2 }}>
                         <Typography variant="body2">

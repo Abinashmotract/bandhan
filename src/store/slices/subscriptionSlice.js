@@ -1,79 +1,94 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { subscriptionAPI } from '../../services/apiService';
 
-const initialState = {
-  subscriptionPlans: [],
-  currentSubscription: null,
-  loading: false,
-  error: null
-};
-
-// Get subscription plans
+// Async thunks
 export const getSubscriptionPlans = createAsyncThunk(
-  'subscription/getSubscriptionPlans',
+  'subscription/getPlans',
   async (params, { rejectWithValue }) => {
     try {
       const response = await subscriptionAPI.getSubscriptionPlans(params);
-      return response.data;
+      return response.data.data; // Access the data property from the API response
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to get subscription plans');
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-// Subscribe to a plan
-export const subscribeToPlan = createAsyncThunk(
-  'subscription/subscribeToPlan',
-  async (planData, { rejectWithValue }) => {
-    try {
-      const response = await subscriptionAPI.subscribeToPlan(planData);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to subscribe to plan');
-    }
-  }
-);
-
-// Get subscription status
 export const getSubscriptionStatus = createAsyncThunk(
-  'subscription/getSubscriptionStatus',
+  'subscription/getStatus',
   async (_, { rejectWithValue }) => {
     try {
       const response = await subscriptionAPI.getSubscriptionStatus();
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to get subscription status');
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-// Cancel subscription
+export const createSubscription = createAsyncThunk(
+  'subscription/create',
+  async (subscriptionData, { rejectWithValue }) => {
+    try {
+      const response = await subscriptionAPI.subscribeToPlan(subscriptionData);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 export const cancelSubscription = createAsyncThunk(
-  'subscription/cancelSubscription',
+  'subscription/cancel',
   async (_, { rejectWithValue }) => {
     try {
       const response = await subscriptionAPI.cancelSubscription();
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to cancel subscription');
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const createPaymentIntent = createAsyncThunk(
+  'subscription/createPaymentIntent',
+  async (planId, { rejectWithValue }) => {
+    try {
+      const response = await subscriptionAPI.createPaymentIntent(planId);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const confirmPayment = createAsyncThunk(
+  'subscription/confirmPayment',
+  async (paymentData, { rejectWithValue }) => {
+    try {
+      const response = await subscriptionAPI.confirmPayment(paymentData);
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
 const subscriptionSlice = createSlice({
   name: 'subscription',
-  initialState,
+  initialState: {
+    plans: [],
+    currentSubscription: null,
+    loading: false,
+    error: null,
+    paymentIntent: null
+  },
   reducers: {
-    clearSubscriptionPlans: (state) => {
-      state.subscriptionPlans = [];
-      state.error = null;
-    },
-    clearCurrentSubscription: (state) => {
-      state.currentSubscription = null;
-      state.error = null;
-    },
     clearError: (state) => {
       state.error = null;
+    },
+    setPaymentIntent: (state, action) => {
+      state.paymentIntent = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -85,27 +100,13 @@ const subscriptionSlice = createSlice({
       })
       .addCase(getSubscriptionPlans.fulfilled, (state, action) => {
         state.loading = false;
-        state.subscriptionPlans = action.payload.data || [];
+        state.plans = action.payload || [];
       })
       .addCase(getSubscriptionPlans.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-
-      // Subscribe to plan
-      .addCase(subscribeToPlan.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(subscribeToPlan.fulfilled, (state, action) => {
-        state.loading = false;
-        state.currentSubscription = action.payload.data;
-      })
-      .addCase(subscribeToPlan.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
+      
       // Get subscription status
       .addCase(getSubscriptionStatus.pending, (state) => {
         state.loading = true;
@@ -113,13 +114,27 @@ const subscriptionSlice = createSlice({
       })
       .addCase(getSubscriptionStatus.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentSubscription = action.payload.data;
+        state.currentSubscription = action.payload || null;
       })
       .addCase(getSubscriptionStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-
+      
+      // Create subscription
+      .addCase(createSubscription.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createSubscription.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentSubscription = action.payload || null;
+      })
+      .addCase(createSubscription.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
       // Cancel subscription
       .addCase(cancelSubscription.pending, (state) => {
         state.loading = true;
@@ -127,18 +142,43 @@ const subscriptionSlice = createSlice({
       })
       .addCase(cancelSubscription.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentSubscription = action.payload.data;
+        state.currentSubscription = null;
       })
       .addCase(cancelSubscription.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Create payment intent
+      .addCase(createPaymentIntent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createPaymentIntent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.paymentIntent = action.payload;
+      })
+      .addCase(createPaymentIntent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Confirm payment
+      .addCase(confirmPayment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(confirmPayment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentSubscription = action.payload || null;
+        state.paymentIntent = null;
+      })
+      .addCase(confirmPayment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   }
 });
 
-export const { 
-  clearSubscriptionPlans, 
-  clearCurrentSubscription, 
-  clearError 
-} = subscriptionSlice.actions;
+export const { clearError, setPaymentIntent } = subscriptionSlice.actions;
 export default subscriptionSlice.reducer;

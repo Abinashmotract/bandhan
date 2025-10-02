@@ -140,6 +140,9 @@ export const interactionAPI = {
   // Remove from favourites
   removeFromFavourites: (userId) => apiClient.delete(`/interactions/favourite/${userId}`),
   
+  // Send interest to a user
+  sendInterest: (userId, interestData) => apiClient.post(`/interactions/interest/${userId}`, interestData),
+  
   // Block a user
   blockUser: (userId) => apiClient.post(`/interactions/block/${userId}`),
   
@@ -190,19 +193,31 @@ export const messagingAPI = {
 // ================================
 export const subscriptionAPI = {
   // Get available subscription plans
-  getSubscriptionPlans: (params = {}) => apiClient.get('/user/membership/plans', { params }),
+  getSubscriptionPlans: (params = {}) => apiClient.get('/user/subscription/plans', { params }),
   
   // Subscribe to a plan
-  subscribeToPlan: (planData) => apiClient.post('/user/membership/subscribe', planData),
+  subscribeToPlan: (planData) => apiClient.post('/user/subscription/create', planData),
+  
+  // Create payment intent for Stripe
+  createPaymentIntent: (planId) => apiClient.post('/user/subscription/create-payment-intent', { planId }),
+  
+  // Confirm payment with Stripe
+  confirmPayment: (paymentData) => apiClient.post('/user/subscription/confirm-payment', paymentData),
   
   // Stripe webhook for payment events
-  handleWebhook: (webhookData) => apiClient.post('/user/membership/webhook', webhookData),
+  handleWebhook: (webhookData) => apiClient.post('/user/subscription/webhook', webhookData),
   
   // Check subscription status
-  getSubscriptionStatus: () => apiClient.get('/user/membership/status'),
+  getSubscriptionStatus: () => apiClient.get('/user/subscription/status'),
   
   // Cancel subscription
-  cancelSubscription: () => apiClient.post('/user/membership/cancel')
+  cancelSubscription: () => apiClient.post('/user/subscription/cancel'),
+  
+  // Get subscription history
+  getSubscriptionHistory: (params = {}) => apiClient.get('/user/subscription/history', { params }),
+  
+  // Update payment method
+  updatePaymentMethod: (paymentMethodData) => apiClient.post('/user/subscription/update-payment-method', paymentMethodData)
 };
 
 // ================================

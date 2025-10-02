@@ -6,6 +6,7 @@ import AppRoutes from "./routes";
 import Loader from "./components/Loader.jsx";
 import store from "./store/store";
 import AuthInitializer from "./components/AuthInitializer";
+import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -23,10 +24,12 @@ function App() {
   return (
     <Provider store={store}>
       <AuthInitializer>
-        <ClickSpark color="#ff5722" />
-        <ScrollToTop />
-        <AppRoutes />
-        <Toaster />
+        <SubscriptionProvider>
+          <ClickSpark color="#ff5722" />
+          <ScrollToTop />
+          <AppRoutes />
+          <Toaster />
+        </SubscriptionProvider>
       </AuthInitializer>
     </Provider>
   );

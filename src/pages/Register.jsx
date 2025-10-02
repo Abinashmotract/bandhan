@@ -22,7 +22,13 @@ import {
     Alert,
     CircularProgress,
     Chip,
-    Autocomplete
+    Autocomplete,
+    Grid,
+    Card,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText
 } from '@mui/material';
 import {
     Person,
@@ -42,7 +48,8 @@ import {
     FitnessCenter,
     Palette,
     FamilyRestroom,
-    AccountBalance
+    AccountBalance,
+    CheckCircle as CheckIcon
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../utils/api';
@@ -151,6 +158,9 @@ const Register = ({ onToggleForm }) => {
         photos: [],
         profileImage: '',
 
+        // Subscription Plan
+        selectedPlan: 'Basic',
+
         agreeToTerms: false
     });
     const [errors, setErrors] = useState({});
@@ -158,7 +168,7 @@ const Register = ({ onToggleForm }) => {
 
     const navigate = useNavigate();
 
-    const steps = ['Account Details', 'Personal Info', 'Family & Lifestyle', 'Preferences', 'Complete'];
+    const steps = ['Account Details', 'Personal Info', 'Family & Lifestyle', 'Preferences', 'Subscription Plan', 'Complete'];
 
     const handleChange = (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -1550,13 +1560,172 @@ const Register = ({ onToggleForm }) => {
                 );
             case 4:
                 return (
+                    <>
+                        <Typography variant="h6" sx={{ mt: 2, mb: 3, color: '#d81b60', textAlign: 'center' }}>
+                            Choose Your Subscription Plan
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 3, color: '#78909c', textAlign: 'center' }}>
+                            Select the plan that best fits your matrimonial journey
+                        </Typography>
+
+                        <Grid container spacing={2}>
+                            {[
+                                {
+                                    name: 'Basic',
+                                    price: 'Free',
+                                    duration: 'Forever',
+                                    features: [
+                                        'View 5 profiles per day',
+                                        'Basic profile information',
+                                        'Create your profile',
+                                        'Basic search filters'
+                                    ],
+                                    color: '#9c27b0',
+                                    popular: false
+                                },
+                                {
+                                    name: 'Entry',
+                                    price: '₹999',
+                                    duration: '3 months',
+                                    features: [
+                                        'View 20 profiles',
+                                        'Send 5 interests',
+                                        'Profile shortlisting (5 profiles)',
+                                        'Messaging (5 profiles)',
+                                        'Contact views (5 profiles)'
+                                    ],
+                                    color: '#d81b60',
+                                    popular: true
+                                },
+                                {
+                                    name: 'Advanced',
+                                    price: '₹4500',
+                                    duration: '3 months',
+                                    features: [
+                                        'View 50 profiles',
+                                        'Send 50 interests',
+                                        'Daily recommendations',
+                                        'Advanced search filters',
+                                        'Horoscope matching',
+                                        'See who viewed your profile'
+                                    ],
+                                    color: '#ff6f00',
+                                    popular: false
+                                },
+                                {
+                                    name: 'Premium',
+                                    price: '₹7999',
+                                    duration: '3 months',
+                                    features: [
+                                        'Unlimited profile views',
+                                        'Unlimited interests',
+                                        'Unlimited messaging',
+                                        'Video/voice calling',
+                                        'Priority support',
+                                        'Profile boost'
+                                    ],
+                                    color: '#4caf50',
+                                    popular: false
+                                },
+                                {
+                                    name: 'Elite',
+                                    price: '₹19999',
+                                    duration: '3 months',
+                                    features: [
+                                        'All Premium features',
+                                        'Elite member badge',
+                                        'Dedicated relationship manager',
+                                        'Exclusive elite features',
+                                        'Advanced AI matching'
+                                    ],
+                                    color: '#ff9800',
+                                    popular: false
+                                }
+                            ].map((plan, index) => (
+                                <Grid item xs={12} sm={6} md={4} key={index}>
+                                    <Card
+                                        sx={{
+                                            p: 2,
+                                            textAlign: 'center',
+                                            cursor: 'pointer',
+                                            border: formData.selectedPlan === plan.name ? `2px solid ${plan.color}` : '2px solid transparent',
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'translateY(-4px)',
+                                                boxShadow: 4
+                                            },
+                                            position: 'relative'
+                                        }}
+                                        onClick={() => setFormData({ ...formData, selectedPlan: plan.name })}
+                                    >
+                                        {plan.popular && (
+                                            <Chip
+                                                label="Most Popular"
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: -10,
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    backgroundColor: plan.color,
+                                                    color: 'white',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            />
+                                        )}
+                                        <Typography variant="h6" sx={{ color: plan.color, fontWeight: 'bold', mb: 1 }}>
+                                            {plan.name}
+                                        </Typography>
+                                        <Typography variant="h4" sx={{ color: '#37474f', fontWeight: 'bold', mb: 0.5 }}>
+                                            {plan.price}
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#78909c', mb: 2 }}>
+                                            {plan.duration}
+                                        </Typography>
+                                        <List dense>
+                                            {plan.features.map((feature, idx) => (
+                                                <ListItem key={idx} sx={{ py: 0.5, px: 0 }}>
+                                                    <ListItemIcon sx={{ minWidth: 24 }}>
+                                                        <CheckIcon sx={{ color: plan.color, fontSize: 16 }} />
+                                                    </ListItemIcon>
+                                                    <ListItemText 
+                                                        primary={feature} 
+                                                        primaryTypographyProps={{ fontSize: '0.8rem' }}
+                                                    />
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                        {formData.selectedPlan === plan.name && (
+                                            <Box sx={{ mt: 1 }}>
+                                                <Chip
+                                                    label="Selected"
+                                                    color="primary"
+                                                    size="small"
+                                                    icon={<CheckIcon />}
+                                                />
+                                            </Box>
+                                        )}
+                                    </Card>
+                                </Grid>
+                            ))}
+                        </Grid>
+
+                        <Typography variant="body2" sx={{ mt: 3, color: '#78909c', textAlign: 'center' }}>
+                            You can upgrade or change your plan anytime after registration
+                        </Typography>
+                    </>
+                );
+            case 5:
+                return (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                         <Favorite sx={{ fontSize: 60, color: '#d81b60', mb: 2 }} />
                         <Typography variant="h5" sx={{ color: '#d81b60', mb: 2 }}>
                             Registration Complete!
                         </Typography>
-                        <Typography variant="body1" sx={{ color: '#78909c' }}>
+                        <Typography variant="body1" sx={{ color: '#78909c', mb: 2 }}>
                             Thank you for joining Bandhan Nammatch. Your journey to find your perfect partner begins now.
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#d81b60', fontWeight: 'bold' }}>
+                            Selected Plan: {formData.selectedPlan}
                         </Typography>
                     </Box>
                 );
