@@ -12,8 +12,7 @@ dist
 dist-ssr
 *.local
 
-# Environment variables
-.env
+# Environment variables (excluding .env for development)
 .env.local
 .env.development.local
 .env.test.local
