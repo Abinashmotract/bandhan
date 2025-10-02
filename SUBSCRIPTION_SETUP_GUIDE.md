@@ -29,7 +29,7 @@ Add these to your `.env` file in the backend:
 
 ```env
 # Stripe Configuration
-STRIPE_SECRET_KEY=sk_test_51SCHBXKg4JvCYZiYHDfFOKGn9SIiEUlmHkXskrqVEQgLQcfUQyT6AW8TnLDCi2OoSEyG0n06WkJ3sRyhunCB7Tuu003ov7Xh70
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
 STRIPE_PUBLISHABLE_KEY=pk_test_51SCHBXKg4JvCYZiYbBJ8uG0Ume46gChQLKyH7acubD1JasAo3KPPrbQxXFm6jIU5wf4WClZOfFgKczhkJqevyYwa00sMLiJDQm
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
