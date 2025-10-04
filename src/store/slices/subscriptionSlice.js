@@ -30,7 +30,7 @@ export const createSubscription = createAsyncThunk(
   'subscription/create',
   async (subscriptionData, { rejectWithValue }) => {
     try {
-      const response = await subscriptionAPI.subscribeToPlan(subscriptionData);
+      const response = await subscriptionAPI.createCheckoutSession(subscriptionData.planId);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

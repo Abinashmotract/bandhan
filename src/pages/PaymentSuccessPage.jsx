@@ -1,36 +1,193 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
-import { Box, Typography, Button, Container, Paper } from '@mui/material';
+import { Box, Typography, Button, Container, Paper, CircularProgress, Alert } from '@mui/material';
 import { CheckCircle, ArrowForward, Download } from '@mui/icons-material';
+import { useSelector, useDispatch } from 'react-redux';
+import { getSubscriptionStatus } from '../store/slices/subscriptionSlice';
 
 const PaymentSuccessPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { currentSubscription, plans, loading } = useSelector(state => state.subscription);
+  const [paymentData, setPaymentData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const gradientStyle = {
     background: 'linear-gradient(135deg, rgb(216, 27, 96) 0%, rgb(136, 14, 79) 100%)',
   };
 
-  // Mock payment data
-  const paymentData = {
-    amount: 149.99,
-    transactionId: 'TXN-789456123',
-    date: new Date().toLocaleDateString(),
-    time: new Date().toLocaleTimeString(),
-    product: 'Premium Subscription',
-  };
+  useEffect(() => {
+    const fetchPaymentData = async () => {
+      // Get subscription status to fetch latest data
+      dispatch(getSubscriptionStatus());
+      
+      // Get payment data from URL params or state
+      const urlParams = new URLSearchParams(location.search);
+      const sessionId = urlParams.get('session_id');
+      const paymentIntentId = urlParams.get('payment_intent') || location.state?.paymentIntentId;
+      const planId = urlParams.get('plan_id') || location.state?.planId;
+      
+      if (sessionId) {
+        // Payment completed via Stripe checkout - fetch session details
+        try {
+          const response = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
+          if (response.data.success) {
+            const sessionData = response.data.data;
+            
+            // If payment is completed but no transaction exists, try to process it
+            if (sessionData.paymentStatus === 'paid' && !sessionData.transaction) {
+              try {
+                console.log('Payment completed but not processed, attempting to process...');
+                await subscriptionAPI.processPaymentManually(sessionId);
+                // Refetch session details after processing
+                const updatedResponse = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
+                if (updatedResponse.data.success) {
+                  const updatedSessionData = updatedResponse.data.data;
+                  setPaymentData({
+                    amount: updatedSessionData.amount,
+                    transactionId: sessionId,
+                    date: new Date().toLocaleDateString(),
+                    time: new Date().toLocaleTimeString(),
+                    product: `${updatedSessionData.plan?.name || 'Subscription'} Plan`,
+                    plan: updatedSessionData.plan,
+                    receiptUrl: updatedSessionData.receiptUrl,
+                    paymentStatus: updatedSessionData.paymentStatus
+                  });
+                } else {
+                  throw new Error('Failed to process payment');
+                }
+              } catch (processError) {
+                console.error('Error processing payment:', processError);
+                // Still show the session data even if processing failed
+                setPaymentData({
+                  amount: sessionData.amount,
+                  transactionId: sessionId,
+                  date: new Date().toLocaleDateString(),
+                  time: new Date().toLocaleTimeString(),
+                  product: `${sessionData.plan?.name || 'Subscription'} Plan`,
+                  plan: sessionData.plan,
+                  receiptUrl: sessionData.receiptUrl,
+                  paymentStatus: sessionData.paymentStatus
+                });
+              }
+            } else {
+              // Payment data is ready
+              setPaymentData({
+                amount: sessionData.amount,
+                transactionId: sessionId,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                product: `${sessionData.plan?.name || 'Subscription'} Plan`,
+                plan: sessionData.plan,
+                receiptUrl: sessionData.receiptUrl,
+                paymentStatus: sessionData.paymentStatus
+              });
+            }
+          } else {
+            // Fallback if session details not found
+            setPaymentData({
+              amount: 0,
+              transactionId: sessionId,
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              product: 'Subscription Plan',
+              plan: null
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching checkout session details:', error);
+          // Fallback
+          setPaymentData({
+            amount: 0,
+            transactionId: sessionId,
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString(),
+            product: 'Subscription Plan',
+            plan: null
+          });
+        }
+      } else if (paymentIntentId && planId) {
+        // Create dynamic payment data
+        const currentPlan = plans?.find(plan => plan._id === planId);
+        setPaymentData({
+          amount: currentPlan?.price || 0,
+          transactionId: paymentIntentId,
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          product: `${currentPlan?.name || 'Subscription'} Plan`,
+          plan: currentPlan
+        });
+      } else {
+        // Fallback to current subscription data
+        if (currentSubscription) {
+          const currentPlan = plans?.find(plan => plan._id === currentSubscription.plan);
+          setPaymentData({
+            amount: currentPlan?.price || 0,
+            transactionId: currentSubscription.paymentIntentId || 'TXN-' + Date.now(),
+            date: new Date(currentSubscription.startDate).toLocaleDateString(),
+            time: new Date(currentSubscription.startDate).toLocaleTimeString(),
+            product: `${currentPlan?.name || 'Subscription'} Plan`,
+            plan: currentPlan
+          });
+        }
+      }
+      
+      setIsLoading(false);
+    };
 
-  const formattedAmount = `₹${paymentData.amount}`;
+    fetchPaymentData();
+  }, [dispatch, location, currentSubscription, plans]);
 
   const handleDownload = () => {
+    if (!paymentData) return;
+    
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text('Payment Receipt', 20, 20);
     doc.setFontSize(12);
     doc.text(`Product: ${paymentData.product}`, 20, 40);
-    doc.text(`Amount: ${formattedAmount}`, 20, 50);
+    doc.text(`Amount: ₹${paymentData.amount}`, 20, 50);
     doc.text(`Transaction ID: ${paymentData.transactionId}`, 20, 60);
     doc.text(`Date: ${paymentData.date}`, 20, 70);
     doc.text(`Time: ${paymentData.time}`, 20, 80);
     doc.save(`receipt-${paymentData.transactionId}.pdf`);
   };
+
+  const handleContinue = () => {
+    navigate('/profile');
+  };
+
+  if (isLoading || loading) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh' 
+      }}>
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
+
+  if (!paymentData) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Alert severity="error">
+          No payment data found. Please try again.
+        </Alert>
+        <Button 
+          variant="contained" 
+          onClick={() => navigate('/membership')}
+          sx={{ mt: 2 }}
+        >
+          Back to Membership
+        </Button>
+      </Container>
+    );
+  }
 
   return (
     <Box 
@@ -108,7 +265,7 @@ const PaymentSuccessPage = () => {
                     Amount Paid
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    {formattedAmount}
+                    ₹{paymentData.amount}
                   </Typography>
                 </div>
                 <div className="col-md-6 mb-3">
@@ -180,6 +337,7 @@ const PaymentSuccessPage = () => {
                       background: 'linear-gradient(135deg, rgb(196, 17, 76) 0%, rgb(116, 4, 59) 100%)',
                     }
                   }}
+                  onClick={handleContinue}
                 >
                   Continue to Dashboard
                 </Button>

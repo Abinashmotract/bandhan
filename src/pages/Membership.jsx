@@ -43,9 +43,12 @@ import {
     getSubscriptionPlans,
     createSubscription,
     getSubscriptionStatus,
-    cancelSubscription
+    cancelSubscription,
+    createPaymentIntent,
+    confirmPayment
 } from '../store/slices/subscriptionSlice';
 import { showSuccess, showError } from '../utils/toast';
+// Removed Stripe Elements imports as we're using hosted checkout
 
 const Membership = () => {
     const dispatch = useDispatch();
@@ -54,6 +57,7 @@ const Membership = () => {
     const [yearlyBilling, setYearlyBilling] = useState(true);
     const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
     const [selectedPlanForCancel, setSelectedPlanForCancel] = useState(null);
+    const [paymentLoading, setPaymentLoading] = useState(false);
     const navigate = useNavigate();
 
     const { 
@@ -102,18 +106,45 @@ const Membership = () => {
     ];
 
     useEffect(() => {
-        console.log('Fetching subscription plans with duration:', yearlyBilling ? "yearly" : "quarterly");
-        dispatch(getSubscriptionPlans({ duration: yearlyBilling ? "yearly" : "quarterly" }));
+        console.log('Fetching subscription plans with duration:', yearlyBilling ? "yearly" : "monthly");
+        dispatch(getSubscriptionPlans({ duration: yearlyBilling ? "yearly" : "monthly" }));
         dispatch(getSubscriptionStatus());
     }, [dispatch, yearlyBilling]);
 
-    const handleChoosePlan = async (planId) => {
+    const handleChoosePlan = async (plan) => {
+        if (plan.planType === 'free') {
+            // Handle free plan directly
+            handleFreePlan(plan._id);
+        } else {
+            // Redirect to Stripe checkout for paid plans
+            handlePaidPlan(plan);
+        }
+    };
+
+    const handleFreePlan = async (planId) => {
         try {
             await dispatch(createSubscription({ planId })).unwrap();
-            showSuccess('Subscription initiated! Redirecting to payment...');
-            navigate('/payment-success');
+            showSuccess('Free plan activated successfully!');
+            dispatch(getSubscriptionStatus()); // Refresh status
         } catch (error) {
-            showError(error || 'Failed to subscribe to plan');
+            showError(error || 'Failed to activate free plan');
+        }
+    };
+
+    const handlePaidPlan = async (plan) => {
+        try {
+            setPaymentLoading(true);
+            const result = await dispatch(createSubscription({ planId: plan._id })).unwrap();
+            
+            if (result.url) {
+                // Redirect to Stripe checkout page
+                window.location.href = result.url;
+            } else {
+                showError('Failed to create checkout session');
+            }
+        } catch (error) {
+            showError(error || 'Failed to initiate payment');
+            setPaymentLoading(false);
         }
     };
 
@@ -161,6 +192,8 @@ const Membership = () => {
                currentSubscription.status === 'active' && 
                currentSubscription.autoRenew === true;
     };
+
+    // No payment form needed - using Stripe hosted checkout
 
 
     return (
@@ -252,8 +285,18 @@ const Membership = () => {
                     )}
 
                     {/* Pricing Plans */}
-                    <Grid container spacing={3} justifyContent="center" sx={{ mb: 10 }}>
-                        {plans?.map((plan, index) => {
+                    {plans?.length === 0 ? (
+                        <Box sx={{ textAlign: 'center', py: 8 }}>
+                            <Typography variant="h5" sx={{ color: '#d81b60', mb: 2 }}>
+                                No plans available for {yearlyBilling ? 'yearly' : 'monthly'} billing
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: 'gray' }}>
+                                Please try switching to {yearlyBilling ? 'monthly' : 'yearly'} billing or contact support.
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Grid container spacing={3} justifyContent="center" sx={{ mb: 10 }}>
+                            {plans?.map((plan, index) => {
                             const colorMap = { Basic: "#9c27b0", Premium: "#d81b60", Elite: "#ff6f00" };
                             const planColor = colorMap[plan?.name] || "#37474f";
                             const buttonColor = getButtonColor(plan);
@@ -350,7 +393,8 @@ const Membership = () => {
                                                         color: '#9e9e9e'
                                                     }
                                                 }}
-                                                onClick={() => !isCurrent && handleChoosePlan(plan?._id)}
+                                                onClick={() => !isCurrent && handleChoosePlan(plan)}
+                                                disabled={paymentLoading}
                                             >
                                                 {buttonText}
                                             </Button>
@@ -359,7 +403,8 @@ const Membership = () => {
                                 </Grid>
                             );
                         })}
-                    </Grid>
+                        </Grid>
+                    )}
 
                     {/* Features Section */}
                     <Box sx={{ mb: 10 }}>
@@ -370,7 +415,7 @@ const Membership = () => {
                             Our membership plans include powerful features to help you find your perfect match
                         </Typography>
                         <Typography variant="body2" align="center" sx={{ color: 'gray', mb: 2 }}>
-                            Debug: Found {plans?.length || 0} plans
+                            Debug: Found {plans?.length || 0} plans for {yearlyBilling ? 'yearly' : 'monthly'} billing
                         </Typography>
 
                         <Grid container spacing={4} justifyContent="center">
@@ -561,6 +606,8 @@ const Membership = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* No payment dialog needed - using Stripe hosted checkout */}
         </Box>
     );
 };

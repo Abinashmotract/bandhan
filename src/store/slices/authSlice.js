@@ -8,6 +8,7 @@ const initialState = {
     isAuthenticated: false,
     loading: false,
     error: null,
+    isInitialized: false, // Add this to track if auth check is complete
 };
 
 // ----------------------
@@ -65,6 +66,7 @@ const authSlice = createSlice({
             state.isAuthenticated = true;
             state.user = action.payload;
             state.error = null;
+            state.isInitialized = true;
         },
         loginFailure: (state, action) => {
             state.loading = false;
@@ -84,9 +86,13 @@ const authSlice = createSlice({
             state.user = action.payload;
             state.isAuthenticated = true;
             state.error = null;
+            state.isInitialized = true;
         },
         clearError: (state) => {
             state.error = null;
+        },
+        setInitialized: (state) => {
+            state.isInitialized = true;
         },
     },
     extraReducers: (builder) => {
@@ -99,12 +105,14 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.user = action.payload;
                 state.isAuthenticated = true;
+                state.isInitialized = true;
             })
             .addCase(fetchUserDetails.rejected, (state, action) => {
                 state.loading = false;
                 state.isAuthenticated = false;
                 state.user = null;
                 state.error = action.payload;
+                state.isInitialized = true;
             })
 
             // logoutUser
@@ -125,5 +133,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setUser, clearError, } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setUser, clearError, setInitialized } = authSlice.actions;
 export default authSlice.reducer;

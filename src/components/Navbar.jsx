@@ -31,7 +31,7 @@ const Navbar = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { isAuthenticated, loading } = useSelector((state) => state.auth);
+    const { isAuthenticated, loading, isInitialized } = useSelector((state) => state.auth);
     const { unreadCount } = useSelector((state) => state.notification);
 
     const handleDrawerToggle = () => {
@@ -103,7 +103,16 @@ const Navbar = () => {
                         />
                     </ListItem>
                 ))}
-                {!isAuthenticated ? (
+                {!isInitialized ? (
+                    <ListItem
+                        sx={{
+                            color: 'white',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <ListItemText primary="Loading..." />
+                    </ListItem>
+                ) : !isAuthenticated ? (
                     <ListItem
                         component={Link}
                         to="/login"
@@ -199,7 +208,20 @@ const Navbar = () => {
                         ))}
 
                         {/* Auth Buttons */}
-                        {!isAuthenticated ? (
+                        {!isInitialized ? (
+                            <div style={{
+                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '25px',
+                                padding: '10px 25px',
+                                marginLeft: '15px',
+                                fontWeight: '500',
+                                textAlign: 'center'
+                            }}>
+                                Loading...
+                            </div>
+                        ) : !isAuthenticated ? (
                             <Link to="/login" style={{ textDecoration: 'none' }}>
                                 <button style={{
                                     background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',

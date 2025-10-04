@@ -195,11 +195,17 @@ export const subscriptionAPI = {
   // Get available subscription plans
   getSubscriptionPlans: (params = {}) => apiClient.get('/user/subscription/plans', { params }),
   
-  // Subscribe to a plan
-  subscribeToPlan: (planData) => apiClient.post('/user/subscription/create', planData),
+  // Subscribe to a plan (legacy - use createPaymentIntent instead)
+  subscribeToPlan: (planData) => apiClient.post('/user/subscription/create-payment-intent', planData),
   
-  // Create payment intent for Stripe
-  createPaymentIntent: (planId) => apiClient.post('/user/subscription/create-payment-intent', { planId }),
+  // Create checkout session for Stripe hosted page
+  createCheckoutSession: (planId) => apiClient.post('/user/subscription/create-checkout-session', { planId }),
+  
+  // Get checkout session details
+  getCheckoutSessionDetails: (sessionId) => apiClient.get(`/user/subscription/checkout-session/${sessionId}`),
+  
+  // Process payment manually (for testing)
+  processPaymentManually: (sessionId) => apiClient.post('/user/subscription/process-payment', { sessionId }),
   
   // Confirm payment with Stripe
   confirmPayment: (paymentData) => apiClient.post('/user/subscription/confirm-payment', paymentData),
