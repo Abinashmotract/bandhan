@@ -52,8 +52,18 @@ const Navbar = () => {
         }
     };
 
-    const navItems = [
+    // Public navigation items (visible to all users)
+    const publicNavItems = [
+        { text: 'Home', href: '/' },
+        { text: 'About', href: 'about' },
         { text: 'Search', href: 'search-match' },
+        { text: 'Contact', href: 'contact-us' },
+        { text: 'FAQ', href: 'faq' },
+        { text: 'Blog', href: 'blog' },
+    ];
+
+    // Authenticated navigation items (only visible to logged-in users)
+    const authenticatedNavItems = [
         { text: 'Matches', href: 'matches' },
         { text: 'Favorites', href: 'favorites' },
         { text: 'Messages', href: 'chat' },
@@ -62,12 +72,20 @@ const Navbar = () => {
         { text: 'Profile', href: 'profile' },
     ];
 
-    // Add admin link if user is admin
+    // Get user info for admin check
     const user = useSelector((state) => state.auth.user);
     const isAdmin = user?.role === 'admin';
     
-    if (isAdmin) {
-        navItems.push({ text: 'Admin Panel', href: 'admin' });
+    // Combine navigation items based on authentication status
+    let navItems = [...publicNavItems];
+    
+    if (isAuthenticated) {
+        navItems = [...navItems, ...authenticatedNavItems];
+        
+        // Add admin link if user is admin
+        if (isAdmin) {
+            navItems.push({ text: 'Admin Panel', href: 'admin' });
+        }
     }
 
     const drawer = (

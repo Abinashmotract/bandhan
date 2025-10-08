@@ -74,6 +74,24 @@ import {
     STATE_OPTIONS
 } from '../utils/options/generalOptions';
 
+// Import comprehensive options for dependent dropdowns
+import {
+    COMPREHENSIVE_INDUSTRY_OPTIONS,
+    HEIGHT_OPTIONS,
+    BODY_TYPE_OPTIONS,
+    COMPLEXION_OPTIONS,
+    FITNESS_LEVEL_OPTIONS,
+    FATHER_OCCUPATION_OPTIONS,
+    MOTHER_OCCUPATION_OPTIONS,
+    FAMILY_INCOME_OPTIONS,
+    AGE_OPTIONS,
+    PARTNER_HEIGHT_OPTIONS,
+    getCasteOptions,
+    getSubCasteOptions,
+    getFieldOfStudyOptions,
+    getCityOptions
+} from '../utils/options/comprehensiveOptions';
+
 const Register = ({ onToggleForm }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [activeStep, setActiveStep] = useState(0);
@@ -105,7 +123,7 @@ const Register = ({ onToggleForm }) => {
 
         // Physical Attributes
         height: '',
-        weight: '',
+        weight: '30',
         bodyType: '',
         complexion: '',
 
@@ -158,9 +176,6 @@ const Register = ({ onToggleForm }) => {
         photos: [],
         profileImage: '',
 
-        // Subscription Plan
-        selectedPlan: 'Basic',
-
         agreeToTerms: false
     });
     const [errors, setErrors] = useState({});
@@ -168,7 +183,7 @@ const Register = ({ onToggleForm }) => {
 
     const navigate = useNavigate();
 
-    const steps = ['Account Details', 'Personal Info', 'Family & Lifestyle', 'Preferences', 'Subscription Plan', 'Complete'];
+    const steps = ['Account Details', 'Personal Info', 'Family & Lifestyle', 'Preferences', 'Complete'];
 
     const handleChange = (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -486,7 +501,21 @@ const Register = ({ onToggleForm }) => {
 
                         <FormControl fullWidth margin="normal" required error={!!errors.religion}>
                             <InputLabel>Religion</InputLabel>
-                            <Select name="religion" value={formData.religion} onChange={handleChange} label="Religion">
+                            <Select 
+                                name="religion" 
+                                value={formData.religion} 
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    // Reset caste and subcaste when religion changes
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        religion: e.target.value,
+                                        caste: '',
+                                        subCaste: ''
+                                    }));
+                                }} 
+                                label="Religion"
+                            >
                                 {RELIGION_OPTIONS.map(option => (
                                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                                 ))}
@@ -494,53 +523,45 @@ const Register = ({ onToggleForm }) => {
                             {errors.religion && <Typography variant="caption" color="error">{errors.religion}</Typography>}
                         </FormControl>
 
-                        <TextField
-                            fullWidth
-                            label="Caste"
-                            name="caste"
-                            value={formData.caste}
-                            onChange={handleChange}
-                            margin="normal"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <FamilyRestroom sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal" required error={!!errors.caste}>
+                            <InputLabel>Caste</InputLabel>
+                            <Select 
+                                name="caste" 
+                                value={formData.caste} 
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    // Reset subcaste when caste changes
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        caste: e.target.value,
+                                        subCaste: ''
+                                    }));
+                                }} 
+                                label="Caste"
+                                disabled={!formData.religion}
+                            >
+                                {getCasteOptions(formData.religion).map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                            {errors.caste && <Typography variant="caption" color="error">{errors.caste}</Typography>}
+                        </FormControl>
 
-                        <TextField
-                            fullWidth
-                            label="Sub Caste"
-                            name="subCaste"
-                            value={formData.subCaste}
-                            onChange={handleChange}
-                            margin="normal"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <FamilyRestroom sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Sub-Caste</InputLabel>
+                            <Select 
+                                name="subCaste" 
+                                value={formData.subCaste} 
+                                onChange={handleChange} 
+                                label="Sub-Caste"
+                                disabled={!formData.caste}
+                            >
+                                {getSubCasteOptions(formData.religion, formData.caste).map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
 
                         <FormControl fullWidth margin="normal" required error={!!errors.maritalStatus}>
                             <InputLabel>Marital Status</InputLabel>
@@ -610,7 +631,7 @@ const Register = ({ onToggleForm }) => {
                         <FormControl fullWidth margin="normal">
                             <InputLabel>Industry</InputLabel>
                             <Select name="industry" value={formData.industry} onChange={handleChange} label="Industry">
-                                {INDUSTRY_OPTIONS.map(option => (
+                                {COMPREHENSIVE_INDUSTRY_OPTIONS.map(option => (
                                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                                 ))}
                             </Select>
@@ -625,57 +646,60 @@ const Register = ({ onToggleForm }) => {
                             </Select>
                         </FormControl>
 
-                        <TextField
-                            fullWidth
-                            label="Education"
-                            name="education"
-                            value={formData.education}
-                            onChange={handleChange}
-                            margin="normal"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <School sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal" required error={!!errors.education}>
+                            <InputLabel>Education</InputLabel>
+                            <Select 
+                                name="education" 
+                                value={formData.education} 
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    // Reset field of study when education changes
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        education: e.target.value,
+                                        fieldOfStudy: ''
+                                    }));
+                                }} 
+                                label="Education"
+                            >
+                                {EDUCATION_OPTIONS.map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                            {errors.education && <Typography variant="caption" color="error">{errors.education}</Typography>}
+                        </FormControl>
 
-                        <TextField
-                            fullWidth
-                            label="Field of Study"
-                            name="fieldOfStudy"
-                            value={formData.fieldOfStudy}
-                            onChange={handleChange}
-                            margin="normal"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <School sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Field of Study</InputLabel>
+                            <Select 
+                                name="fieldOfStudy" 
+                                value={formData.fieldOfStudy} 
+                                onChange={handleChange} 
+                                label="Field of Study"
+                                disabled={!formData.education}
+                            >
+                                {getFieldOfStudyOptions(formData.education).map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                        <FormControl fullWidth margin="normal" required error={!!errors.location}>
+                        <FormControl fullWidth margin="normal" required error={!!errors.state}>
                             <InputLabel>State</InputLabel>
-                            <Select name="state" value={formData.state} onChange={handleChange} label="State">
+                            <Select 
+                                name="state" 
+                                value={formData.state} 
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    // Reset city when state changes
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        state: e.target.value,
+                                        city: ''
+                                    }));
+                                }} 
+                                label="State"
+                            >
                                 {STATE_OPTIONS.map(option => (
                                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                                 ))}
@@ -683,32 +707,21 @@ const Register = ({ onToggleForm }) => {
                             {errors.state && <Typography variant="caption" color="error">{errors.state}</Typography>}
                         </FormControl>
 
-                        <TextField
-                            fullWidth
-                            label="City"
-                            name="city"
-                            value={formData.city}
-                            onChange={handleChange}
-                            margin="normal"
-                            required
-                            error={!!errors.city}
-                            helperText={errors.city}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LocationOn sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal" required error={!!errors.city}>
+                            <InputLabel>City</InputLabel>
+                            <Select 
+                                name="city" 
+                                value={formData.city} 
+                                onChange={handleChange} 
+                                label="City"
+                                disabled={!formData.state}
+                            >
+                                {getCityOptions(formData.state).map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                            {errors.city && <Typography variant="caption" color="error">{errors.city}</Typography>}
+                        </FormControl>
 
                         <TextField
                             fullWidth
@@ -745,30 +758,19 @@ const Register = ({ onToggleForm }) => {
                             Physical Attributes
                         </Typography>
 
-                        <TextField
-                            fullWidth
-                            label="Height"
-                            name="height"
-                            value={formData.height}
-                            onChange={handleChange}
-                            margin="normal"
-                            placeholder="e.g., 5ft 8in"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Scale sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Height</InputLabel>
+                            <Select 
+                                name="height" 
+                                value={formData.height} 
+                                onChange={handleChange} 
+                                label="Height"
+                            >
+                                {HEIGHT_OPTIONS.map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <TextField
                             fullWidth
@@ -795,55 +797,33 @@ const Register = ({ onToggleForm }) => {
                             }}
                         />
 
-                        <TextField
-                            fullWidth
-                            label="Body Type"
-                            name="bodyType"
-                            value={formData.bodyType}
-                            onChange={handleChange}
-                            margin="normal"
-                            placeholder="e.g., Athletic"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <FitnessCenter sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Body Type</InputLabel>
+                            <Select 
+                                name="bodyType" 
+                                value={formData.bodyType} 
+                                onChange={handleChange} 
+                                label="Body Type"
+                            >
+                                {BODY_TYPE_OPTIONS.map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                        <TextField
-                            fullWidth
-                            label="Complexion"
-                            name="complexion"
-                            value={formData.complexion}
-                            onChange={handleChange}
-                            margin="normal"
-                            placeholder="e.g., Fair"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Palette sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Complexion</InputLabel>
+                            <Select 
+                                name="complexion" 
+                                value={formData.complexion} 
+                                onChange={handleChange} 
+                                label="Complexion"
+                            >
+                                {COMPLEXION_OPTIONS.map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <Typography variant="h6" sx={{ mt: 3, mb: 1, color: '#d81b60' }}>
                             Lifestyle
@@ -876,30 +856,19 @@ const Register = ({ onToggleForm }) => {
                             </Select>
                         </FormControl>
 
-                        <TextField
-                            fullWidth
-                            label="Fitness Level"
-                            name="fitnessLevel"
-                            value={formData.fitnessLevel}
-                            onChange={handleChange}
-                            margin="normal"
-                            placeholder="e.g., Sports Enthusiast"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <FitnessCenter sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Fitness Level</InputLabel>
+                            <Select 
+                                name="fitnessLevel" 
+                                value={formData.fitnessLevel} 
+                                onChange={handleChange} 
+                                label="Fitness Level"
+                            >
+                                {FITNESS_LEVEL_OPTIONS.map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <Autocomplete
                             multiple
@@ -1025,53 +994,33 @@ const Register = ({ onToggleForm }) => {
                             Family Details
                         </Typography>
 
-                        <TextField
-                            fullWidth
-                            label="Father's Occupation"
-                            name="fatherOccupation"
-                            value={formData.fatherOccupation}
-                            onChange={handleChange}
-                            margin="normal"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Work sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Father's Occupation</InputLabel>
+                            <Select 
+                                name="fatherOccupation" 
+                                value={formData.fatherOccupation} 
+                                onChange={handleChange} 
+                                label="Father's Occupation"
+                            >
+                                {FATHER_OCCUPATION_OPTIONS.map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                        <TextField
-                            fullWidth
-                            label="Mother's Occupation"
-                            name="motherOccupation"
-                            value={formData.motherOccupation}
-                            onChange={handleChange}
-                            margin="normal"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Work sx={{ color: '#d81b60' }} />
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: '12px',
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
-                                    }
-                                }
-                            }}
-                        />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Mother's Occupation</InputLabel>
+                            <Select 
+                                name="motherOccupation" 
+                                value={formData.motherOccupation} 
+                                onChange={handleChange} 
+                                label="Mother's Occupation"
+                            >
+                                {MOTHER_OCCUPATION_OPTIONS.map(option => (
+                                    <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <TextField
                             fullWidth
@@ -1186,7 +1135,7 @@ const Register = ({ onToggleForm }) => {
                         <FormControl fullWidth margin="normal">
                             <InputLabel>Family Income</InputLabel>
                             <Select name="familyIncome" value={formData.familyIncome} onChange={handleChange} label="Family Income">
-                                {ANNUAL_INCOME_OPTIONS.map(option => (
+                                {FAMILY_INCOME_OPTIONS.map(option => (
                                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                                 ))}
                             </Select>
@@ -1255,45 +1204,61 @@ const Register = ({ onToggleForm }) => {
                         </Typography>
 
                         <Box sx={{ display: 'flex', gap: 2 }}>
-                            <TextField
-                                fullWidth
-                                label="Min Age"
-                                name="minAge"
-                                type="number"
-                                value={formData.preferences.ageRange.min}
-                                onChange={(e) => handleNestedChange('preferences', 'ageRange', { ...formData.preferences.ageRange, min: parseInt(e.target.value) })}
-                                margin="normal"
-                            />
-                            <TextField
-                                fullWidth
-                                label="Max Age"
-                                name="maxAge"
-                                type="number"
-                                value={formData.preferences.ageRange.max}
-                                onChange={(e) => handleNestedChange('preferences', 'ageRange', { ...formData.preferences.ageRange, max: parseInt(e.target.value) })}
-                                margin="normal"
-                            />
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel>Min Age</InputLabel>
+                                <Select 
+                                    name="minAge" 
+                                    value={formData.preferences.ageRange.min} 
+                                    onChange={(e) => handleNestedChange('preferences', 'ageRange', { ...formData.preferences.ageRange, min: e.target.value })}
+                                    label="Min Age"
+                                >
+                                    {AGE_OPTIONS.map(option => (
+                                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel>Max Age</InputLabel>
+                                <Select 
+                                    name="maxAge" 
+                                    value={formData.preferences.ageRange.max} 
+                                    onChange={(e) => handleNestedChange('preferences', 'ageRange', { ...formData.preferences.ageRange, max: e.target.value })}
+                                    label="Max Age"
+                                >
+                                    {AGE_OPTIONS.map(option => (
+                                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </Box>
 
                         <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                            <TextField
-                                fullWidth
-                                label="Min Height"
-                                name="minHeight"
-                                value={formData.preferences.heightRange.min}
-                                onChange={(e) => handleNestedChange('preferences', 'heightRange', { ...formData.preferences.heightRange, min: e.target.value })}
-                                margin="normal"
-                                placeholder="e.g., 5ft"
-                            />
-                            <TextField
-                                fullWidth
-                                label="Max Height"
-                                name="maxHeight"
-                                value={formData.preferences.heightRange.max}
-                                onChange={(e) => handleNestedChange('preferences', 'heightRange', { ...formData.preferences.heightRange, max: e.target.value })}
-                                margin="normal"
-                                placeholder="e.g., 6ft"
-                            />
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel>Min Height</InputLabel>
+                                <Select 
+                                    name="minHeight" 
+                                    value={formData.preferences.heightRange.min} 
+                                    onChange={(e) => handleNestedChange('preferences', 'heightRange', { ...formData.preferences.heightRange, min: e.target.value })}
+                                    label="Min Height"
+                                >
+                                    {PARTNER_HEIGHT_OPTIONS.map(option => (
+                                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel>Max Height</InputLabel>
+                                <Select 
+                                    name="maxHeight" 
+                                    value={formData.preferences.heightRange.max} 
+                                    onChange={(e) => handleNestedChange('preferences', 'heightRange', { ...formData.preferences.heightRange, max: e.target.value })}
+                                    label="Max Height"
+                                >
+                                    {PARTNER_HEIGHT_OPTIONS.map(option => (
+                                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </Box>
 
                         <Autocomplete
@@ -1559,162 +1524,6 @@ const Register = ({ onToggleForm }) => {
                     </>
                 );
             case 4:
-                return (
-                    <>
-                        <Typography variant="h6" sx={{ mt: 2, mb: 3, color: '#d81b60', textAlign: 'center' }}>
-                            Choose Your Subscription Plan
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 3, color: '#78909c', textAlign: 'center' }}>
-                            Select the plan that best fits your matrimonial journey
-                        </Typography>
-
-                        <Grid container spacing={2}>
-                            {[
-                                {
-                                    name: 'Basic',
-                                    price: 'Free',
-                                    duration: 'Forever',
-                                    features: [
-                                        'View 5 profiles per day',
-                                        'Basic profile information',
-                                        'Create your profile',
-                                        'Basic search filters'
-                                    ],
-                                    color: '#9c27b0',
-                                    popular: false
-                                },
-                                {
-                                    name: 'Entry',
-                                    price: '₹999',
-                                    duration: '3 months',
-                                    features: [
-                                        'View 20 profiles',
-                                        'Send 5 interests',
-                                        'Profile shortlisting (5 profiles)',
-                                        'Messaging (5 profiles)',
-                                        'Contact views (5 profiles)'
-                                    ],
-                                    color: '#d81b60',
-                                    popular: true
-                                },
-                                {
-                                    name: 'Advanced',
-                                    price: '₹4500',
-                                    duration: '3 months',
-                                    features: [
-                                        'View 50 profiles',
-                                        'Send 50 interests',
-                                        'Daily recommendations',
-                                        'Advanced search filters',
-                                        'Horoscope matching',
-                                        'See who viewed your profile'
-                                    ],
-                                    color: '#ff6f00',
-                                    popular: false
-                                },
-                                {
-                                    name: 'Premium',
-                                    price: '₹7999',
-                                    duration: '3 months',
-                                    features: [
-                                        'Unlimited profile views',
-                                        'Unlimited interests',
-                                        'Unlimited messaging',
-                                        'Video/voice calling',
-                                        'Priority support',
-                                        'Profile boost'
-                                    ],
-                                    color: '#4caf50',
-                                    popular: false
-                                },
-                                {
-                                    name: 'Elite',
-                                    price: '₹19999',
-                                    duration: '3 months',
-                                    features: [
-                                        'All Premium features',
-                                        'Elite member badge',
-                                        'Dedicated relationship manager',
-                                        'Exclusive elite features',
-                                        'Advanced AI matching'
-                                    ],
-                                    color: '#ff9800',
-                                    popular: false
-                                }
-                            ].map((plan, index) => (
-                                <Grid item xs={12} sm={6} md={4} key={index}>
-                                    <Card
-                                        sx={{
-                                            p: 2,
-                                            textAlign: 'center',
-                                            cursor: 'pointer',
-                                            border: formData.selectedPlan === plan.name ? `2px solid ${plan.color}` : '2px solid transparent',
-                                            transition: 'all 0.3s ease',
-                                            '&:hover': {
-                                                transform: 'translateY(-4px)',
-                                                boxShadow: 4
-                                            },
-                                            position: 'relative'
-                                        }}
-                                        onClick={() => setFormData({ ...formData, selectedPlan: plan.name })}
-                                    >
-                                        {plan.popular && (
-                                            <Chip
-                                                label="Most Popular"
-                                                sx={{
-                                                    position: 'absolute',
-                                                    top: -10,
-                                                    left: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    backgroundColor: plan.color,
-                                                    color: 'white',
-                                                    fontWeight: 'bold'
-                                                }}
-                                            />
-                                        )}
-                                        <Typography variant="h6" sx={{ color: plan.color, fontWeight: 'bold', mb: 1 }}>
-                                            {plan.name}
-                                        </Typography>
-                                        <Typography variant="h4" sx={{ color: '#37474f', fontWeight: 'bold', mb: 0.5 }}>
-                                            {plan.price}
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#78909c', mb: 2 }}>
-                                            {plan.duration}
-                                        </Typography>
-                                        <List dense>
-                                            {plan.features.map((feature, idx) => (
-                                                <ListItem key={idx} sx={{ py: 0.5, px: 0 }}>
-                                                    <ListItemIcon sx={{ minWidth: 24 }}>
-                                                        <CheckIcon sx={{ color: plan.color, fontSize: 16 }} />
-                                                    </ListItemIcon>
-                                                    <ListItemText 
-                                                        primary={feature} 
-                                                        primaryTypographyProps={{ fontSize: '0.8rem' }}
-                                                    />
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                        {formData.selectedPlan === plan.name && (
-                                            <Box sx={{ mt: 1 }}>
-                                                <Chip
-                                                    label="Selected"
-                                                    color="primary"
-                                                    size="small"
-                                                    icon={<CheckIcon />}
-                                                />
-                                            </Box>
-                                        )}
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-
-                        <Typography variant="body2" sx={{ mt: 3, color: '#78909c', textAlign: 'center' }}>
-                            You can upgrade or change your plan anytime after registration
-                        </Typography>
-                    </>
-                );
-            case 5:
                 return (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                         <Favorite sx={{ fontSize: 60, color: '#d81b60', mb: 2 }} />
