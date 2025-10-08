@@ -22,7 +22,9 @@ const Footer = () => {
         { label: 'Success Stories', path: '/success-stories' },
         { label: 'Blog', path: '/blog' },
         { label: 'Careers', path: '/careers' },
-        { label: 'Contact Us', path: '/contact-us' }
+        { label: 'Contact Us', path: '/contact-us' },
+        { label: 'Terms & Conditions', path: '/terms-condition' },
+        { label: 'Privacy Policy', path: '/privacy-policy' },
     ];
 
     const supportLinks = [

@@ -24,6 +24,8 @@ import VerificationPage from "./pages/VerificationPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import AdminPanel from "./pages/AdminPanel";
 import FavoritesPage from "./pages/FavoritesPage";
+import TermsConditions from "./pages/TermsConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Protected routes array - यहाँ सभी protected routes डालें
 const protectedRoutes = [
@@ -51,32 +53,33 @@ const publicRoutes = [
   { path: "/reset-password", component: ResetPassword },
   { path: "/contact-us", component: ContactUs },
   { path: "/faq", component: FAQPage },
-  { path: "/blog", component: BlogPage }
+  { path: "/blog", component: BlogPage },
+  { path: "/terms-condition", component: TermsConditions },
+  { path: "/privacy-policy", component: PrivacyPolicy }
 ];
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        {/* Public Routes */}
         {publicRoutes.map((route) => (
-          <Route 
-            key={route.path} 
-            path={route.path} 
-            element={<route.component />} 
+          <Route
+            key={route.path}
+            path={route.path}
+            element={<route.component />}
           />
         ))}
-        
+
         {/* Protected Routes */}
         {protectedRoutes.map((route) => (
-          <Route 
-            key={route.path} 
-            path={route.path} 
+          <Route
+            key={route.path}
+            path={route.path}
             element={
               <ProtectedRoute>
                 <route.component />
               </ProtectedRoute>
-            } 
+            }
           />
         ))}
 

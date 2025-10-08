@@ -11,8 +11,7 @@ import {
   ListItemText,
   Divider,
   Chip,
-  Alert,
-  IconButton
+  Alert
 } from '@mui/material';
 import {
   CheckCircle,
@@ -22,11 +21,7 @@ import {
   PrivacyTip,
   Gavel,
   ContactSupport,
-  ArrowForward,
-  Facebook,
-  Instagram,
-  Twitter,
-  LinkedIn
+  ArrowForward
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
@@ -47,35 +42,17 @@ const TermsAndConditions = () => {
   };
 
   return (
-    <Box sx={{
-      minHeight: '100vh',
-      position: 'relative',
-      overflow: 'hidden',
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        top: 0,
-        left: 0,
-        zIndex: 0
-      }
+    <Box sx={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.03) 0%, rgba(200, 162, 200, 0.05) 100%)',
+      py: 4
     }}>
-      <Container maxWidth="false" sx={{ position: 'relative', zIndex: 1 }}>
+      <Container maxWidth="lg">
         {/* Header Section */}
-        <Box sx={{
-          textAlign: 'center',
-          py: 8,
-          opacity: 0,
-          animation: 'fadeInUp 1s ease forwards',
-          '@keyframes fadeInUp': {
-            '0%': { opacity: 0, transform: 'translateY(40px)' },
-            '100%': { opacity: 1, transform: 'translateY(0)' }
-          }
-        }}>
-          <Typography variant="h2" sx={{
-            fontWeight: 800,
-            color: '#C8A2C8',
+        <Box sx={{ textAlign: 'center', mb: 6 }}>
+          <Typography variant="h2" sx={{ 
+            fontWeight: 800, 
+            color: '#C8A2C8', 
             fontStyle: 'italic',
             mb: 2
           }}>
@@ -84,14 +61,8 @@ const TermsAndConditions = () => {
           <Typography variant="h6" sx={{ color: 'black', mb: 3 }}>
             Last Updated: {new Date().toLocaleDateString()}
           </Typography>
-
-          <Alert severity="info" sx={{
-            mb: 3,
-            textAlign: 'left',
-            maxWidth: 800,
-            mx: 'auto',
-            background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05) 0%, rgba(136, 14, 79, 0.03) 100%)'
-          }}>
+          
+          <Alert severity="info" sx={{ mb: 3, textAlign: 'left', maxWidth: 800, mx: 'auto' }}>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
               Please read these Terms & Conditions carefully before using Bandhnam services.
             </Typography>
@@ -104,11 +75,10 @@ const TermsAndConditions = () => {
                 icon={<CheckCircle sx={{ fontSize: 16 }} />}
                 label={point}
                 variant="outlined"
-                sx={{
-                  color: '#d81b60',
+                sx={{ 
+                  color: '#d81b60', 
                   borderColor: '#d81b60',
-                  fontWeight: 500,
-                  background: 'rgba(255, 255, 255, 0.9)'
+                  fontWeight: 500
                 }}
               />
             ))}
@@ -116,22 +86,21 @@ const TermsAndConditions = () => {
         </Box>
 
         {/* Main Content */}
-        <Card sx={{
-          p: { xs: 3, md: 6 },
+        <Card sx={{ 
+          p: { xs: 3, md: 6 }, 
           borderRadius: '20px',
           boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-          background: 'rgba(255, 255, 255, 0.95)',
-          mb: 6
+          background: 'rgba(255, 255, 255, 0.95)'
         }}>
           {/* Introduction */}
           <Box sx={{ mb: 6 }}>
             <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700 }}>
               Welcome to Bandhnam
             </Typography>
-            <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, mb: 2, fontSize: '1.1rem' }}>
+            <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, mb: 2 }}>
               Welcome to <strong>Bandhnam (bandhnam.com)</strong>, a matrimonial service designed to help individuals and families connect for the purpose of marriage. By accessing, registering, or using Bandhnam (through our website, mobile app, or any other platform), you agree to be bound by the following Terms & Conditions ("Terms").
             </Typography>
-            <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, fontWeight: 600, fontSize: '1.1rem' }}>
+            <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, fontWeight: 600 }}>
               Please read them carefully before proceeding. If you do not agree, you should not use our services.
             </Typography>
           </Box>
@@ -140,7 +109,7 @@ const TermsAndConditions = () => {
 
           {/* Section 1: Eligibility */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <Gavel sx={{ mr: 2 }} />
               1. Eligibility
             </Typography>
@@ -149,36 +118,36 @@ const TermsAndConditions = () => {
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="You must be at least 18 years of age (for women) and 21 years of age (for men) to register as per Indian law."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="By creating an account, you confirm that you are legally competent to marry under the applicable personal laws in India or your country of residence."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="You are registering either for yourself or on behalf of a family member with their consent."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Any misrepresentation of age, marital status, or personal details will result in suspension/termination of your account."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600 }}
                 />
               </ListItem>
             </List>
@@ -188,7 +157,7 @@ const TermsAndConditions = () => {
 
           {/* Section 2: Account Creation & Use */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
               2. Account Creation & Use
             </Typography>
             <List>
@@ -196,27 +165,27 @@ const TermsAndConditions = () => {
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="You must provide accurate, complete, and updated information during registration."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Security sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="You are responsible for maintaining the confidentiality of your login credentials. Bandhnam is not liable for unauthorized use of your account."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Each account is for individual use only; multiple accounts for the same person are not allowed."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
             </List>
@@ -226,7 +195,7 @@ const TermsAndConditions = () => {
 
           {/* Section 3: Services */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
               3. Services
             </Typography>
             <List>
@@ -234,27 +203,27 @@ const TermsAndConditions = () => {
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Bandhnam provides both free and paid services."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Payment sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Certain premium features (such as direct messaging, priority listing, advanced filters, etc.) may only be available upon subscription."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Payments are non-refundable unless explicitly mentioned."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600 }}
                 />
               </ListItem>
             </List>
@@ -264,10 +233,10 @@ const TermsAndConditions = () => {
 
           {/* Section 4: User Obligations */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
               4. User Obligations
             </Typography>
-            <Typography variant="body1" sx={{ color: 'black', mb: 3, lineHeight: 1.7, fontSize: '1.1rem' }}>
+            <Typography variant="body1" sx={{ color: 'black', mb: 3, lineHeight: 1.7 }}>
               By using Bandhnam, you agree to:
             </Typography>
             <List>
@@ -275,36 +244,36 @@ const TermsAndConditions = () => {
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Use the platform only for matrimonial purposes."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Not misuse or harass other members."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Not post content that is false, offensive, illegal, obscene, discriminatory, or misleading."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Respect the privacy and consent of other members."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
             </List>
@@ -317,7 +286,7 @@ const TermsAndConditions = () => {
 
           {/* Section 6: Privacy & Data Protection */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <PrivacyTip sx={{ mr: 2 }} />
               6. Privacy & Data Protection
             </Typography>
@@ -326,27 +295,27 @@ const TermsAndConditions = () => {
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Bandhnam values your privacy. All information collected is handled in accordance with our Privacy Policy."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Information provided may be used for displaying your profile, enhancing matchmaking algorithms, and service improvements."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Security sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Sensitive details (such as contact information) are shared only with your consent or through paid features."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
             </List>
@@ -356,7 +325,7 @@ const TermsAndConditions = () => {
 
           {/* Section 9: Limitation of Liability */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
               9. Limitation of Liability
             </Typography>
             <Alert severity="info" sx={{ mb: 3 }}>
@@ -369,18 +338,18 @@ const TermsAndConditions = () => {
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Users are advised to verify personal and family details independently before proceeding with marriage discussions."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Bandhnam is not responsible for misrepresentations by users, failed communications, rejections, disputes, or any damages incurred during interactions."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
             </List>
@@ -390,7 +359,7 @@ const TermsAndConditions = () => {
 
           {/* Section 10: Safety Guidelines */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
               10. Safety Guidelines
             </Typography>
             <Alert severity="warning" sx={{ mb: 3 }}>
@@ -401,27 +370,27 @@ const TermsAndConditions = () => {
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Security sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Do not share financial details or personal documents with other users without verification."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Security sx={{ color: '#d81b60', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Meet in safe, public places before moving forward."
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7 }}
                 />
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText 
                   primary="Report any suspicious activity immediately to adm1.bandhnam@gmail.com"
-                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600, fontSize: '1.1rem' }}
+                  primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600 }}
                 />
               </ListItem>
             </List>
@@ -431,10 +400,10 @@ const TermsAndConditions = () => {
 
           {/* Section 13: Governing Law */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
               13. Governing Law & Jurisdiction
             </Typography>
-            <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.7, fontStyle: 'italic', fontSize: '1.1rem' }}>
+            <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.7, fontStyle: 'italic' }}>
               These Terms shall be governed by and construed in accordance with the laws of India. All disputes shall be subject to the exclusive jurisdiction of the courts at New Delhi, India.
             </Typography>
           </Box>
@@ -443,25 +412,21 @@ const TermsAndConditions = () => {
 
           {/* Section 15: Contact Information */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <ContactSupport sx={{ mr: 2 }} />
               15. Contact
             </Typography>
-            <Card sx={{
-              p: 3,
-              background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05) 0%, rgba(200, 162, 200, 0.1) 100%)',
-              borderRadius: '20px'
-            }}>
+            <Card sx={{ p: 3, background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05) 0%, rgba(200, 162, 200, 0.1) 100%)' }}>
               <Typography variant="h6" sx={{ color: '#d81b60', mb: 2 }}>
                 Bandhnam
               </Typography>
-              <Typography variant="body1" sx={{ color: 'black', mb: 1, fontSize: '1.1rem' }}>
+              <Typography variant="body1" sx={{ color: 'black', mb: 1 }}>
                 <strong>Address:</strong> {contactInfo.address}
               </Typography>
-              <Typography variant="body1" sx={{ color: 'black', mb: 1, fontSize: '1.1rem' }}>
+              <Typography variant="body1" sx={{ color: 'black', mb: 1 }}>
                 <strong>Email:</strong> {contactInfo.email}
               </Typography>
-              <Typography variant="body1" sx={{ color: 'black', mb: 1, fontSize: '1.1rem' }}>
+              <Typography variant="body1" sx={{ color: 'black', mb: 1 }}>
                 <strong>Website:</strong> {contactInfo.website}
               </Typography>
             </Card>
@@ -476,11 +441,11 @@ const TermsAndConditions = () => {
                 By registering on Bandhnam, you acknowledge that you have read, understood, and agreed to these Terms & Conditions.
               </Typography>
             </Alert>
-
+            
             <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to="/register" style={{ textDecoration: 'none' }}>
-                <Button
-                  variant="contained"
+                <Button 
+                  variant="contained" 
                   endIcon={<ArrowForward />}
                   sx={{
                     borderRadius: '50px',
@@ -496,8 +461,8 @@ const TermsAndConditions = () => {
                   I Agree - Continue to Register
                 </Button>
               </Link>
-
-              <Button
+              
+              <Button 
                 variant="outlined"
                 sx={{
                   borderRadius: '50px',
@@ -517,27 +482,6 @@ const TermsAndConditions = () => {
             </Box>
           </Box>
         </Card>
-
-        {/* Footer */}
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <Box sx={{ mb: 2 }}>
-            <IconButton sx={{ color: '#d81b60', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
-              <Facebook />
-            </IconButton>
-            <IconButton sx={{ color: '#d81b60', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
-              <Instagram />
-            </IconButton>
-            <IconButton sx={{ color: '#d81b60', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
-              <Twitter />
-            </IconButton>
-            <IconButton sx={{ color: '#d81b60', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
-              <LinkedIn />
-            </IconButton>
-          </Box>
-          <Typography variant="body2" sx={{ color: 'black' }}>
-            © 2023 Bandhnam. All rights reserved.
-          </Typography>
-        </Box>
       </Container>
     </Box>
   );
