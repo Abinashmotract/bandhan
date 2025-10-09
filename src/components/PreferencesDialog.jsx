@@ -320,7 +320,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
             >
                 <DialogTitle
                     sx={{
-                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                        background: "#51365F",
                         color: "white",
                         display: "flex",
                         justifyContent: "space-between",
@@ -356,7 +356,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                 zIndex: 1,
                                 position: "relative",
                                 "&.Mui-selected": {
-                                    color: "#d81b60",
+                                    color: "#51365F",
                                     fontWeight: 600,
                                 },
                             },
@@ -507,7 +507,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                 component="label"
                                 startIcon={<PhotoCamera />}
                                 sx={{
-                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                    background: "#51365F",
                                     "&:hover": {
                                         background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
                                     },
@@ -553,7 +553,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                         <Grid container spacing={3}>
                             <Grid item xs={12} md={6}>
                                 <Box sx={{mb: 3}}>
-                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#d81b60", fontWeight: 600}}>
+                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#51365F", fontWeight: 600}}>
                                         Age Range *
                                     </Typography>
                                     <Box sx={{display: "flex", gap: 2}}>
@@ -579,7 +579,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                 </Box>
 
                                 <Box sx={{mb: 3}}>
-                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#d81b60", fontWeight: 600}}>
+                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#51365F", fontWeight: 600}}>
                                         Height *
                                     </Typography>
                                     <TextField
@@ -615,7 +615,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                 </Box>
 
                                 <Box sx={{mb: 3}}>
-                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#d81b60", fontWeight: 600}}>
+                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#51365F", fontWeight: 600}}>
                                         Marital Status *
                                     </Typography>
                                     <TextField
@@ -634,7 +634,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                 </Box>
 
                                 <Box sx={{mb: 3}}>
-                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#d81b60", fontWeight: 600}}>
+                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#51365F", fontWeight: 600}}>
                                         Religion *
                                     </Typography>
                                     <TextField
@@ -655,7 +655,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
 
                             <Grid item xs={12} md={6}>
                                 <Box sx={{mb: 3}}>
-                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#d81b60", fontWeight: 600}}>
+                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#51365F", fontWeight: 600}}>
                                         Education *
                                     </Typography>
                                     <TextField
@@ -668,7 +668,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                 </Box>
 
                                 <Box sx={{mb: 3}}>
-                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#d81b60", fontWeight: 600}}>
+                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#51365F", fontWeight: 600}}>
                                         Profession *
                                     </Typography>
                                     <TextField
@@ -681,7 +681,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                 </Box>
 
                                 <Box sx={{mb: 3}}>
-                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#d81b60", fontWeight: 600}}>
+                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#51365F", fontWeight: 600}}>
                                         Location *
                                     </Typography>
                                     <TextField
@@ -694,7 +694,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                                 </Box>
 
                                 <Box sx={{mb: 3}}>
-                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#d81b60", fontWeight: 600}}>
+                                    <Typography variant="subtitle2" sx={{mb: 1, color: "#51365F", fontWeight: 600}}>
                                         Diet Preference *
                                     </Typography>
                                     <TextField
@@ -723,8 +723,8 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                         sx={{
                             borderRadius: "25px",
                             px: 4,
-                            borderColor: "#d81b60",
-                            color: "#d81b60",
+                            borderColor: "#51365F",
+                            color: "#51365F",
                             "&:hover": {
                                 borderColor: "#880e4f",
                                 backgroundColor: "rgba(216, 27, 96, 0.1)",
@@ -740,7 +740,7 @@ const PreferencesDialog = ({open, onClose, currentPreferences, user, onUpdateSuc
                         sx={{
                             borderRadius: "25px",
                             px: 4,
-                            background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                            background: "#51365F",
                             "&:hover": {
                                 background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
                             },

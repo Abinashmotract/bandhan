@@ -25,18 +25,22 @@ import {
     School as SchoolIcon,
     ArrowForward as ArrowForwardIcon,
     Person as PersonIcon,
+    Send as SendIcon,
 } from "@mui/icons-material";
 import {motion} from "framer-motion";
 import {useInView} from "react-intersection-observer";
 import {useAnimation} from "framer-motion";
 import {useEffect as useEffectReact} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
 import {API_BASE_URL} from "../utils/api";
 import defaultImg from "../assets/default.jpeg";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMatchedProfiles } from "../store/slices/profileSlice";
+import { sendInterest } from "../store/slices/interactionSlice";
+import { useSubscription } from "../contexts/SubscriptionContext";
+import { showSuccess, showError } from "../utils/toast";
 
 // Animation variants
 const fadeInUp = {
@@ -100,7 +104,7 @@ const ProfileAvatar = ({name, image, sx = {}}) => {
             sx={{
                 width: 60,
                 height: 60,
-                bgcolor: "#C8A2C8",
+                bgcolor: "#51365F",
                 ...sx,
             }}
         >
@@ -112,9 +116,12 @@ const ProfileAvatar = ({name, image, sx = {}}) => {
 const FeaturedProfiles = () => {
     // const [error, setError] = useState(null);
     const [likedProfiles, setLikedProfiles] = useState(new Set());
+    const [interestSent, setInterestSent] = useState(new Set());
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { profiles, loading, error } = useSelector((state) => state.profiles);
+    const { canSendInterest, getRemainingInterests, getInterestLimit } = useSubscription();
 
     useEffect(() => {
         dispatch(fetchMatchedProfiles());
@@ -130,6 +137,26 @@ const FeaturedProfiles = () => {
             newLikedProfiles.add(profileId);
         }
         setLikedProfiles(newLikedProfiles);
+    };
+
+    const handleInterest = async (profileId) => {
+        // Check if user can send interest
+        if (!canSendInterest()) {
+            navigate('/membership');
+            return;
+        }
+
+        try {
+            await dispatch(sendInterest({ 
+                userId: profileId, 
+                interestData: { message: "I'm interested in connecting with you!" } 
+            })).unwrap();
+            
+            setInterestSent(prev => new Set([...prev, profileId]));
+            showSuccess("Interest sent successfully!");
+        } catch (error) {
+            showError(error || "Failed to send interest");
+        }
     };
 
     // Sample interests for profiles
@@ -153,7 +180,7 @@ const FeaturedProfiles = () => {
                     component="h2"
                     align="center"
                     sx={{
-                        color: "#C8A2C8",
+                        color: "#51365F",
                         mb: 2,
                         fontWeight: "bold",
                         fontStyle: "italic",
@@ -170,12 +197,39 @@ const FeaturedProfiles = () => {
                     sx={{
                         color: "black",
                         maxWidth: "600px",
-                        margin: "0 auto 50px",
+                        margin: "0 auto 30px",
                         fontSize: "1.1rem",
                     }}
                 >
                     Discover genuine profiles from our verified community members
                 </Typography>
+                
+                {/* Interest Limit Display */}
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 2,
+                    background: 'linear-gradient(135deg, rgba(81, 54, 95, 0.1) 0%, rgba(58, 38, 64, 0.05) 100%)',
+                    padding: '12px 24px',
+                    borderRadius: '25px',
+                    border: '1px solid rgba(81, 54, 95, 0.2)',
+                    margin: '0 auto 50px',
+                    maxWidth: '400px'
+                }}>
+                    <Typography variant="body1" sx={{ color: '#51365F', fontWeight: 600 }}>
+                        Interests Remaining: 
+                    </Typography>
+                    <Chip
+                        label={getRemainingInterests() === -1 ? 'Unlimited' : `${getRemainingInterests()}/${getInterestLimit()}`}
+                        sx={{
+                            background: getRemainingInterests() === 0 ? '#ffebee' : 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
+                            color: getRemainingInterests() === 0 ? '#d32f2f' : 'white',
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem'
+                        }}
+                    />
+                </Box>
             </AnimatedSection>
 
             {loading ? (
@@ -222,7 +276,17 @@ const FeaturedProfiles = () => {
                 <Grid container spacing={2}>
                     {profiles?.slice(0, 4).map((profile, index) => {
                         const age = calculateAge(profile.dob);
-                        const profileImage = profile.profileImage || defaultImg;
+                        
+                        // Use specific images for featured profiles
+                        let profileImage = profile.profileImage || defaultImg;
+                        if (profile._id === "68d8385868c4ba9ede975941") {
+                            profileImage = "https://imgs.search.brave.com/g4dLcOCvvKbKMmqnuJ1au8GRGfARNC5KepKZ9jmUc44/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cudGVsdWd1b25lLmNvbS9waG90b3MvdXBsb2Fkc0V4dC91cGxvYWRzL0thdnlhJTIwS2FseWFucmFtL0thdnlhJTIwS2FseWFuUmFtJTIwTmV3JTIwR2FsbGVyeS9LYXZ5YSUyMEthbHlhblJh bSUyMEdhbGxlcnkud2VicA";
+                        } else if (profile._id === "68d8385868c4ba9ede975942") {
+                            profileImage = "https://imgs.search.brave.com/F599isaQp8REE-T6yabqck42qIFYv2n4TL9WkiB3HM4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cuZGl0dW5pdmVyc2l0eS5lZHUuaW4vdXBsb2Fkcy9mYWN1bHR5X2ltYWdlcy8xNjg3ODU3MTA4XzEyYzBjZWYyMWE4YzM5N2NiODMzLndlYnA";
+                        } else if (profile._id === "68d8385868c4ba9ede975935") {
+                            profileImage = "https://imgs.search.brave.com/FW7DkG27fkN2oDlgfKHD8UzOwhuYnBXDn0RFUIWs16I/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0aWMudG9paW1nLmNvbS90aHVtYi9pbWdz/aXplLTIzNDU2LG1zaWQtODgxNDAxMDAsd2lkdGgtNjAwLHJl/c2l6ZW1vZGUtNC84ODE0MDEwMC5qcGc";
+                        }
+                        
                         const profileInterests = sampleInterests[index % sampleInterests.length];
                         const isLiked = likedProfiles.has(profile._id);
 
@@ -275,10 +339,10 @@ const FeaturedProfiles = () => {
                                                     size="small"
                                                     onClick={() => handleLike(profile._id)}
                                                     sx={{
-                                                        color: isLiked ? "#d81b60" : "#ccc",
+                                                        color: isLiked ? "#51365F" : "#ccc",
                                                         transition: "color 0.3s",
                                                         "&:hover": {
-                                                            color: "#d81b60",
+                                                            color: "#51365F",
                                                         },
                                                     }}
                                                 >
@@ -293,7 +357,7 @@ const FeaturedProfiles = () => {
                                                     position: "absolute",
                                                     top: -25,
                                                     left: 20,
-                                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                                    background: "#51365F",
                                                     borderRadius: "50%",
                                                     width: 60,
                                                     height: 60,
@@ -329,7 +393,7 @@ const FeaturedProfiles = () => {
                                                                 mb: 0.5,
                                                                 fontWeight: 600,
                                                                 background:
-                                                                    "linear-gradient(135deg, #37474f 0%, #d81b60 50%)",
+                                                                    "linear-gradient(135deg, #37474f 0%, #51365F 50%)",
                                                                 backgroundClip: "text",
                                                                 WebkitBackgroundClip: "text",
                                                                 WebkitTextFillColor: "transparent",
@@ -350,7 +414,7 @@ const FeaturedProfiles = () => {
                                                 </Box>
 
                                                 <Box sx={{display: "flex", alignItems: "center", mb: 1.5, mt: 2}}>
-                                                    <WorkIcon sx={{fontSize: 18, mr: 1.5, color: "#C8A2C8"}} />
+                                                    <WorkIcon sx={{fontSize: 18, mr: 1.5, color: "#51365F"}} />
                                                     <Typography
                                                         variant="body2"
                                                         sx={{color: "text.secondary", fontSize: "0.9rem"}}
@@ -360,7 +424,7 @@ const FeaturedProfiles = () => {
                                                 </Box>
 
                                                 <Box sx={{display: "flex", alignItems: "center", mb: 2}}>
-                                                    <LocationIcon sx={{fontSize: 18, mr: 1.5, color: "#C8A2C8"}} />
+                                                    <LocationIcon sx={{fontSize: 18, mr: 1.5, color: "#51365F"}} />
                                                     <Typography
                                                         variant="body2"
                                                         sx={{color: "text.secondary", fontSize: "0.9rem"}}
@@ -378,8 +442,8 @@ const FeaturedProfiles = () => {
                                                                 size="small"
                                                                 variant="outlined"
                                                                 sx={{
-                                                                    borderColor: "#C8A2C8",
-                                                                    color: "#C8A2C8",
+                                                                    borderColor: "#51365F",
+                                                                    color: "#51365F",
                                                                     fontSize: "0.7rem",
                                                                     height: 24,
                                                                 }}
@@ -393,29 +457,54 @@ const FeaturedProfiles = () => {
                                                     precision={0.5}
                                                     readOnly
                                                     size="small"
-                                                    sx={{mt: 2, color: "#C8A2C8"}}
+                                                    sx={{mt: 2, color: "#51365F"}}
                                                 />
                                             </Box>
                                         </CardContent>
 
-                                        <CardActions sx={{p: 3, pt: 0}}>
+                                        <CardActions sx={{p: 3, pt: 0, gap: 1}}>
                                             <Button
                                                 fullWidth
                                                 variant="contained"
+                                                startIcon={<SendIcon />}
+                                                onClick={() => handleInterest(profile._id)}
+                                                disabled={interestSent.has(profile._id)}
+                                                sx={{
+                                                    borderRadius: "15px",
+                                                    py: 1.2,
+                                                    background: interestSent.has(profile._id) ? "#7A5A7A" : "#51365F",
+                                                    fontWeight: "600",
+                                                    fontSize: "0.9rem",
+                                                    textTransform: "none",
+                                                    boxShadow: "0 5px 15px rgba(81, 54, 95, 0.3)",
+                                                    transition: "all 0.3s ease",
+                                                    "&:hover": {
+                                                        transform: "translateY(-2px)",
+                                                        boxShadow: "0 8px 20px rgba(81, 54, 95, 0.4)",
+                                                        background: interestSent.has(profile._id) ? "#7A5A7A" : "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
+                                                    },
+                                                }}
+                                            >
+                                                {interestSent.has(profile._id) ? "Interest Sent" : "Send Interest"}
+                                            </Button>
+                                            <Button
+                                                fullWidth
+                                                variant="outlined"
                                                 startIcon={<ChatIcon />}
                                                 sx={{
                                                     borderRadius: "15px",
                                                     py: 1.2,
-                                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                                    borderColor: "#51365F",
+                                                    color: "#51365F",
                                                     fontWeight: "600",
                                                     fontSize: "0.9rem",
                                                     textTransform: "none",
-                                                    boxShadow: "0 5px 15px rgba(136, 14, 79, 0.3)",
                                                     transition: "all 0.3s ease",
                                                     "&:hover": {
+                                                        borderColor: "#3A2640",
+                                                        color: "#3A2640",
                                                         transform: "translateY(-2px)",
-                                                        boxShadow: "0 8px 20px rgba(136, 14, 79, 0.4)",
-                                                        background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
+                                                        boxShadow: "0 8px 20px rgba(81, 54, 95, 0.2)",
                                                     },
                                                 }}
                                             >
@@ -440,7 +529,7 @@ const FeaturedProfiles = () => {
                                 borderRadius: "50px",
                                 px: 5,
                                 py: 1.5,
-                                background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                background: "#51365F",
                                 fontWeight: "bold",
                                 fontSize: "1.1rem",
                                 boxShadow: "0 8px 25px rgba(136, 14, 79, 0.3)",

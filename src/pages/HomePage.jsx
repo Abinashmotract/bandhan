@@ -149,7 +149,7 @@ const HomePage = () => {
                         key={item}
                         sx={{
                             position: "absolute",
-                            color: item % 2 === 0 ? "#ff9eb6" : "#d81b60",
+                            color: item % 2 === 0 ? "#7A5A7A" : "#51365F",
                             fontSize: "24px",
                             opacity: 0.7,
                             animation: `floatHeart 15s infinite ease-in-out ${item * 1.5}s`,
@@ -171,7 +171,7 @@ const HomePage = () => {
                             borderRadius: item % 3 === 0 ? "50%" : "10px",
                             background:
                                 item % 2 === 0
-                                    ? "linear-gradient(135deg, rgba(216, 27, 96, 0.2) 0%, rgba(136, 14, 79, 0.1) 100%)"
+                                    ? "linear-gradient(135deg, rgba(216, 27, 96, 0.2) 0%, rgba(58, 38, 64, 0.1) 100%)"
                                     : "linear-gradient(135deg, rgba(255, 200, 220, 0.3) 0%, rgba(248, 187, 208, 0.2) 100%)",
                             animation: `float 8s infinite ease-in-out ${item * 0.5}s`,
                             top: `${Math.random() * 80 + 10}%`,
@@ -190,7 +190,7 @@ const HomePage = () => {
                                     component="h1"
                                     gutterBottom
                                     sx={{
-                                        color: "#C8A2C8",
+                                        color: "#51365F",
                                         fontWeight: 800,
                                         fontSize: { xs: "2.5rem", md: "3.5rem" },
                                         fontStyle: "italic",
@@ -263,7 +263,7 @@ const HomePage = () => {
                                             borderRadius: "50px",
                                             px: 3,
                                             py: 1,
-                                            background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                            background: "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
                                             fontWeight: "bold",
                                             textTransform: "none",
                                             fontSize: "1rem",
@@ -316,7 +316,7 @@ const HomePage = () => {
                                                     <Typography
                                                         variant="h4"
                                                         sx={{
-                                                            color: "#C8A2C8",
+                                                            color: "#51365F",
                                                             fontWeight: "bold",
                                                             mb: 0.5,
                                                         }}
@@ -356,7 +356,7 @@ const HomePage = () => {
                                                     <Typography
                                                         variant="h4"
                                                         sx={{
-                                                            color: "#C8A2C8",
+                                                            color: "#51365F",
                                                             fontWeight: "bold",
                                                             mb: 0.5,
                                                         }}
@@ -396,7 +396,7 @@ const HomePage = () => {
                                                     <Typography
                                                         variant="h4"
                                                         sx={{
-                                                            color: "#C8A2C8",
+                                                            color: "#51365F",
                                                             fontWeight: "bold",
                                                             mb: 0.5,
                                                         }}
@@ -435,7 +435,7 @@ const HomePage = () => {
                                                         borderRadius: "50%",
                                                         border: "2px solid white",
                                                         ml: -1,
-                                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                                        background: "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
                                                         display: "flex",
                                                         alignItems: "center",
                                                         justifyContent: "center",
@@ -479,7 +479,7 @@ const HomePage = () => {
                                             position: "absolute",
                                             width: "100%",
                                             height: "100%",
-                                            background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                            background: "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
                                             borderRadius: "20px",
                                             transform: "rotate(5deg)",
                                             zIndex: 0,
@@ -526,7 +526,7 @@ const HomePage = () => {
                                         zIndex: 3,
                                     }}
                                 >
-                                    <Typography variant="h6" sx={{ color: "#d81b60", fontWeight: "bold" }}>
+                                    <Typography variant="h6" sx={{ color: "#51365F", fontWeight: "bold" }}>
                                         500K+
                                     </Typography>
                                     <Typography variant="caption" sx={{ color: "#78909c" }}>
@@ -548,7 +548,7 @@ const HomePage = () => {
                                         zIndex: 3,
                                     }}
                                 >
-                                    <Typography variant="h6" sx={{ color: "#C8A2C8", fontWeight: "bold" }}>
+                                    <Typography variant="h6" sx={{ color: "#51365F", fontWeight: "bold" }}>
                                         99%
                                     </Typography>
                                     <Typography variant="caption" sx={{ color: "#78909c" }}>
@@ -576,7 +576,7 @@ const HomePage = () => {
                         right: 0,
                         height: "100%",
                         background:
-                            "radial-gradient(circle at 30% 70%, rgba(248, 187, 208, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(136, 14, 79, 0.1) 0%, transparent 50%)",
+                            "radial-gradient(circle at 30% 70%, rgba(248, 187, 208, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(58, 38, 64, 0.1) 0%, transparent 50%)",
                         zIndex: 0,
                     },
                 }}
@@ -591,7 +591,7 @@ const HomePage = () => {
                                 mt: 6,
                                 height: "4px",
                                 width: "100%",
-                                background: "linear-gradient(90deg, #d81b60, #C8A2C8, #ffd700)",
+                                background: "linear-gradient(90deg, #51365F, #51365F, #ffd700)",
                                 borderRadius: "50px",
                             }}
                         />
@@ -603,7 +603,7 @@ const HomePage = () => {
                                 variant="h3"
                                 component="h2"
                                 sx={{
-                                    color: "#C8A2C8",
+                                    color: "#51365F",
                                     mb: 2,
                                     fontWeight: "bold",
                                     fontStyle: "italic",
@@ -627,7 +627,7 @@ const HomePage = () => {
                                         transform: "translateX(-50%)",
                                         width: "60px",
                                         height: "3px",
-                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        background: "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
                                         borderRadius: "2px",
                                     },
                                 }}
@@ -654,10 +654,10 @@ const HomePage = () => {
                                             "&:hover": {
                                                 transform: "translateY(-12px) scale(1.02)",
                                                 boxShadow:
-                                                    "0 20px 40px rgba(216, 27, 96, 0.15), 0 8px 20px rgba(136, 14, 79, 0.1)",
+                                                    "0 20px 40px rgba(81, 54, 95, 0.15), 0 8px 20px rgba(58, 38, 64, 0.1)",
                                                 "& .feature-icon": {
                                                     transform: "scale(1.1) rotate(5deg)",
-                                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                                    background: "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
                                                     color: "white",
                                                 },
                                             },
@@ -666,7 +666,7 @@ const HomePage = () => {
                                         <Box
                                             className="feature-icon"
                                             sx={{
-                                                color: "#d81b60",
+                                                color: "#51365F",
                                                 mb: 2,
                                                 display: "inline-flex",
                                                 justifyContent: "center",
@@ -714,7 +714,7 @@ const HomePage = () => {
                                             sx={{
                                                 color: "#37474f",
                                                 fontWeight: 600,
-                                                background: "linear-gradient(135deg, #37474f 0%, #d81b60 50%)",
+                                                background: "linear-gradient(135deg, #37474f 0%, #51365F 50%)",
                                                 backgroundClip: "text",
                                                 WebkitBackgroundClip: "text",
                                                 WebkitTextFillColor: "transparent",
@@ -783,7 +783,7 @@ const HomePage = () => {
                             variant="h3"
                             component="h2"
                             align="center"
-                            sx={{ color: "#C8A2C8", mb: 2, fontWeight: "bold", fontStyle: "italic" }}
+                            sx={{ color: "#51365F", mb: 2, fontWeight: "bold", fontStyle: "italic" }}
                         >
                             Success Stories
                         </Typography>
@@ -839,11 +839,11 @@ const HomePage = () => {
                                         borderRadius: "50px",
                                         px: 4,
                                         py: 1,
-                                        color: "#d81b60",
-                                        borderColor: "#d81b60",
+                                        color: "#51365F",
+                                        borderColor: "#51365F",
                                         "&:hover": {
-                                            borderColor: "#d81b60",
-                                            backgroundColor: "rgba(216, 27, 96, 0.04)",
+                                            borderColor: "#51365F",
+                                            backgroundColor: "rgba(81, 54, 95, 0.04)",
                                         },
                                     }}
                                 >
@@ -867,7 +867,7 @@ const HomePage = () => {
                         <AnimatedSection>
                             <Typography
                                 variant="h3"
-                                sx={{ fontWeight: 700, color: "#C8A2C8", fontStyle: "italic", mb: 2 }}
+                                sx={{ fontWeight: 700, color: "#51365F", fontStyle: "italic", mb: 2 }}
                             >
                                 Ready to Write Your Success Story?
                             </Typography>
@@ -890,7 +890,7 @@ const HomePage = () => {
                                         px: 5,
                                         py: 1.5,
                                         backgroundColor: "white",
-                                        color: "#d81b60",
+                                        color: "#51365F",
                                         fontWeight: "bold",
                                         fontSize: "1.1rem",
                                         "&:hover": {

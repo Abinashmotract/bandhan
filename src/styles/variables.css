@@ -1,0 +1,34 @@
+/* Color Variables - Updated to match exact logo background color */
+:root {
+  /* Primary Colors - Exact logo background color */
+  --primary-main: #51365F;
+  --primary-light: #7A5A7A;
+  --primary-dark: #3A2640;
+  
+  /* Secondary Colors - Golden (matching logo text) */
+  --secondary-main: #FFD700;
+  --secondary-light: #FFF176;
+  --secondary-dark: #F57F17;
+  
+  /* Background Colors */
+  --background-default: #F8F6F9;
+  --background-paper: #FFFFFF;
+  --background-gradient: linear-gradient(135deg, #ffffff 0%, #F8F6F9 100%);
+  
+  /* Text Colors */
+  --text-primary: #3A2640;
+  --text-secondary: #51365F;
+  --text-light: #7A5A7A;
+  
+  /* Button Gradients */
+  --button-primary: linear-gradient(135deg, #51365F 0%, #3A2640 100%);
+  --button-secondary: linear-gradient(135deg, #3A2640 0%, #51365F 100%);
+  
+  /* Shadow Colors */
+  --shadow-primary: rgba(81, 54, 95, 0.15);
+  --shadow-button: rgba(81, 54, 95, 0.3);
+  --shadow-button-hover: rgba(81, 54, 95, 0.4);
+  
+  /* Mobile Drawer Gradient */
+  --drawer-gradient: linear-gradient(135deg, #51365F 0%, #3A2640 100%);
+}

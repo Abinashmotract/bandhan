@@ -357,7 +357,7 @@ const PartnerMatchesPage = () => {
             <Container maxWidth="xl">
                 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <Box textAlign="center" mb={4}>
-                        <Typography variant="h2" component="h1" gutterBottom sx={{ color: "#C8A2C8", fontStyle: "italic", fontWeight: 800, mb: 2, }}>
+                        <Typography variant="h2" component="h1" gutterBottom sx={{ color: "#51365F", fontStyle: "italic", fontWeight: 800, mb: 2, }}>
                             Find Your Perfect Match
                         </Typography>
                         <Typography variant="h6" sx={{ color: "black", maxWidth: "600px", margin: "0 auto" }}>
@@ -380,13 +380,13 @@ const PartnerMatchesPage = () => {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     InputProps={{
-                                        startAdornment: <SearchIcon sx={{ mr: 1, color: "#d81b60" }} />,
+                                        startAdornment: <SearchIcon sx={{ mr: 1, color: "#51365F" }} />,
                                     }}
                                     sx={{
                                         "& .MuiOutlinedInput-root": {
                                             borderRadius: 2,
                                             "&:hover fieldset": {
-                                                borderColor: "#d81b60",
+                                                borderColor: "#51365F",
                                             },
                                         },
                                     }}
@@ -400,10 +400,10 @@ const PartnerMatchesPage = () => {
                                     sx={{
                                         flex: 1,
                                         borderRadius: 2,
-                                        borderColor: "#d81b60",
-                                        color: "#d81b60",
+                                        borderColor: "#51365F",
+                                        color: "#51365F",
                                         "&:hover": {
-                                            borderColor: "#d81b60",
+                                            borderColor: "#51365F",
                                             backgroundColor: "rgba(216, 27, 96, 0.1)",
                                         },
                                     }}
@@ -416,7 +416,7 @@ const PartnerMatchesPage = () => {
                                     sx={{
                                         flex: 1,
                                         borderRadius: 2,
-                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        background: "#51365F",
                                         fontWeight: "bold",
                                         "&:hover": {
                                             background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
@@ -439,7 +439,7 @@ const PartnerMatchesPage = () => {
                         <Button
                             onClick={resetFilters}
                             sx={{
-                                color: "#d81b60",
+                                color: "#51365F",
                                 "&:hover": {
                                     backgroundColor: "rgba(216, 27, 96, 0.1)",
                                 },
@@ -495,9 +495,9 @@ const PartnerMatchesPage = () => {
                                                             onClick={() => handleLike(profile.id)}
                                                         >
                                                             {profile.liked ? (
-                                                                <FavoriteIcon sx={{ color: "#d81b60" }} />
+                                                                <FavoriteIcon sx={{ color: "#51365F" }} />
                                                             ) : (
-                                                                <FavoriteBorderIcon sx={{ color: "#d81b60" }} />
+                                                                <FavoriteBorderIcon sx={{ color: "#51365F" }} />
                                                             )}
                                                         </IconButton>
                                                         
@@ -523,21 +523,21 @@ const PartnerMatchesPage = () => {
                                                     </Box>
 
                                                     <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                                        <WorkIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                        <WorkIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                                         <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                             {profile.profession}
                                                         </Typography>
                                                     </Box>
 
                                                     <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                                        <SchoolIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                        <SchoolIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                                         <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                             {profile.education}
                                                         </Typography>
                                                     </Box>
 
                                                     <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                                                        <LocationIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                        <LocationIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                                         <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                             {profile.location}
                                                         </Typography>
@@ -565,7 +565,7 @@ const PartnerMatchesPage = () => {
                                                                 size="small"
                                                                 sx={{
                                                                     backgroundColor: "rgba(216, 27, 96, 0.1)",
-                                                                    color: "#d81b60",
+                                                                    color: "#51365F",
                                                                 }}
                                                             />
                                                         ))}
@@ -588,14 +588,14 @@ const PartnerMatchesPage = () => {
                                                             onClick={() => openProfileDialog(profile)}
                                                             sx={{
                                                                 borderRadius: 2,
-                                                                borderColor: "#d81b60",
-                                                                color: "#d81b60",
+                                                                borderColor: "#51365F",
+                                                                color: "#51365F",
                                                                 px: 1.5,
                                                                 py: 0.5,
                                                                 fontSize: "0.875rem",
                                                                 minWidth: "auto",
                                                                 "&:hover": {
-                                                                    borderColor: "#d81b60",
+                                                                    borderColor: "#51365F",
                                                                     backgroundColor: "rgba(216, 27, 96, 0.1)",
                                                                 },
                                                             }}
@@ -662,7 +662,7 @@ const PartnerMatchesPage = () => {
                 {filteredProfiles?.length === 0 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
                         <Paper elevation={3} sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
-                            <Typography variant="h5" sx={{ color: "#d81b60", mb: 2 }}>
+                            <Typography variant="h5" sx={{ color: "#51365F", mb: 2 }}>
                                 No matches found
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#78909c", mb: 3 }}>
@@ -673,7 +673,7 @@ const PartnerMatchesPage = () => {
                                 onClick={resetFilters}
                                 sx={{
                                     borderRadius: 2,
-                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                    background: "#51365F",
                                     fontWeight: "bold",
                                     "&:hover": {
                                         background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
@@ -688,7 +688,7 @@ const PartnerMatchesPage = () => {
 
                 {/* Filter Dialog */}
                 <Dialog open={filterDialogOpen} onClose={() => setFilterDialogOpen(false)} maxWidth="sm" fullWidth>
-                    <DialogTitle sx={{ color: "#d81b60", fontWeight: 600 }}>
+                    <DialogTitle sx={{ color: "#51365F", fontWeight: 600 }}>
                         <FilterIcon sx={{ mr: 1, verticalAlign: "middle" }} />
                         Filter Profiles
                     </DialogTitle>
@@ -703,7 +703,7 @@ const PartnerMatchesPage = () => {
                                 valueLabelDisplay="auto"
                                 min={18}
                                 max={45}
-                                sx={{ color: "#d81b60", mb: 3 }}
+                                sx={{ color: "#51365F", mb: 3 }}
                             />
 
                             <Typography gutterBottom sx={{ color: "#37474f", fontWeight: 600 }}>
@@ -715,7 +715,7 @@ const PartnerMatchesPage = () => {
                                 valueLabelDisplay="auto"
                                 min={140}
                                 max={200}
-                                sx={{ color: "#d81b60", mb: 3 }}
+                                sx={{ color: "#51365F", mb: 3 }}
                             />
 
                             <FormControl fullWidth sx={{ mb: 3 }}>
@@ -774,7 +774,7 @@ const PartnerMatchesPage = () => {
                             onClick={applyFilters}
                             variant="contained"
                             sx={{
-                                background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                background: "#51365F",
                                 "&:hover": {
                                     background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
                                 },
@@ -789,7 +789,7 @@ const PartnerMatchesPage = () => {
                 <Dialog open={profileDialogOpen} onClose={() => setProfileDialogOpen(false)} maxWidth="md" fullWidth>
                     {selectedProfile && (
                         <>
-                            <DialogTitle sx={{ color: "#d81b60", fontWeight: 600 }}>
+                            <DialogTitle sx={{ color: "#51365F", fontWeight: 600 }}>
                                 {selectedProfile.name}'s Profile
                             </DialogTitle>
                             <DialogContent>
@@ -820,21 +820,21 @@ const PartnerMatchesPage = () => {
                                         </Typography>
 
                                         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                            <WorkIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <WorkIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                             <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.profession}
                                             </Typography>
                                         </Box>
 
                                         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                            <SchoolIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <SchoolIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                             <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.education}
                                             </Typography>
                                         </Box>
 
                                         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                            <LocationIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <LocationIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                             <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.location}
                                             </Typography>
@@ -861,7 +861,7 @@ const PartnerMatchesPage = () => {
                                                     size="small"
                                                     sx={{
                                                         backgroundColor: "rgba(216, 27, 96, 0.1)",
-                                                        color: "#d81b60",
+                                                        color: "#51365F",
                                                     }}
                                                 />
                                             ))}
@@ -877,7 +877,7 @@ const PartnerMatchesPage = () => {
                                     variant="contained"
                                     startIcon={<MessageIcon />}
                                     sx={{
-                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        background: "#51365F",
                                         "&:hover": {
                                             background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
                                         },

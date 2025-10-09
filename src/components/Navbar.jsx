@@ -7,14 +7,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../store/slices/authSlice';
 import { showError, showSuccess } from '../utils/toast';
+import logo from '../assets/WhatsApp Image 2025-01-28 at 9.41.07 PM.jpeg';
 
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#d81b60',
+            main: '#51365F', // Exact logo background color
+            light: '#7A5A7A',
+            dark: '#3A2640',
         },
         secondary: {
-            main: '#f8bbd0',
+            main: '#FFD700', // Golden color to match logo text
+            light: '#FFF176',
+            dark: '#F57F17',
+        },
+        background: {
+            default: '#F8F6F9', // Light background complementing logo color
+            paper: '#FFFFFF',
         },
     },
     typography: {
@@ -57,8 +66,6 @@ const Navbar = () => {
         { text: 'Home', href: '/' },
         { text: 'About', href: 'about' },
         { text: 'Search', href: 'search-match' },
-        { text: 'Contact', href: 'contact-us' },
-        { text: 'FAQ', href: 'faq' },
         { text: 'Blog', href: 'blog' },
     ];
 
@@ -89,7 +96,7 @@ const Navbar = () => {
     }
 
     const drawer = (
-        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', height: '100%', color: 'white' }}>
+        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', background: 'var(--drawer-gradient)', height: '100%', color: 'white' }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
                 <IconButton sx={{ color: 'white' }} onClick={handleDrawerToggle}>
                     <CloseIcon />
@@ -121,6 +128,39 @@ const Navbar = () => {
                         />
                     </ListItem>
                 ))}
+                
+                {/* Upgrade Button for Mobile */}
+                <ListItem
+                    component={Link}
+                    to="/membership"
+                    sx={{
+                        color: 'white',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                        margin: '10px 20px',
+                        borderRadius: '25px',
+                        '&:hover': { 
+                            backgroundColor: 'rgba(255, 215, 0, 0.3)',
+                            transform: 'scale(1.05)'
+                        },
+                        transition: 'all 0.3s ease'
+                    }}
+                    onClick={handleDrawerToggle}
+                >
+                    <ListItemText 
+                        primary={
+                            <Box sx={{ 
+                                fontWeight: '600', 
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                fontSize: '0.9rem'
+                            }}>
+                                Upgrade Membership
+                            </Box>
+                        } 
+                    />
+                </ListItem>
+                
                 {!isInitialized ? (
                     <ListItem
                         sx={{
@@ -166,25 +206,11 @@ const Navbar = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <AppBar position="sticky" sx={{ background: 'linear-gradient(135deg, #ffffff 0%, #fff9fb 100%)', boxShadow: '0 2px 15px rgba(0, 0, 0, 0.08)' }}>
+            <AppBar position="sticky" sx={{ background: 'var(--background-gradient)', boxShadow: '0 2px 15px var(--shadow-primary)' }}>
                 <Toolbar>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
                         <Link to="/" style={{ textDecoration: "none" }}>
-                            <Typography
-                                variant="h4"
-                                sx={{
-                                    fontWeight: 800,
-                                    letterSpacing: "2px",
-                                    textTransform: "uppercase",
-                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
-                                    backgroundClip: "text",
-                                    WebkitBackgroundClip: "text",
-                                    WebkitTextFillColor: "transparent",
-                                    fontFamily: "'Poppins', sans-serif",
-                                }}
-                            >
-                                bandhnam
-                            </Typography>
+                            <img src={logo} alt="Bandhnam Logo" style={{ width: 200, height: 80, objectFit: 'contain' }} />
                         </Link>
                     </Box>
 
@@ -195,7 +221,7 @@ const Navbar = () => {
                                 to={item.href}
                                 style={{
                                     textDecoration: 'none',
-                                    color: '#37474f',
+                                    color: '#3A2640',
                                     fontWeight: '500',
                                     margin: '0 12px',
                                     padding: '8px 0',
@@ -203,10 +229,10 @@ const Navbar = () => {
                                     transition: 'all 0.3s',
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.target.style.color = '#d81b60';
+                                    e.target.style.color = '#51365F';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.target.style.color = '#37474f';
+                                    e.target.style.color = '#3A2640';
                                 }}
                             >
                                 {item.text}
@@ -217,7 +243,7 @@ const Navbar = () => {
                                         left: 0,
                                         width: '0',
                                         height: '2px',
-                                        background: '#d81b60',
+                                        background: '#51365F',
                                         transition: 'all 0.3s',
                                     }}
                                     className="nav-underline"
@@ -225,10 +251,39 @@ const Navbar = () => {
                             </Link>
                         ))}
 
+                        {/* Upgrade Button - Always visible */}
+                        <Link to="/membership" style={{ textDecoration: 'none' }}>
+                            <button style={{
+                                background: 'linear-gradient(135deg, #FFD700 0%, #F57F17 100%)',
+                                color: '#3A2640',
+                                border: 'none',
+                                borderRadius: '25px',
+                                padding: '10px 25px',
+                                marginLeft: '15px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s',
+                                boxShadow: '0 4px 8px rgba(255, 215, 0, 0.3)',
+                                textTransform: 'uppercase',
+                                fontSize: '0.85rem',
+                                letterSpacing: '0.5px'
+                            }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.boxShadow = '0 6px 12px rgba(255, 215, 0, 0.4)';
+                                    e.target.style.transform = 'translateY(-2px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.boxShadow = '0 4px 8px rgba(255, 215, 0, 0.3)';
+                                    e.target.style.transform = 'translateY(0)';
+                                }}>
+                                Upgrade
+                            </button>
+                        </Link>
+
                         {/* Auth Buttons */}
                         {!isInitialized ? (
                             <div style={{
-                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                background: 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '25px',
@@ -242,7 +297,7 @@ const Navbar = () => {
                         ) : !isAuthenticated ? (
                             <Link to="/login" style={{ textDecoration: 'none' }}>
                                 <button style={{
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    background: 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '25px',
@@ -251,14 +306,14 @@ const Navbar = () => {
                                     fontWeight: '500',
                                     cursor: 'pointer',
                                     transition: 'all 0.3s',
-                                    boxShadow: '0 4px 8px rgba(216, 27, 96, 0.3)'
+                                    boxShadow: '0 4px 8px rgba(106, 27, 154, 0.3)'
                                 }}
                                     onMouseEnter={(e) => {
-                                        e.target.style.boxShadow = '0 6px 12px rgba(216, 27, 96, 0.4)';
+                                        e.target.style.boxShadow = '0 6px 12px rgba(106, 27, 154, 0.4)';
                                         e.target.style.transform = 'translateY(-2px)';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.target.style.boxShadow = '0 4px 8px rgba(216, 27, 96, 0.3)';
+                                        e.target.style.boxShadow = '0 4px 8px rgba(106, 27, 154, 0.3)';
                                         e.target.style.transform = 'translateY(0)';
                                     }}>
                                     Login / Sign Up
@@ -270,7 +325,7 @@ const Navbar = () => {
                                 disabled={loading}
                                 style={{
                                     background:
-                                        'linear-gradient(135deg, #880e4f 0%, #d81b60 100%)',
+                                        'linear-gradient(135deg, #3A2640 0%, #51365F 100%)',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '25px',
@@ -280,7 +335,7 @@ const Navbar = () => {
                                     cursor: 'pointer',
                                     transition: 'all 0.3s',
                                     boxShadow:
-                                        '0 4px 8px rgba(136, 14, 79, 0.3)',
+                                        '0 4px 8px rgba(58, 38, 64, 0.3)',
                                 }}
                             >
                                 {loading ? 'Logging out...' : 'Logout'}
@@ -294,7 +349,7 @@ const Navbar = () => {
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ display: { md: 'none' }, color: '#d81b60' }}
+                        sx={{ display: { md: 'none' }, color: '#51365F' }}
                     >
                         <MenuIcon />
                     </IconButton>

@@ -149,7 +149,7 @@ const BlogPage = () => {
         }}
       >
         <Container maxWidth="md">
-          <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 800, mb: 3, color: '#C8A2C8', fontStyle: 'italic', }}>
+          <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 800, mb: 3, color: '#51365F', fontStyle: 'italic', }}>
             Bandhan Match Blog
           </Typography>
           <Typography variant="h5" sx={{ mb: 4, maxWidth: '700px', margin: '0 auto' }}>
@@ -185,7 +185,7 @@ const BlogPage = () => {
         <Grid container spacing={4}>
           {/* Main Content */}
           <Grid item xs={12} lg={8}>
-            <Typography variant="h4" component="h2" gutterBottom sx={{ color: '#d81b60', fontWeight: 700, mb: 4 }}>
+            <Typography variant="h4" component="h2" gutterBottom sx={{ color: '#51365F', fontWeight: 700, mb: 4 }}>
               Latest Articles
             </Typography>
 
@@ -221,7 +221,7 @@ const BlogPage = () => {
                         label={post.category}
                         size="small"
                         sx={{
-                          background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                          background: '#51365F',
                           color: 'white',
                           mb: 2,
                           fontWeight: 600,
@@ -236,15 +236,15 @@ const BlogPage = () => {
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mt: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <PersonIcon sx={{ fontSize: 18, mr: 0.5, color: '#d81b60' }} />
+                          <PersonIcon sx={{ fontSize: 18, mr: 0.5, color: '#51365F' }} />
                           <Typography variant="caption" sx={{ color: '#5d4037' }}>{post.author}</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <CalendarIcon sx={{ fontSize: 18, mr: 0.5, color: '#d81b60' }} />
+                          <CalendarIcon sx={{ fontSize: 18, mr: 0.5, color: '#51365F' }} />
                           <Typography variant="caption" sx={{ color: '#5d4037' }}>{post.date}</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <FavoriteIcon sx={{ fontSize: 18, mr: 0.5, color: '#d81b60' }} />
+                          <FavoriteIcon sx={{ fontSize: 18, mr: 0.5, color: '#51365F' }} />
                           <Typography variant="caption" sx={{ color: '#5d4037' }}>{post.likes}</Typography>
                         </Box>
                       </Box>
@@ -261,7 +261,7 @@ const BlogPage = () => {
                           endIcon={<ArrowForwardIcon />}
                           size="small"
                           sx={{
-                            color: '#d81b60',
+                            color: '#51365F',
                             fontWeight: 600,
                             '&:hover': {
                               background: 'rgba(216, 27, 96, 0.1)'
@@ -279,16 +279,16 @@ const BlogPage = () => {
 
             {/* Pagination */}
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
-              <Button variant="contained" sx={{ mx: 1, background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)', minWidth: '40px', borderRadius: 2 }}>
+              <Button variant="contained" sx={{ mx: 1, background: '#51365F', minWidth: '40px', borderRadius: 2 }}>
                 1
               </Button>
-              <Button variant="outlined" sx={{ mx: 1, borderColor: '#d81b60', color: '#d81b60', minWidth: '40px', borderRadius: 2 }}>
+              <Button variant="outlined" sx={{ mx: 1, borderColor: '#51365F', color: '#51365F', minWidth: '40px', borderRadius: 2 }}>
                 2
               </Button>
-              <Button variant="outlined" sx={{ mx: 1, borderColor: '#d81b60', color: '#d81b60', minWidth: '40px', borderRadius: 2 }}>
+              <Button variant="outlined" sx={{ mx: 1, borderColor: '#51365F', color: '#51365F', minWidth: '40px', borderRadius: 2 }}>
                 3
               </Button>
-              <Button variant="outlined" sx={{ mx: 1, borderColor: '#d81b60', color: '#d81b60', borderRadius: 2 }}>
+              <Button variant="outlined" sx={{ mx: 1, borderColor: '#51365F', color: '#51365F', borderRadius: 2 }}>
                 Next
               </Button>
             </Box>
@@ -303,7 +303,7 @@ const BlogPage = () => {
             mb: 4,
             border: '1px solid rgba(216, 27, 96, 0.1)'
           }}>
-            <Typography variant="h5" component="h3" gutterBottom sx={{ color: '#d81b60', fontWeight: 600 }}>
+            <Typography variant="h5" component="h3" gutterBottom sx={{ color: '#51365F', fontWeight: 600 }}>
               About Our Blog
             </Typography>
             <Typography variant="body1" paragraph sx={{ color: '#5d4037' }}>
@@ -312,7 +312,7 @@ const BlogPage = () => {
             <Button
               variant="contained"
               sx={{
-                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                background: '#51365F',
                 borderRadius: 2,
                 '&:hover': {
                   background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
@@ -325,7 +325,7 @@ const BlogPage = () => {
 
           {/* Categories */}
           <Paper elevation={0} sx={{ p: 3, borderRadius: 3, mb: 4, border: '1px solid rgba(216, 27, 96, 0.1)' }}>
-            <Typography variant="h5" component="h3" gutterBottom sx={{ color: '#d81b60', fontWeight: 600, mb: 3 }}>
+            <Typography variant="h5" component="h3" gutterBottom sx={{ color: '#51365F', fontWeight: 600, mb: 3 }}>
               Categories
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -335,11 +335,11 @@ const BlogPage = () => {
                   label={category}
                   variant="outlined"
                   sx={{
-                    borderColor: '#d81b60',
-                    color: '#d81b60',
+                    borderColor: '#51365F',
+                    color: '#51365F',
                     mb: 1,
                     '&:hover': {
-                      background: '#d81b60',
+                      background: '#51365F',
                       color: 'white'
                     }
                   }}
@@ -355,7 +355,7 @@ const BlogPage = () => {
             mb: 4,
             border: '1px solid rgba(216, 27, 96, 0.1)'
           }}>
-            <Typography variant="h5" component="h3" gutterBottom sx={{ color: '#d81b60', fontWeight: 600, mb: 3 }}>
+            <Typography variant="h5" component="h3" gutterBottom sx={{ color: '#51365F', fontWeight: 600, mb: 3 }}>
               Popular Posts
             </Typography>
             {popularPosts.map((post, index) => (
@@ -386,7 +386,7 @@ const BlogPage = () => {
 
           {/* Social Media */}
           <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid rgba(216, 27, 96, 0.1)' }}>
-            <Typography variant="h5" component="h3" gutterBottom sx={{ color: '#d81b60', fontWeight: 600, mb: 2 }}>
+            <Typography variant="h5" component="h3" gutterBottom sx={{ color: '#51365F', fontWeight: 600, mb: 2 }}>
               Follow Us
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>

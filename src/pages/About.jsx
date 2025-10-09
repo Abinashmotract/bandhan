@@ -75,7 +75,7 @@ const TermsAndConditions = () => {
         }}>
           <Typography variant="h2" sx={{
             fontWeight: 800,
-            color: '#C8A2C8',
+            color: '#51365F',
             fontStyle: 'italic',
             mb: 2
           }}>
@@ -105,8 +105,8 @@ const TermsAndConditions = () => {
                 label={point}
                 variant="outlined"
                 sx={{
-                  color: '#d81b60',
-                  borderColor: '#d81b60',
+                  color: '#51365F',
+                  borderColor: '#51365F',
                   fontWeight: 500,
                   background: 'rgba(255, 255, 255, 0.9)'
                 }}
@@ -125,7 +125,7 @@ const TermsAndConditions = () => {
         }}>
           {/* Introduction */}
           <Box sx={{ mb: 6 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               Welcome to Bandhnam
             </Typography>
             <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, mb: 2, fontSize: '1.1rem' }}>
@@ -140,14 +140,14 @@ const TermsAndConditions = () => {
 
           {/* Section 1: Eligibility */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <Gavel sx={{ mr: 2 }} />
               1. Eligibility
             </Typography>
             <List>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="You must be at least 18 years of age (for women) and 21 years of age (for men) to register as per Indian law."
@@ -156,7 +156,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="By creating an account, you confirm that you are legally competent to marry under the applicable personal laws in India or your country of residence."
@@ -165,7 +165,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="You are registering either for yourself or on behalf of a family member with their consent."
@@ -188,13 +188,13 @@ const TermsAndConditions = () => {
 
           {/* Section 2: Account Creation & Use */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               2. Account Creation & Use
             </Typography>
             <List>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="You must provide accurate, complete, and updated information during registration."
@@ -203,7 +203,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <Security sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <Security sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="You are responsible for maintaining the confidentiality of your login credentials. Bandhnam is not liable for unauthorized use of your account."
@@ -212,7 +212,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Each account is for individual use only; multiple accounts for the same person are not allowed."
@@ -226,13 +226,13 @@ const TermsAndConditions = () => {
 
           {/* Section 3: Services */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               3. Services
             </Typography>
             <List>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Bandhnam provides both free and paid services."
@@ -241,7 +241,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <Payment sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <Payment sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Certain premium features (such as direct messaging, priority listing, advanced filters, etc.) may only be available upon subscription."
@@ -264,7 +264,7 @@ const TermsAndConditions = () => {
 
           {/* Section 4: User Obligations */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               4. User Obligations
             </Typography>
             <Typography variant="body1" sx={{ color: 'black', mb: 3, lineHeight: 1.7, fontSize: '1.1rem' }}>
@@ -273,7 +273,7 @@ const TermsAndConditions = () => {
             <List>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Use the platform only for matrimonial purposes."
@@ -300,7 +300,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Respect the privacy and consent of other members."
@@ -317,14 +317,14 @@ const TermsAndConditions = () => {
 
           {/* Section 6: Privacy & Data Protection */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <PrivacyTip sx={{ mr: 2 }} />
               6. Privacy & Data Protection
             </Typography>
             <List>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Bandhnam values your privacy. All information collected is handled in accordance with our Privacy Policy."
@@ -333,7 +333,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Information provided may be used for displaying your profile, enhancing matchmaking algorithms, and service improvements."
@@ -342,7 +342,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <Security sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <Security sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Sensitive details (such as contact information) are shared only with your consent or through paid features."
@@ -356,7 +356,7 @@ const TermsAndConditions = () => {
 
           {/* Section 9: Limitation of Liability */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               9. Limitation of Liability
             </Typography>
             <Alert severity="info" sx={{ mb: 3 }}>
@@ -390,7 +390,7 @@ const TermsAndConditions = () => {
 
           {/* Section 10: Safety Guidelines */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               10. Safety Guidelines
             </Typography>
             <Alert severity="warning" sx={{ mb: 3 }}>
@@ -399,7 +399,7 @@ const TermsAndConditions = () => {
             <List>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <Security sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <Security sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Do not share financial details or personal documents with other users without verification."
@@ -408,7 +408,7 @@ const TermsAndConditions = () => {
               </ListItem>
               <ListItem sx={{ alignItems: 'flex-start' }}>
                 <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
-                  <Security sx={{ color: '#d81b60', fontSize: 20 }} />
+                  <Security sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Meet in safe, public places before moving forward."
@@ -431,7 +431,7 @@ const TermsAndConditions = () => {
 
           {/* Section 13: Governing Law */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               13. Governing Law & Jurisdiction
             </Typography>
             <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.7, fontStyle: 'italic', fontSize: '1.1rem' }}>
@@ -443,7 +443,7 @@ const TermsAndConditions = () => {
 
           {/* Section 15: Contact Information */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#C8A2C8', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <ContactSupport sx={{ mr: 2 }} />
               15. Contact
             </Typography>
@@ -452,7 +452,7 @@ const TermsAndConditions = () => {
               background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05) 0%, rgba(200, 162, 200, 0.1) 100%)',
               borderRadius: '20px'
             }}>
-              <Typography variant="h6" sx={{ color: '#d81b60', mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#51365F', mb: 2 }}>
                 Bandhnam
               </Typography>
               <Typography variant="body1" sx={{ color: 'black', mb: 1, fontSize: '1.1rem' }}>
@@ -486,7 +486,7 @@ const TermsAndConditions = () => {
                     borderRadius: '50px',
                     px: 4,
                     py: 1.5,
-                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                    background: '#51365F',
                     fontWeight: 'bold',
                     '&:hover': {
                       background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
@@ -503,12 +503,12 @@ const TermsAndConditions = () => {
                   borderRadius: '50px',
                   px: 4,
                   py: 1.5,
-                  color: '#d81b60',
-                  borderColor: '#d81b60',
+                  color: '#51365F',
+                  borderColor: '#51365F',
                   fontWeight: 'bold',
                   '&:hover': {
                     background: 'rgba(216, 27, 96, 0.1)',
-                    borderColor: '#d81b60'
+                    borderColor: '#51365F'
                   }
                 }}
               >
@@ -521,16 +521,16 @@ const TermsAndConditions = () => {
         {/* Footer */}
         <Box sx={{ textAlign: 'center', py: 4 }}>
           <Box sx={{ mb: 2 }}>
-            <IconButton sx={{ color: '#d81b60', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
+            <IconButton sx={{ color: '#51365F', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
               <Facebook />
             </IconButton>
-            <IconButton sx={{ color: '#d81b60', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
+            <IconButton sx={{ color: '#51365F', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
               <Instagram />
             </IconButton>
-            <IconButton sx={{ color: '#d81b60', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
+            <IconButton sx={{ color: '#51365F', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
               <Twitter />
             </IconButton>
-            <IconButton sx={{ color: '#d81b60', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
+            <IconButton sx={{ color: '#51365F', mx: 1, '&:hover': { backgroundColor: 'rgba(216, 27, 96, 0.1)' } }}>
               <LinkedIn />
             </IconButton>
           </Box>

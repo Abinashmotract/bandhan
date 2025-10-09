@@ -102,11 +102,11 @@ const SuccessStories = () => {
                 <Box sx={{ textAlign: 'center', mb: 6 }}>
                     <Typography variant="h2" sx={{
                         fontWeight: 800,
-                        // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                        // background: '#51365F',
                         // backgroundClip: 'text',
                         // WebkitBackgroundClip: 'text',
                         // WebkitTextFillColor: 'transparent',
-                        color: '#C8A2C8',
+                        color: '#51365F',
                         fontStyle: 'italic',
                         mb: 2
                     }}>
@@ -135,7 +135,7 @@ const SuccessStories = () => {
                 }}>
                     <Grid container spacing={4}>
                         <Grid item xs={12} sm={4}>
-                            <Typography variant="h3" sx={{ color: '#d81b60', fontWeight: 700, mb: 1 }}>
+                            <Typography variant="h3" sx={{ color: '#51365F', fontWeight: 700, mb: 1 }}>
                                 5000+
                             </Typography>
                             <Typography variant="body1" sx={{ color: 'black' }}>
@@ -143,7 +143,7 @@ const SuccessStories = () => {
                             </Typography>
                         </Grid>
                         <Grid item xs={12} sm={4}>
-                            <Typography variant="h3" sx={{ color: '#d81b60', fontWeight: 700, mb: 1 }}>
+                            <Typography variant="h3" sx={{ color: '#51365F', fontWeight: 700, mb: 1 }}>
                                 92%
                             </Typography>
                             <Typography variant="body1" sx={{ color: '#78909c' }}>
@@ -151,7 +151,7 @@ const SuccessStories = () => {
                             </Typography>
                         </Grid>
                         <Grid item xs={12} sm={4}>
-                            <Typography variant="h3" sx={{ color: '#d81b60', fontWeight: 700, mb: 1 }}>
+                            <Typography variant="h3" sx={{ color: '#51365F', fontWeight: 700, mb: 1 }}>
                                 28
                             </Typography>
                             <Typography variant="body1" sx={{ color: '#78909c' }}>
@@ -208,7 +208,7 @@ const SuccessStories = () => {
                                             transform: 'translate(-50%, -50%)',
                                             background: 'rgba(255, 255, 255, 0.9)',
                                             '&:hover': {
-                                                background: '#d81b60',
+                                                background: '#51365F',
                                                 color: 'black'
                                             }
                                         }}
@@ -238,7 +238,7 @@ const SuccessStories = () => {
                                                 size="small"
                                                 sx={{
                                                     background: 'rgba(216, 27, 96, 0.1)',
-                                                    color: '#d81b60',
+                                                    color: '#51365F',
                                                     fontWeight: 500
                                                 }}
                                             />
@@ -248,7 +248,7 @@ const SuccessStories = () => {
                                         onClick={() => handleStoryClick(story)}
                                         endIcon={<ArrowForward />}
                                         sx={{
-                                            color: '#d81b60',
+                                            color: '#51365F',
                                             fontWeight: 600,
                                             '&:hover': {
                                                 background: 'rgba(216, 27, 96, 0.1)'
@@ -273,7 +273,7 @@ const SuccessStories = () => {
                 }}>
                     <Typography variant="h3" sx={{
                         fontWeight: 700,
-                        color: '#C8A2C8',
+                        color: '#51365F',
                         fontStyle: 'italic',
                         mb: 2
                     }}>
@@ -294,7 +294,7 @@ const SuccessStories = () => {
                             px: 5,
                             py: 1.5,
                             fontSize: '1.1rem',
-                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                            background: '#51365F',
                             fontWeight: 'bold',
                             '&:hover': {
                                 background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
@@ -319,7 +319,7 @@ const SuccessStories = () => {
                         <DialogTitle sx={{
                             m: 0,
                             p: 2,
-                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                            background: '#51365F',
                             color: 'black',
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -376,7 +376,7 @@ const SuccessStories = () => {
                                             size="small"
                                             sx={{
                                                 background: 'rgba(216, 27, 96, 0.1)',
-                                                color: '#d81b60',
+                                                color: '#51365F',
                                                 fontWeight: 500
                                             }}
                                         />
@@ -384,7 +384,7 @@ const SuccessStories = () => {
                                 </Box>
                                 {selectedStory.video && (
                                     <Box sx={{ mt: 3 }}>
-                                        <Typography variant="h6" sx={{ color: '#d81b60', mb: 2, fontWeight: 600 }}>
+                                        <Typography variant="h6" sx={{ color: '#51365F', mb: 2, fontWeight: 600 }}>
                                             Watch Their Story
                                         </Typography>
                                         <Box sx={{
@@ -412,16 +412,16 @@ const SuccessStories = () => {
                                     </Box>
                                 )}
                                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, gap: 1 }}>
-                                    <IconButton sx={{ color: '#d81b60' }}>
+                                    <IconButton sx={{ color: '#51365F' }}>
                                         <Facebook />
                                     </IconButton>
-                                    <IconButton sx={{ color: '#d81b60' }}>
+                                    <IconButton sx={{ color: '#51365F' }}>
                                         <Instagram />
                                     </IconButton>
-                                    <IconButton sx={{ color: '#d81b60' }}>
+                                    <IconButton sx={{ color: '#51365F' }}>
                                         <Twitter />
                                     </IconButton>
-                                    <IconButton sx={{ color: '#d81b60' }}>
+                                    <IconButton sx={{ color: '#51365F' }}>
                                         <LinkedIn />
                                     </IconButton>
                                 </Box>

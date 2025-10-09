@@ -196,7 +196,7 @@ const Chat = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#d81b60' }} />
+                  <SearchIcon sx={{ color: '#51365F' }} />
                 </InputAdornment>
               ),
             }}
@@ -204,7 +204,7 @@ const Chat = () => {
               '& .MuiOutlinedInput-root': {
                 borderRadius: 2,
                 '&:hover fieldset': {
-                  borderColor: '#d81b60',
+                  borderColor: '#51365F',
                 },
               },
             }}
@@ -300,7 +300,7 @@ const Chat = () => {
                               label={chat.unreadCount}
                               size="small"
                               sx={{
-                                backgroundColor: '#d81b60',
+                                backgroundColor: '#51365F',
                                 color: 'white',
                                 fontSize: '0.75rem',
                                 height: 20,
@@ -427,7 +427,7 @@ const Chat = () => {
                           elevation={1}
                           sx={{
                             p: 2,
-                            backgroundColor: isOwn ? '#d81b60' : 'white',
+                            backgroundColor: isOwn ? '#51365F' : 'white',
                             color: isOwn ? 'white' : 'black',
                             borderRadius: isOwn ? '20px 20px 5px 20px' : '20px 20px 20px 5px',
                             position: 'relative'
@@ -503,7 +503,7 @@ const Chat = () => {
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <IconButton onClick={() => setShowAttachmentDialog(true)}>
-                <AttachFileIcon sx={{ color: '#d81b60' }} />
+                <AttachFileIcon sx={{ color: '#51365F' }} />
               </IconButton>
               
               <TextField
@@ -519,21 +519,21 @@ const Chat = () => {
                     borderRadius: 3,
                     backgroundColor: 'white',
                     '&:hover fieldset': {
-                      borderColor: '#d81b60',
+                      borderColor: '#51365F',
                     },
                   },
                 }}
               />
               
               <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
-                <EmojiIcon sx={{ color: '#d81b60' }} />
+                <EmojiIcon sx={{ color: '#51365F' }} />
               </IconButton>
               
               <IconButton 
                 onClick={handleSendMessage}
                 disabled={!newMessage.trim()}
                 sx={{
-                  backgroundColor: '#d81b60',
+                  backgroundColor: '#51365F',
                   color: 'white',
                   '&:hover': {
                     backgroundColor: '#c2185b',

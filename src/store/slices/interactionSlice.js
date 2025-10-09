@@ -49,6 +49,19 @@ export const addToFavourites = createAsyncThunk(
   }
 );
 
+// Send interest to a user
+export const sendInterest = createAsyncThunk(
+  'interaction/sendInterest',
+  async ({ userId, interestData }, { rejectWithValue }) => {
+    try {
+      const response = await interactionAPI.sendInterest(userId, interestData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to send interest');
+    }
+  }
+);
+
 // Remove from favourites
 export const removeFromFavourites = createAsyncThunk(
   'interaction/removeFromFavourites',
@@ -198,6 +211,19 @@ const interactionSlice = createSlice({
         state.loading = false;
       })
       .addCase(addToFavourites.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Send interest
+      .addCase(sendInterest.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendInterest.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(sendInterest.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

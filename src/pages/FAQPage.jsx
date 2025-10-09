@@ -112,7 +112,7 @@ const FAQPage = () => {
         <Typography
           variant="h2"
           sx={{
-            color: '#C8A2C8',
+            color: '#51365F',
             fontStyle: 'italic',
             fontWeight: 700,
             mb: 2,
@@ -129,7 +129,7 @@ const FAQPage = () => {
       {/* Search Section */}
       <Paper elevation={2} sx={{ p: 3, mb: 6, borderRadius: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <SearchIcon sx={{ mr: 1, color: '#d81b60' }} />
+          <SearchIcon sx={{ mr: 1, color: '#51365F' }} />
           <Typography variant="h6" sx={{ color: '#37474f', fontWeight: 600 }}>
             Search Questions
           </Typography>
@@ -143,7 +143,7 @@ const FAQPage = () => {
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
               '&:hover fieldset': {
-                borderColor: '#d81b60',
+                borderColor: '#51365F',
               },
             },
           }}
@@ -157,7 +157,7 @@ const FAQPage = () => {
             <Typography
               variant="h4"
               sx={{
-                color: '#d81b60',
+                color: '#51365F',
                 fontWeight: 600,
                 mb: 3,
                 fontSize: { xs: '1.75rem', md: '2.125rem' }
@@ -180,7 +180,7 @@ const FAQPage = () => {
                 }}
               >
                 <AccordionSummary
-                  expandIcon={<ExpandMoreIcon sx={{ color: '#d81b60' }} />}
+                  expandIcon={<ExpandMoreIcon sx={{ color: '#51365F' }} />}
                   sx={{
                     backgroundColor: expanded === `panel${index}-${qIndex}` ? 'rgba(216, 27, 96, 0.08)' : 'transparent',
                     borderRadius: '12px',
@@ -219,7 +219,7 @@ const FAQPage = () => {
       <Paper elevation={3} sx={{ p: 5, borderRadius: 3, mt: 8, background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05) 0%, rgba(136, 14, 79, 0.05) 100%)' }}>
         <Grid container spacing={4} alignItems="center">
           <Grid item xs={12} md={8}>
-            <Typography variant="h4" sx={{ color: '#d81b60', fontWeight: 700, mb: 2 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', fontWeight: 700, mb: 2 }}>
               Still have questions?
             </Typography>
             <Typography variant="body1" sx={{ color: '#555', mb: 3, fontSize: '1.1rem' }}>
@@ -233,7 +233,7 @@ const FAQPage = () => {
                 py: 1.5,
                 px: 4,
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                background: '#51365F',
                 fontWeight: 'bold',
                 fontSize: '1.1rem',
                 '&:hover': {

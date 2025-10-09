@@ -165,7 +165,7 @@ const ResetPassword = () => {
                                 sx={{
                                     py: 1.5,
                                     borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    background: '#51365F',
                                     fontSize: '1rem',
                                     fontWeight: 600,
                                     '&:hover': {
@@ -221,7 +221,7 @@ const ResetPassword = () => {
                                 left: 0,
                                 right: 0,
                                 height: '5px',
-                                background: 'linear-gradient(90deg, #d81b60, #880e4f)',
+                                background: 'linear-gradient(90deg, #51365F, #880e4f)',
                                 borderRadius: '10px 10px 0 0'
                             }
                         }}
@@ -232,7 +232,7 @@ const ResetPassword = () => {
                                 sx={{
                                     fontFamily: '"Playfair Display", serif',
                                     fontWeight: 700,
-                                    color: '#C8A2C8',
+                                    color: '#51365F',
                                     fontStyle: 'italic',
                                     mb: 1
                                 }}
@@ -263,7 +263,7 @@ const ResetPassword = () => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Lock sx={{ color: '#d81b60' }} />
+                                            <Lock sx={{ color: '#51365F' }} />
                                         </InputAdornment>
                                     ),
                                     endAdornment: (
@@ -281,7 +281,7 @@ const ResetPassword = () => {
                                     '& .MuiOutlinedInput-root': {
                                         borderRadius: '12px',
                                         '&.Mui-focused fieldset': {
-                                            borderColor: '#d81b60'
+                                            borderColor: '#51365F'
                                         }
                                     }
                                 }}
@@ -300,7 +300,7 @@ const ResetPassword = () => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Lock sx={{ color: '#d81b60' }} />
+                                            <Lock sx={{ color: '#51365F' }} />
                                         </InputAdornment>
                                     ),
                                     endAdornment: (
@@ -318,7 +318,7 @@ const ResetPassword = () => {
                                     '& .MuiOutlinedInput-root': {
                                         borderRadius: '12px',
                                         '&.Mui-focused fieldset': {
-                                            borderColor: '#d81b60'
+                                            borderColor: '#51365F'
                                         }
                                     }
                                 }}
@@ -335,7 +335,7 @@ const ResetPassword = () => {
                                     mb: 2,
                                     py: 1.5,
                                     borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    background: '#51365F',
                                     fontSize: '1.1rem',
                                     fontWeight: 600,
                                     boxShadow: '0 4px 15px rgba(216, 27, 96, 0.3)',
@@ -355,7 +355,7 @@ const ResetPassword = () => {
                                     onClick={handleBackToLogin}
                                     startIcon={<ArrowBack />}
                                     sx={{
-                                        color: '#d81b60',
+                                        color: '#51365F',
                                         fontWeight: 600,
                                         '&:hover': {
                                             backgroundColor: 'rgba(216, 27, 96, 0.1)'

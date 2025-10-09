@@ -214,7 +214,7 @@ const SearchPage = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" sx={{ 
-        color: '#C8A2C8', 
+        color: '#51365F', 
         fontWeight: 700, 
         mb: 3,
         textAlign: 'center'
@@ -232,7 +232,7 @@ const SearchPage = () => {
             display: 'flex',
             alignItems: 'center'
           }}>
-            <SearchIcon sx={{ mr: 1, color: '#d81b60' }} />
+            <SearchIcon sx={{ mr: 1, color: '#51365F' }} />
             Search by Profile ID
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -247,7 +247,7 @@ const SearchPage = () => {
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
                   '&:hover fieldset': {
-                    borderColor: '#d81b60',
+                    borderColor: '#51365F',
                   },
                 },
               }}
@@ -259,7 +259,7 @@ const SearchPage = () => {
               sx={{
                 borderRadius: 2,
                 px: 3,
-                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                background: '#51365F',
                 fontWeight: 'bold',
                 '&:hover': {
                   background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
@@ -281,7 +281,7 @@ const SearchPage = () => {
           display: 'flex',
           alignItems: 'center'
         }}>
-          <SearchIcon sx={{ mr: 1, color: '#d81b60' }} />
+          <SearchIcon sx={{ mr: 1, color: '#51365F' }} />
           Search Criteria
         </Typography>
 
@@ -300,12 +300,12 @@ const SearchPage = () => {
               >
                 <FormControlLabel 
                   value="female" 
-                  control={<Radio sx={{ color: '#d81b60', '&.Mui-checked': { color: '#d81b60' } }} />} 
+                  control={<Radio sx={{ color: '#51365F', '&.Mui-checked': { color: '#51365F' } }} />} 
                   label="Bride" 
                 />
                 <FormControlLabel 
                   value="male" 
-                  control={<Radio sx={{ color: '#d81b60', '&.Mui-checked': { color: '#d81b60' } }} />} 
+                  control={<Radio sx={{ color: '#51365F', '&.Mui-checked': { color: '#51365F' } }} />} 
                   label="Groom" 
                 />
               </RadioGroup>
@@ -341,7 +341,7 @@ const SearchPage = () => {
             {/* Height Range */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-                <HeightIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
+                <HeightIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                 Height Range (cm)
               </Typography>
               <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
@@ -371,10 +371,10 @@ const SearchPage = () => {
               startIcon={<ClearIcon />}
               onClick={handleReset}
               sx={{
-                color: '#d81b60',
-                borderColor: '#d81b60',
+                color: '#51365F',
+                borderColor: '#51365F',
                 '&:hover': {
-                  borderColor: '#d81b60',
+                  borderColor: '#51365F',
                   backgroundColor: 'rgba(216, 27, 96, 0.04)'
                 }
               }}
@@ -389,7 +389,7 @@ const SearchPage = () => {
             {/* Religion */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-                <AccountBalanceIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
+                <AccountBalanceIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                 Religion
               </Typography>
               <FormControl fullWidth size="small">
@@ -400,7 +400,7 @@ const SearchPage = () => {
                   sx={{
                     borderRadius: 2,
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#d81b60',
+                      borderColor: '#51365F',
                     },
                   }}
                 >
@@ -415,7 +415,7 @@ const SearchPage = () => {
             {/* Location */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-                <PublicIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
+                <PublicIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                 Location
               </Typography>
               <TextField
@@ -429,7 +429,7 @@ const SearchPage = () => {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     '&:hover fieldset': {
-                      borderColor: '#d81b60',
+                      borderColor: '#51365F',
                     },
                   },
                 }}
@@ -439,7 +439,7 @@ const SearchPage = () => {
             {/* Education */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-                <VoiceIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
+                <VoiceIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                 Education
               </Typography>
               <TextField
@@ -453,7 +453,7 @@ const SearchPage = () => {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     '&:hover fieldset': {
-                      borderColor: '#d81b60',
+                      borderColor: '#51365F',
                     },
                   },
                 }}
@@ -463,7 +463,7 @@ const SearchPage = () => {
             {/* Occupation */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-                <LanguageIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#d81b60' }} />
+                <LanguageIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                 Occupation
               </Typography>
               <TextField
@@ -477,7 +477,7 @@ const SearchPage = () => {
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
                     '&:hover fieldset': {
-                      borderColor: '#d81b60',
+                      borderColor: '#51365F',
                     },
                   },
                 }}
@@ -498,7 +498,7 @@ const SearchPage = () => {
               py: 1.5,
               px: 6,
               borderRadius: 2,
-              background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+              background: '#51365F',
               fontWeight: 'bold',
               fontSize: '1.1rem',
               '&:hover': {
@@ -518,11 +518,11 @@ const SearchPage = () => {
               py: 1.5,
               px: 4,
               borderRadius: 2,
-              borderColor: '#d81b60',
-              color: '#d81b60',
+              borderColor: '#51365F',
+              color: '#51365F',
               fontWeight: 'bold',
               '&:hover': {
-                borderColor: '#d81b60',
+                borderColor: '#51365F',
                 backgroundColor: 'rgba(216, 27, 96, 0.04)'
               }
             }}
@@ -539,11 +539,11 @@ const SearchPage = () => {
               py: 1.5,
               px: 4,
               borderRadius: 2,
-              borderColor: '#d81b60',
-              color: '#d81b60',
+              borderColor: '#51365F',
+              color: '#51365F',
               fontWeight: 'bold',
               '&:hover': {
-                borderColor: '#d81b60',
+                borderColor: '#51365F',
                 backgroundColor: 'rgba(216, 27, 96, 0.04)'
               }
             }}
@@ -595,7 +595,7 @@ const SearchPage = () => {
                     <Button
                       size="small"
                       startIcon={<FavoriteBorderIcon />}
-                      sx={{ flex: 1, borderColor: '#d81b60', color: '#d81b60' }}
+                      sx={{ flex: 1, borderColor: '#51365F', color: '#51365F' }}
                       variant="outlined"
                     >
                       Like
@@ -603,7 +603,7 @@ const SearchPage = () => {
                     <Button
                       size="small"
                       startIcon={<StarBorderIcon />}
-                      sx={{ flex: 1, borderColor: '#d81b60', color: '#d81b60' }}
+                      sx={{ flex: 1, borderColor: '#51365F', color: '#51365F' }}
                       variant="outlined"
                     >
                       Super Like
@@ -648,7 +648,7 @@ const SearchPage = () => {
                     <Button
                       size="small"
                       startIcon={<FavoriteBorderIcon />}
-                      sx={{ flex: 1, borderColor: '#d81b60', color: '#d81b60' }}
+                      sx={{ flex: 1, borderColor: '#51365F', color: '#51365F' }}
                       variant="outlined"
                     >
                       Like
@@ -656,7 +656,7 @@ const SearchPage = () => {
                     <Button
                       size="small"
                       startIcon={<StarBorderIcon />}
-                      sx={{ flex: 1, borderColor: '#d81b60', color: '#d81b60' }}
+                      sx={{ flex: 1, borderColor: '#51365F', color: '#51365F' }}
                       variant="outlined"
                     >
                       Super Like
@@ -686,7 +686,7 @@ const SearchPage = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSaveFilterDialog(false)}>Cancel</Button>
-          <Button onClick={handleSaveFilter} variant="contained" sx={{ background: '#d81b60' }}>
+          <Button onClick={handleSaveFilter} variant="contained" sx={{ background: '#51365F' }}>
             Save
           </Button>
         </DialogActions>
@@ -717,7 +717,7 @@ const SearchPage = () => {
                     <IconButton
                       edge="end"
                       onClick={() => handleLoadFilter(filter)}
-                      sx={{ color: '#d81b60', mr: 1 }}
+                      sx={{ color: '#51365F', mr: 1 }}
                     >
                       <SearchIcon />
                     </IconButton>

@@ -79,7 +79,7 @@ const Footer = () => {
                             left: 0,
                             right: 0,
                             height: '2px',
-                            background: 'linear-gradient(90deg, transparent, #d81b60, transparent)',
+                            background: 'linear-gradient(90deg, transparent, #51365F, transparent)',
                             animation: 'shine 3s infinite',
                             '@keyframes shine': {
                                 '0%': { backgroundPosition: '-200% 0' },
@@ -136,15 +136,15 @@ const Footer = () => {
                                         sx={{
                                             fontFamily: '"Playfair Display", serif',
                                             fontWeight: 700,
-                                            color: '#f8bbd0',
+                                            color: '#FFD700',
                                             mb: 2,
-                                            background: 'linear-gradient(135deg, #f8bbd0 0%, #d81b60 100%)',
+                                            background: 'linear-gradient(135deg, #FFD700 0%, #51365F 100%)',
                                             backgroundClip: 'text',
                                             WebkitBackgroundClip: 'text',
                                             WebkitTextFillColor: 'transparent'
                                         }}
                                     >
-                                        Bandhnam<span style={{ color: '#d81b60' }}>Match</span>
+                                        Bandhnam<span style={{ color: '#51365F' }}>Match</span>
                                     </Typography>
                                     <Typography variant="body2" sx={{
                                         mb: 3,
@@ -160,7 +160,7 @@ const Footer = () => {
                                         <Typography variant="h6" sx={{
                                             fontSize: '1.1rem',
                                             mb: 2,
-                                            color: '#f8bbd0',
+                                            color: '#FFD700',
                                             fontWeight: 600
                                         }}>
                                             Follow Our Journey
@@ -175,7 +175,7 @@ const Footer = () => {
                                                 <IconButton
                                                     key={index}
                                                     sx={{
-                                                        color: '#f8bbd0',
+                                                        color: '#FFD700',
                                                         mr: 1,
                                                         mb: 1,
                                                         background: 'rgba(255, 255, 255, 0.1)',
@@ -209,7 +209,7 @@ const Footer = () => {
                                     <Typography variant="h6" sx={{
                                         fontSize: '1.2rem',
                                         mb: 3,
-                                        color: '#f8bbd0',
+                                        color: '#FFD700',
                                         fontWeight: 600,
                                         position: 'relative',
                                         display: 'inline-block',
@@ -220,7 +220,7 @@ const Footer = () => {
                                             left: 0,
                                             width: '40px',
                                             height: '2px',
-                                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                            background: 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
                                             borderRadius: '2px'
                                         }
                                     }}>
@@ -250,7 +250,7 @@ const Footer = () => {
                                                         transition: 'all 0.3s ease'
                                                     },
                                                     '&:hover': {
-                                                        color: '#d81b60',
+                                                        color: '#51365F',
                                                         transform: 'translateX(8px)',
                                                         '&::before': {
                                                             opacity: 1,
@@ -279,7 +279,7 @@ const Footer = () => {
                                     <Typography variant="h6" sx={{
                                         fontSize: '1.2rem',
                                         mb: 3,
-                                        color: '#f8bbd0',
+                                        color: '#FFD700',
                                         fontWeight: 600,
                                         position: 'relative',
                                         display: 'inline-block',
@@ -290,7 +290,7 @@ const Footer = () => {
                                             left: 0,
                                             width: '40px',
                                             height: '2px',
-                                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                            background: 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
                                             borderRadius: '2px'
                                         }
                                     }}>
@@ -319,7 +319,7 @@ const Footer = () => {
                                                         transition: 'all 0.3s ease'
                                                     },
                                                     '&:hover': {
-                                                        color: '#d81b60',
+                                                        color: '#51365F',
                                                         transform: 'translateX(8px)',
                                                         '&::before': {
                                                             opacity: 1,
@@ -347,7 +347,7 @@ const Footer = () => {
                                     <Typography variant="h6" sx={{
                                         fontSize: '1.2rem',
                                         mb: 2,
-                                        color: '#f8bbd0',
+                                        color: '#FFD700',
                                         fontWeight: 600,
                                         position: 'relative',
                                         display: 'inline-block',
@@ -358,7 +358,7 @@ const Footer = () => {
                                             left: 0,
                                             width: '40px',
                                             height: '2px',
-                                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                            background: 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
                                             borderRadius: '2px'
                                         }
                                     }}>
@@ -390,7 +390,7 @@ const Footer = () => {
                                                         borderColor: 'rgba(255, 255, 255, 0.2)',
                                                     },
                                                     '&.Mui-focused fieldset': {
-                                                        borderColor: '#d81b60',
+                                                        borderColor: '#51365F',
                                                     },
                                                 },
                                             }}
@@ -399,7 +399,7 @@ const Footer = () => {
                                             variant="contained"
                                             sx={{
                                                 borderRadius: '0 8px 8px 0',
-                                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                                background: 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
                                                 minWidth: 'auto',
                                                 px: 3,
                                                 transition: 'all 0.3s ease',
@@ -434,7 +434,7 @@ const Footer = () => {
                                                 }}
                                             >
                                                 <Box sx={{
-                                                    color: '#d81b60',
+                                                    color: '#51365F',
                                                     mr: 2,
                                                     display: 'flex',
                                                     alignItems: 'center',
@@ -476,7 +476,7 @@ const Footer = () => {
                         }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 0 } }}>
                                 <Typography variant="body2" sx={{ color: '#e1bee7', display: 'flex', alignItems: 'center' }}>
-                                    Made with <FavoriteIcon sx={{ color: '#d81b60', mx: 0.5, fontSize: '1rem' }} /> for your happiness
+                                    Made with <FavoriteIcon sx={{ color: '#51365F', mx: 0.5, fontSize: '1rem' }} /> for your happiness
                                 </Typography>
                             </Box>
 
@@ -502,11 +502,11 @@ const Footer = () => {
                                                 left: 0,
                                                 width: 0,
                                                 height: '1px',
-                                                background: '#d81b60',
+                                                background: '#51365F',
                                                 transition: 'width 0.3s ease'
                                             },
                                             '&:hover': {
-                                                color: '#d81b60',
+                                                color: '#51365F',
                                                 '&::after': {
                                                     width: '100%'
                                                 }
@@ -528,7 +528,7 @@ const Footer = () => {
                                 position: 'fixed',
                                 bottom: '30px',
                                 right: '30px',
-                                backgroundColor: '#d81b60',
+                                backgroundColor: '#51365F',
                                 color: 'white',
                                 width: '60px',
                                 height: '60px',
@@ -538,9 +538,9 @@ const Footer = () => {
                                 zIndex: 1000,
                                 transition: 'all 0.3s ease',
                                 '&:hover': {
-                                    backgroundColor: '#880e4f',
+                                    backgroundColor: '#3A2640',
                                     transform: 'scale(1.1)',
-                                    boxShadow: '0 6px 25px rgba(216, 27, 96, 0.5)'
+                                    boxShadow: '0 6px 25px rgba(81, 54, 95, 0.5)'
                                 },
                                 '@keyframes bounce': {
                                     '0%, 20%, 50%, 80%, 100%': { transform: 'translateY(0)' },

@@ -71,25 +71,25 @@ const ContactUs = () => {
 
   const contactMethods = [
     {
-      icon: <PhoneIcon sx={{ fontSize: 40, color: "#d81b60" }} />,
+      icon: <PhoneIcon sx={{ fontSize: 40, color: "#51365F" }} />,
       title: "Call Us",
       details: "+91 98765 43210",
       subtitle: "Mon to Fri: 9am to 6pm",
     },
     {
-      icon: <EmailIcon sx={{ fontSize: 40, color: "#d81b60" }} />,
+      icon: <EmailIcon sx={{ fontSize: 40, color: "#51365F" }} />,
       title: "Email Us",
       details: "support@bandhnammatch.com",
       subtitle: "We respond within 24 hours",
     },
     {
-      icon: <LocationIcon sx={{ fontSize: 40, color: "#d81b60" }} />,
+      icon: <LocationIcon sx={{ fontSize: 40, color: "#51365F" }} />,
       title: "Visit Us",
       details: "123 Matchmaking Lane, Mumbai",
       subtitle: "Maharashtra, India - 400001",
     },
     {
-      icon: <ScheduleIcon sx={{ fontSize: 40, color: "#d81b60" }} />,
+      icon: <ScheduleIcon sx={{ fontSize: 40, color: "#51365F" }} />,
       title: "Business Hours",
       details: "Monday - Friday: 9AM - 6PM",
       subtitle: "Saturday: 10AM - 4PM",
@@ -124,10 +124,10 @@ const ContactUs = () => {
             component="h1"
             gutterBottom
             sx={{
-              color: "#C8A2C8",
+              color: "#51365F",
               fontStyle: "italic",
               fontWeight: 800,
-              // background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+              // background: '#51365F',
               // backgroundClip: 'text',
               // WebkitBackgroundClip: 'text',
               // WebkitTextFillColor: 'transparent',
@@ -151,7 +151,7 @@ const ContactUs = () => {
               <Typography
                 variant="h4"
                 gutterBottom
-                sx={{ color: "#d81b60", fontWeight: 700, mb: 3 }}
+                sx={{ color: "#51365F", fontWeight: 700, mb: 3 }}
               >
                 Contact Information
               </Typography>
@@ -175,7 +175,7 @@ const ContactUs = () => {
                       </Typography>
                       <Typography
                         variant="body1"
-                        sx={{ color: "#d81b60", fontWeight: 500 }}
+                        sx={{ color: "#51365F", fontWeight: 500 }}
                       >
                         {method.details}
                       </Typography>
@@ -275,7 +275,7 @@ const ContactUs = () => {
               <Typography
                 variant="h4"
                 gutterBottom
-                sx={{ color: "#d81b60", fontWeight: 700, mb: 3 }}
+                sx={{ color: "#51365F", fontWeight: 700, mb: 3 }}
               >
                 Send Us a Message
               </Typography>
@@ -293,7 +293,7 @@ const ContactUs = () => {
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 2,
                         "&:hover fieldset": {
-                          borderColor: "#d81b60",
+                          borderColor: "#51365F",
                         },
                       },
                     }}
@@ -310,7 +310,7 @@ const ContactUs = () => {
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 2,
                         "&:hover fieldset": {
-                          borderColor: "#d81b60",
+                          borderColor: "#51365F",
                         },
                       },
                     }}
@@ -326,7 +326,7 @@ const ContactUs = () => {
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 2,
                         "&:hover fieldset": {
-                          borderColor: "#d81b60",
+                          borderColor: "#51365F",
                         },
                       },
                     }}
@@ -344,7 +344,7 @@ const ContactUs = () => {
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 2,
                         "&:hover fieldset": {
-                          borderColor: "#d81b60",
+                          borderColor: "#51365F",
                         },
                       },
                     }}
@@ -360,7 +360,7 @@ const ContactUs = () => {
                       px: 4,
                       borderRadius: 2,
                       background:
-                        "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                        "#51365F",
                       fontWeight: "bold",
                       fontSize: "1.1rem",
                       "&:hover": {
@@ -388,7 +388,7 @@ const ContactUs = () => {
             align="center"
             gutterBottom
             sx={{
-              color: "#C8A2C8",
+              color: "#51365F",
               fontStyle: "italic",
               mb: 1,
               fontWeight: 700,
@@ -418,7 +418,7 @@ const ContactUs = () => {
                   }}
                 >
                   <AccordionSummary
-                    expandIcon={<Expand sx={{ color: "#d81b60" }} />}
+                    expandIcon={<Expand sx={{ color: "#51365F" }} />}
                     sx={{
                       borderRadius: 2,
                       minHeight: 56,
@@ -429,7 +429,7 @@ const ContactUs = () => {
                   >
                     <Typography
                       variant="h6"
-                      sx={{ color: "#d81b60", fontWeight: 600 }}
+                      sx={{ color: "#51365F", fontWeight: 600 }}
                     >
                       {faq.question}
                     </Typography>

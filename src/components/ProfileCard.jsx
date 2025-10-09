@@ -33,9 +33,10 @@ import {
   VerifiedUser as VerifiedIcon,
   Star as StarIcon,
   Diamond as DiamondIcon,
-  Crown as CrownIcon,
+  EmojiEvents as CrownIcon,
   Lock as LockIcon
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ProfileAccessRestriction from './ProfileAccessRestriction';
 import InterestButton from './InterestButton';
@@ -45,7 +46,8 @@ import toast from 'react-hot-toast';
 import { interactionAPI } from '../services/apiService';
 
 const ProfileCard = ({ profile, onProfileClick, showActions = true }) => {
-  const { checkProfileAccess, canSendInterest, canSendMessage, openUpgradeModal } = useSubscription();
+  const navigate = useNavigate();
+  const { checkProfileAccess, canSendInterest, canSendMessage } = useSubscription();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [liked, setLiked] = useState(profile.isLiked || false);
@@ -59,7 +61,7 @@ const ProfileCard = ({ profile, onProfileClick, showActions = true }) => {
   const getPlanIcon = (planName) => {
     switch (planName) {
       case 'Basic': return <LockIcon sx={{ color: '#9c27b0' }} />;
-      case 'Entry': return <StarIcon sx={{ color: '#d81b60' }} />;
+      case 'Entry': return <StarIcon sx={{ color: '#51365F' }} />;
       case 'Advanced': return <DiamondIcon sx={{ color: '#ff6f00' }} />;
       case 'Premium': return <CrownIcon sx={{ color: '#4caf50' }} />;
       case 'Elite': return <CrownIcon sx={{ color: '#ff9800' }} />;
@@ -70,11 +72,11 @@ const ProfileCard = ({ profile, onProfileClick, showActions = true }) => {
   const getPlanColor = (planName) => {
     switch (planName) {
       case 'Basic': return '#9c27b0';
-      case 'Entry': return '#d81b60';
+      case 'Entry': return '#51365F';
       case 'Advanced': return '#ff6f00';
       case 'Premium': return '#4caf50';
       case 'Elite': return '#ff9800';
-      default: return '#d81b60';
+      default: return '#51365F';
     }
   };
 
@@ -122,7 +124,7 @@ const ProfileCard = ({ profile, onProfileClick, showActions = true }) => {
 
   const handleMessage = () => {
     if (!canSendMessageToProfile) {
-      openUpgradeModal();
+      navigate('/membership');
       return;
     }
     // Navigate to chat or open message dialog
@@ -170,7 +172,17 @@ const ProfileCard = ({ profile, onProfileClick, showActions = true }) => {
         <CardMedia
           component="img"
           height="300"
-          image={profile.profileImage || '/default-profile.jpg'}
+          image={(() => {
+            // Use specific images for featured profiles
+            if (profile._id === "68d8385868c4ba9ede975941") {
+              return "https://imgs.search.brave.com/g4dLcOCvvKbKMmqnuJ1au8GRGfARNC5KepKZ9jmUc44/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cudGVsdWd1b25lLmNvbS9waG90b3MvdXBsb2Fkc0V4dC91cGxvYWRzL0thdnlhJTIwS2FseWFucmFtL0thdnlhJTIwS2FseWFuUmFtJTIwTmV3JTIwR2FsbGVyeS9LYXZ5YSUyMEthbHlhblJh bSUyMEdhbGxlcnkud2VicA";
+            } else if (profile._id === "68d8385868c4ba9ede975942") {
+              return "https://imgs.search.brave.com/F599isaQp8REE-T6yabqck42qIFYv2n4TL9WkiB3HM4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cuZGl0dW5pdmVyc2l0eS5lZHUuaW4vdXBsb2Fkcy9mYWN1bHR5X2ltYWdlcy8xNjg3ODU3MTA4XzEyYzBjZWYyMWE4YzM5N2NiODMzLndlYnA";
+            } else if (profile._id === "68d8385868c4ba9ede975935") {
+              return "https://imgs.search.brave.com/FW7DkG27fkN2oDlgfKHD8UzOwhuYnBXDn0RFUIWs16I/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0aWMudG9paW1nLmNvbS90aHVtYi9pbWdz/aXplLTIzNDU2LG1zaWQtODgxNDAxMDAsd2lkdGgtNjAwLHJl/c2l6ZW1vZGUtNC84ODE0MDEwMC5qcGc";
+            }
+            return profile.profileImage || '/default-profile.jpg';
+          })()}
           alt={profile.name}
           sx={{ objectFit: 'cover' }}
         />
@@ -220,7 +232,7 @@ const ProfileCard = ({ profile, onProfileClick, showActions = true }) => {
                 '&:hover': { backgroundColor: 'rgba(255, 255, 255, 1)' }
               }}
             >
-              {liked ? <LikeIcon sx={{ color: '#d81b60' }} /> : <LikeBorderIcon />}
+              {liked ? <LikeIcon sx={{ color: '#51365F' }} /> : <LikeBorderIcon />}
             </IconButton>
             
             <IconButton
@@ -336,11 +348,11 @@ const ProfileCard = ({ profile, onProfileClick, showActions = true }) => {
               disabled={!canSendMessageToProfile}
               sx={{
                 flex: 1,
-                borderColor: canSendMessageToProfile ? '#d81b60' : '#ccc',
-                color: canSendMessageToProfile ? '#d81b60' : '#666',
+                borderColor: canSendMessageToProfile ? '#51365F' : '#ccc',
+                color: canSendMessageToProfile ? '#51365F' : '#666',
                 '&:hover': {
                   borderColor: canSendMessageToProfile ? '#ad1457' : '#ccc',
-                  backgroundColor: canSendMessageToProfile ? '#d81b6010' : 'transparent'
+                  backgroundColor: canSendMessageToProfile ? '#51365F10' : 'transparent'
                 }
               }}
             >
@@ -357,7 +369,7 @@ const ProfileCard = ({ profile, onProfileClick, showActions = true }) => {
     return (
       <ProfileAccessRestriction
         profile={profile}
-        onUpgrade={() => openUpgradeModal()}
+        onUpgrade={() => navigate('/membership')}
       >
         <ProfileContent />
       </ProfileAccessRestriction>

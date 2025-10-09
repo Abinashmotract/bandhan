@@ -32,6 +32,7 @@ import {
 import {useDispatch, useSelector} from "react-redux";
 import {fetchUserDetails} from "../store/slices/authSlice";
 import PreferencesDialog from "../components/PreferencesDialog";
+import SubscriptionStatus from "../components/SubscriptionStatus";
 import PersonIcon from "@mui/icons-material/Person";
 import {Edit} from "@mui/icons-material";
 import {useRef} from "react";
@@ -188,7 +189,7 @@ const Profile = () => {
                     <Box
                         sx={{
                             height: "200px",
-                            background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                            background: "#51365F",
                             position: "relative",
                         }}
                     >
@@ -199,7 +200,7 @@ const Profile = () => {
                                 position: "absolute",
                                 bottom: -20,
                                 right: 20,
-                                background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                background: "#51365F",
                             }}
                         >
                             <PhotoCamera />
@@ -244,7 +245,7 @@ const Profile = () => {
                                         position: "absolute",
                                         bottom: 10,
                                         right: 10,
-                                        backgroundColor: "#d81b60",
+                                        backgroundColor: "#51365F",
                                         color: "white",
                                         opacity: 0,
                                         transition: "opacity 0.3s ease",
@@ -269,7 +270,7 @@ const Profile = () => {
                                         position: "absolute",
                                         bottom: 10,
                                         right: 10,
-                                        color: "#d81b60",
+                                        color: "#51365F",
                                         background: "white",
                                         borderRadius: "50%",
                                         padding: "2px",
@@ -284,7 +285,7 @@ const Profile = () => {
                                 <IconButton
                                     onClick={handleFavoriteClick}
                                     sx={{
-                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        background: "#51365F",
                                         color: "white",
                                         "&:hover": {
                                             background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
@@ -299,7 +300,7 @@ const Profile = () => {
                                     sx={{
                                         borderRadius: "50px",
                                         textTransform: "none",
-                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        background: "#51365F",
                                         px: 3,
                                         "&:hover": {
                                             background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
@@ -315,7 +316,7 @@ const Profile = () => {
                                     sx={{
                                         borderRadius: "50px",
                                         textTransform: "none",
-                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        background: "#51365F",
                                         px: 3,
                                         "&:hover": {background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)"},
                                     }}
@@ -328,13 +329,13 @@ const Profile = () => {
                         {/* User Info */}
                         <Box sx={{mt: 2}}>
                             <Box sx={{display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1, mb: 1}}>
-                                <Typography variant="h4" sx={{fontWeight: 700, color: "#d81b60"}}>
+                                <Typography variant="h4" sx={{fontWeight: 700, color: "#51365F"}}>
                                     {user?.name}
                                 </Typography>
                                 <Chip
                                     label={`${calculateAge(user?.dob)} years`}
                                     variant="outlined"
-                                    sx={{color: "#d81b60", borderColor: "#d81b60"}}
+                                    sx={{color: "#51365F", borderColor: "#51365F"}}
                                 />
                             </Box>
 
@@ -358,7 +359,7 @@ const Profile = () => {
                                         },
                                     }}
                                 >
-                                    <LocationOn sx={{fontSize: "18px", mr: 0.5, color: "#d81b60"}} />
+                                    <LocationOn sx={{fontSize: "18px", mr: 0.5, color: "#51365F"}} />
                                     {user?.location}
                                 </Typography>
 
@@ -366,13 +367,13 @@ const Profile = () => {
                                     variant="body2"
                                     sx={{display: "flex", alignItems: "center", color: "#78909c"}}
                                 >
-                                    <Work sx={{fontSize: "18px", mr: 0.5, color: "#d81b60"}} /> {user?.occupation}
+                                    <Work sx={{fontSize: "18px", mr: 0.5, color: "#51365F"}} /> {user?.occupation}
                                 </Typography>
                                 <Typography
                                     variant="body2"
                                     sx={{display: "flex", alignItems: "center", color: "#78909c"}}
                                 >
-                                    <School sx={{fontSize: "18px", mr: 0.5, color: "#d81b60"}} /> {user?.education}
+                                    <School sx={{fontSize: "18px", mr: 0.5, color: "#51365F"}} /> {user?.education}
                                 </Typography>
                             </Box>
 
@@ -386,7 +387,7 @@ const Profile = () => {
                                         <Typography
                                             variant="body2"
                                             sx={{
-                                                color: user?.profileCompletion === 100 ? "green" : "#d81b60",
+                                                color: user?.profileCompletion === 100 ? "green" : "#51365F",
                                                 fontWeight: 600,
                                             }}
                                         >
@@ -401,7 +402,7 @@ const Profile = () => {
                                                 background:
                                                     user?.profileCompletion === 100
                                                         ? "linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)" // Green gradient
-                                                        : "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)", // Pink gradient
+                                                        : "#51365F", // Pink gradient
                                                 borderRadius: 4,
                                                 transition: "width 0.5s ease-in-out",
                                             }}
@@ -410,7 +411,7 @@ const Profile = () => {
                                 </Box>
 
                                 <Box sx={{textAlign: "center"}}>
-                                    <Typography variant="h6" sx={{color: "#d81b60", fontWeight: 700}}>
+                                    <Typography variant="h6" sx={{color: "#51365F", fontWeight: 700}}>
                                         {user?.matches || 0}%
                                     </Typography>
                                     <Typography variant="body2" sx={{color: "#78909c"}}>
@@ -419,6 +420,11 @@ const Profile = () => {
                                 </Box>
                             </Box>
                         </Box>
+                    </Box>
+
+                    {/* Subscription Status - Highlighted */}
+                    <Box sx={{ px: 4, pb: 2 }}>
+                        <SubscriptionStatus />
                     </Box>
 
                     {/* Tabs */}
@@ -462,7 +468,7 @@ const Profile = () => {
                                     zIndex: 1,
                                     position: "relative",
                                     "&.Mui-selected": {
-                                        color: "#d81b60",
+                                        color: "#51365F",
                                         fontWeight: 600,
                                     },
                                 },
@@ -477,8 +483,8 @@ const Profile = () => {
                                         <Box
                                             sx={{
                                                 ml: 1,
-                                                background: tabValue === 0 ? "#d81b60" : "rgba(216, 27, 96, 0.1)",
-                                                color: tabValue === 0 ? "white" : "#d81b60",
+                                                background: tabValue === 0 ? "#51365F" : "rgba(216, 27, 96, 0.1)",
+                                                color: tabValue === 0 ? "white" : "#51365F",
                                                 borderRadius: "10px",
                                                 px: 1,
                                                 py: 0.2,
@@ -501,8 +507,8 @@ const Profile = () => {
                                         <Box
                                             sx={{
                                                 ml: 1,
-                                                background: tabValue === 1 ? "#d81b60" : "rgba(216, 27, 96, 0.1)",
-                                                color: tabValue === 1 ? "white" : "#d81b60",
+                                                background: tabValue === 1 ? "#51365F" : "rgba(216, 27, 96, 0.1)",
+                                                color: tabValue === 1 ? "white" : "#51365F",
                                                 borderRadius: "10px",
                                                 px: 1,
                                                 py: 0.2,
@@ -525,8 +531,8 @@ const Profile = () => {
                                         <Box
                                             sx={{
                                                 ml: 1,
-                                                background: tabValue === 2 ? "#d81b60" : "rgba(216, 27, 96, 0.1)",
-                                                color: tabValue === 2 ? "white" : "#d81b60",
+                                                background: tabValue === 2 ? "#51365F" : "rgba(216, 27, 96, 0.1)",
+                                                color: tabValue === 2 ? "white" : "#51365F",
                                                 borderRadius: "10px",
                                                 px: 1,
                                                 py: 0.2,
@@ -559,14 +565,14 @@ const Profile = () => {
                     <TabPanel value={tabValue} index={0}>
                         <Grid container spacing={2}>
                             <Grid size={{xs: 12, md: 8}}>
-                                <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600}}>
+                                <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600}}>
                                     About Me
                                 </Typography>
                                 <Typography variant="body1" sx={{color: "#37474f", lineHeight: 1.7, mb: 4}}>
                                     {user?.about}
                                 </Typography>
 
-                                <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600}}>
+                                <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600}}>
                                     Interests
                                 </Typography>
                                 <Box sx={{display: "flex", flexWrap: "wrap", gap: 1, mb: 4}}>
@@ -577,7 +583,7 @@ const Profile = () => {
                                             sx={{
                                                 background:
                                                     "linear-gradient(135deg, rgba(216, 27, 96, 0.1) 0%, rgba(136, 14, 79, 0.05) 100%)",
-                                                color: "#d81b60",
+                                                color: "#51365F",
                                                 fontWeight: 500,
                                             }}
                                         />
@@ -586,7 +592,7 @@ const Profile = () => {
                             </Grid>
 
                             <Grid size={{xs: 12, md: 4}}>
-                                <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600}}>
+                                <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600}}>
                                     Basic Details
                                 </Typography>
                                 <Box sx={{mb: 3}}>
@@ -605,7 +611,7 @@ const Profile = () => {
                                     />
                                 </Box>
 
-                                <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600}}>
+                                <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600}}>
                                     Background
                                 </Typography>
                                 <Box>
@@ -618,7 +624,7 @@ const Profile = () => {
                     </TabPanel>
 
                     <TabPanel value={tabValue} index={1}>
-                        <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600, mb: 3}}>
+                        <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600, mb: 3}}>
                             Photos
                         </Typography>
                         <Grid container spacing={2}>
@@ -639,7 +645,7 @@ const Profile = () => {
 
                     <TabPanel value={tabValue} index={2}>
                         <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                            <Typography variant="h6" gutterBottom sx={{color: "#d81b60", fontWeight: 600, mb: 3}}>
+                            <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600, mb: 3}}>
                                 Partner Preferences
                             </Typography>
                         </Box>
@@ -676,7 +682,7 @@ const Profile = () => {
 // Helper Components
 const DetailItem = ({icon, label, value}) => (
     <Box sx={{display: "flex", alignItems: "center", py: 1.5, borderBottom: "1px solid #f5f5f5"}}>
-        {icon && React.cloneElement(icon, {sx: {color: "#d81b60", mr: 2}})}
+        {icon && React.cloneElement(icon, {sx: {color: "#51365F", mr: 2}})}
         <Typography variant="body2" sx={{color: "#78909c", minWidth: 120}}>
             {label}
         </Typography>
@@ -688,7 +694,7 @@ const DetailItem = ({icon, label, value}) => (
 
 const PreferenceItem = ({title, value}) => (
     <Box sx={{mb: 3}}>
-        <Typography variant="subtitle2" sx={{color: "#d81b60", fontWeight: 600, mb: 0.5}}>
+        <Typography variant="subtitle2" sx={{color: "#51365F", fontWeight: 600, mb: 0.5}}>
             {title}
         </Typography>
         <Typography variant="body2" sx={{color: "#37474f"}}>

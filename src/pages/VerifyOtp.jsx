@@ -173,7 +173,7 @@ const VerifyOtp = () => {
                         }}
                     >
                         <Box sx={{ textAlign: 'center', mb: 4 }}>
-                            <Typography variant="h4" sx={{ color: '#d81b60', mb: 1, fontWeight: 600 }}>
+                            <Typography variant="h4" sx={{ color: '#51365F', mb: 1, fontWeight: 600 }}>
                                 Verify OTP
                             </Typography>
                             <Typography variant="body1" sx={{ color: '#78909c' }}>
@@ -217,7 +217,7 @@ const VerifyOtp = () => {
                                                 borderRadius: '8px',
                                                 height: '50px',
                                                 '&.Mui-focused fieldset': {
-                                                    borderColor: '#d81b60'
+                                                    borderColor: '#51365F'
                                                 }
                                             }
                                         }}
@@ -236,7 +236,7 @@ const VerifyOtp = () => {
                                     mb: 2,
                                     py: 1.5,
                                     borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                    background: '#51365F',
                                     fontSize: '1.1rem',
                                     fontWeight: 600,
                                     '&:hover': {
@@ -256,7 +256,7 @@ const VerifyOtp = () => {
                                     disabled={isResending}
                                     startIcon={<Refresh />}
                                     sx={{
-                                        color: '#d81b60',
+                                        color: '#51365F',
                                         fontWeight: 600,
                                         '&:hover': {
                                             backgroundColor: 'rgba(216, 27, 96, 0.1)'
@@ -272,7 +272,7 @@ const VerifyOtp = () => {
                                     <Button
                                         startIcon={<ArrowBack />}
                                         sx={{
-                                            color: '#d81b60',
+                                            color: '#51365F',
                                             fontWeight: 600,
                                             '&:hover': {
                                                 backgroundColor: 'rgba(216, 27, 96, 0.1)'

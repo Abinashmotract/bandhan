@@ -1,5 +1,7 @@
+@import './styles/variables.css';
+
 body {
   margin: 0;
-  background-color: #f8f9fa;
+  background-color: var(--background-default);
 }
-/* color: '#d81b60' */
+/* Updated color scheme to match exact logo background color: #51365F and golden (#FFD700) */

@@ -205,7 +205,7 @@ const NotificationsPage = () => {
             key={notification._id}
             sx={{
                 backgroundColor: notification.read ? 'transparent' : 'rgba(216, 27, 96, 0.05)',
-                borderLeft: notification.read ? 'none' : '4px solid #d81b60',
+                borderLeft: notification.read ? 'none' : '4px solid #51365F',
                 mb: 1,
                 borderRadius: 2,
                 '&:hover': {
@@ -315,7 +315,7 @@ const NotificationsPage = () => {
                     {/* Header */}
                     <Box sx={{ 
                         p: 3, 
-                        background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                        background: '#51365F',
                         color: 'white'
                     }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

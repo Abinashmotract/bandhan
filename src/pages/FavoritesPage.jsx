@@ -155,7 +155,7 @@ const FavoritesPage = () => {
             <Container maxWidth="xl">
                 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <Box textAlign="center" mb={4}>
-                        <Typography variant="h2" component="h1" gutterBottom sx={{ color: "#C8A2C8", fontStyle: "italic", fontWeight: 800, mb: 2 }}>
+                        <Typography variant="h2" component="h1" gutterBottom sx={{ color: "#51365F", fontStyle: "italic", fontWeight: 800, mb: 2 }}>
                             Your Favorites
                         </Typography>
                         <Typography variant="h6" sx={{ color: "black", maxWidth: "600px", margin: "0 auto" }}>
@@ -236,21 +236,21 @@ const FavoritesPage = () => {
                                                             </Box>
 
                                                             <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                                                <WorkIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                                <WorkIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                                                 <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                                     {profile.occupation || 'N/A'}
                                                                 </Typography>
                                                             </Box>
 
                                                             <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                                                <SchoolIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                                <SchoolIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                                                 <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                                     {profile.education || 'N/A'}
                                                                 </Typography>
                                                             </Box>
 
                                                             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                                                                <LocationIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                                                <LocationIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                                                 <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                                     {profile.location || 'N/A'}
                                                                 </Typography>
@@ -278,7 +278,7 @@ const FavoritesPage = () => {
                                                                         size="small"
                                                                         sx={{
                                                                             backgroundColor: "rgba(216, 27, 96, 0.1)",
-                                                                            color: "#d81b60",
+                                                                            color: "#51365F",
                                                                         }}
                                                                     />
                                                                 ))}
@@ -301,14 +301,14 @@ const FavoritesPage = () => {
                                                                     onClick={() => openProfileDialog(profile)}
                                                                     sx={{
                                                                         borderRadius: 2,
-                                                                        borderColor: "#d81b60",
-                                                                        color: "#d81b60",
+                                                                        borderColor: "#51365F",
+                                                                        color: "#51365F",
                                                                         px: 1.5,
                                                                         py: 0.5,
                                                                         fontSize: "0.875rem",
                                                                         minWidth: "auto",
                                                                         "&:hover": {
-                                                                            borderColor: "#d81b60",
+                                                                            borderColor: "#51365F",
                                                                             backgroundColor: "rgba(216, 27, 96, 0.1)",
                                                                         },
                                                                     }}
@@ -348,7 +348,7 @@ const FavoritesPage = () => {
                                 <Grid item xs={12}>
                                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
                                         <Paper elevation={3} sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
-                                            <Typography variant="h5" sx={{ color: "#d81b60", mb: 2 }}>
+                                            <Typography variant="h5" sx={{ color: "#51365F", mb: 2 }}>
                                                 No favorites yet
                                             </Typography>
                                             <Typography variant="body1" sx={{ color: "#78909c", mb: 3 }}>
@@ -359,7 +359,7 @@ const FavoritesPage = () => {
                                                 onClick={() => navigate('/matches')}
                                                 sx={{
                                                     borderRadius: 2,
-                                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                                    background: "#51365F",
                                                     fontWeight: "bold",
                                                     "&:hover": {
                                                         background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
@@ -380,7 +380,7 @@ const FavoritesPage = () => {
                 <Dialog open={profileDialogOpen} onClose={() => setProfileDialogOpen(false)} maxWidth="md" fullWidth>
                     {selectedProfile && (
                         <>
-                            <DialogTitle sx={{ color: "#d81b60", fontWeight: 600 }}>
+                            <DialogTitle sx={{ color: "#51365F", fontWeight: 600 }}>
                                 {selectedProfile.name}'s Profile
                             </DialogTitle>
                             <DialogContent>
@@ -399,21 +399,21 @@ const FavoritesPage = () => {
                                         </Typography>
 
                                         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                            <WorkIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <WorkIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                             <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.occupation || 'N/A'}
                                             </Typography>
                                         </Box>
 
                                         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                            <SchoolIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <SchoolIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                             <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.education || 'N/A'}
                                             </Typography>
                                         </Box>
 
                                         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                            <LocationIcon sx={{ fontSize: 20, color: "#d81b60", mr: 1 }} />
+                                            <LocationIcon sx={{ fontSize: 20, color: "#51365F", mr: 1 }} />
                                             <Typography variant="body2" sx={{ color: "#78909c" }}>
                                                 {selectedProfile.location || 'N/A'}
                                             </Typography>
@@ -440,7 +440,7 @@ const FavoritesPage = () => {
                                                     size="small"
                                                     sx={{
                                                         backgroundColor: "rgba(216, 27, 96, 0.1)",
-                                                        color: "#d81b60",
+                                                        color: "#51365F",
                                                     }}
                                                 />
                                             ))}
@@ -460,7 +460,7 @@ const FavoritesPage = () => {
                                         handleMessage(selectedProfile);
                                     }}
                                     sx={{
-                                        background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                        background: "#51365F",
                                         "&:hover": {
                                             background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
                                         },

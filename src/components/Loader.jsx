@@ -34,7 +34,7 @@ const Loader = ({ onComplete }) => {
           initial={{ x: "-100vw", y: "-100vh", opacity: 0 }}
           animate={{ x: 0, y: 0, opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          style={{ fontSize: "3rem", fontWeight: "bold", color: "#d81b60" }}
+          style={{ fontSize: "3rem", fontWeight: "bold", color: "#51365F" }}
         >
           Ban
         </motion.div>
@@ -43,7 +43,7 @@ const Loader = ({ onComplete }) => {
           initial={{ x: "100vw", y: "-100vh", opacity: 0 }}
           animate={{ x: 0, y: 0, opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          style={{ fontSize: "3rem", fontWeight: "bold", color: "#880e4f" }}
+          style={{ fontSize: "3rem", fontWeight: "bold", color: "#3A2640" }}
         >
           dh
         </motion.div>
@@ -76,7 +76,7 @@ const Loader = ({ onComplete }) => {
           fontWeight: 700,
           marginTop: "1.5rem",
           letterSpacing: "2px",
-          background: "linear-gradient(135deg,#d81b60,#6a1b9a)",
+          background: "linear-gradient(135deg,#51365F,#6a1b9a)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
         }}

@@ -17,13 +17,15 @@ import {
   Send as SendIcon,
   Lock as LockIcon
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { interactionAPI } from '../services/apiService';
 
 const InterestButton = ({ profile, onInterestSent }) => {
-  const { canSendInterest, openUpgradeModal } = useSubscription();
+  const navigate = useNavigate();
+  const { canSendInterest } = useSubscription();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,7 @@ const InterestButton = ({ profile, onInterestSent }) => {
 
   const handleSendInterest = async () => {
     if (!canSendInterest()) {
-      openUpgradeModal();
+      navigate('/membership');
       return;
     }
 
@@ -84,7 +86,7 @@ const InterestButton = ({ profile, onInterestSent }) => {
         disabled={loading}
         sx={{
           background: canSendInterest() 
-            ? 'linear-gradient(135deg, #d81b60 0%, #ad1457 100%)'
+            ? 'linear-gradient(135deg, #51365F 0%, #ad1457 100%)'
             : '#ccc',
           color: 'white',
           '&:hover': {
@@ -104,7 +106,7 @@ const InterestButton = ({ profile, onInterestSent }) => {
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <InterestIcon sx={{ color: '#d81b60' }} />
+            <InterestIcon sx={{ color: '#51365F' }} />
             <Typography variant="h6" sx={{ color: '#000' }}>
               Send Interest to {profile.name}
             </Typography>
@@ -166,7 +168,7 @@ const InterestButton = ({ profile, onInterestSent }) => {
             disabled={loading || !message.trim()}
             startIcon={loading ? <CircularProgress size={20} /> : <SendIcon />}
             sx={{
-              background: 'linear-gradient(135deg, #d81b60 0%, #ad1457 100%)',
+              background: 'linear-gradient(135deg, #51365F 0%, #ad1457 100%)',
               '&:hover': {
                 background: 'linear-gradient(135deg, #ad1457 0%, #880e4f 100%)',
               }

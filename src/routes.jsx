@@ -55,7 +55,7 @@ const publicRoutes = [
   { path: "/faq", component: FAQPage },
   { path: "/blog", component: BlogPage },
   { path: "/terms-condition", component: TermsConditions },
-  { path: "/privacy-policy", component: PrivacyPolicy },
+  // { path: "/privacy-policy", component: PrivacyPolicy },
 ];
 
 export default function AppRoutes() {

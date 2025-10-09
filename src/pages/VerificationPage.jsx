@@ -473,7 +473,7 @@ const VerificationPage = () => {
             <Container maxWidth="md">
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
                     <Box sx={{ textAlign: 'center', mb: 4 }}>
-                        <Typography variant="h4" gutterBottom sx={{ color: '#d81b60', fontWeight: 'bold' }}>
+                        <Typography variant="h4" gutterBottom sx={{ color: '#51365F', fontWeight: 'bold' }}>
                             Account Verification
                         </Typography>
                         <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>

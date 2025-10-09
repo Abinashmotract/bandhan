@@ -74,32 +74,32 @@ const Membership = () => {
 
     const features = [
         {
-            icon: <SearchIcon sx={{ color: '#d81b60' }} />,
+            icon: <SearchIcon sx={{ color: '#51365F' }} />,
             title: 'Advanced Search',
             description: 'Filter matches by education, profession, interests, and more'
         },
         {
-            icon: <SecurityIcon sx={{ color: '#d81b60' }} />,
+            icon: <SecurityIcon sx={{ color: '#51365F' }} />,
             title: 'Privacy Control',
             description: 'Control who sees your photos and contact information'
         },
         {
-            icon: <ChatIcon sx={{ color: '#d81b60' }} />,
+            icon: <ChatIcon sx={{ color: '#51365F' }} />,
             title: 'Unlimited Messaging',
             description: 'Connect directly with your matches without restrictions'
         },
         {
-            icon: <VisibilityIcon sx={{ color: '#d81b60' }} />,
+            icon: <VisibilityIcon sx={{ color: '#51365F' }} />,
             title: 'Profile Visibility',
             description: 'Get featured in search results and increase your chances'
         },
         {
-            icon: <TrophyIcon sx={{ color: '#d81b60' }} />,
+            icon: <TrophyIcon sx={{ color: '#51365F' }} />,
             title: 'Priority Support',
             description: 'Get dedicated assistance for your matchmaking journey'
         },
         {
-            icon: <FavoriteIcon sx={{ color: '#d81b60' }} />,
+            icon: <FavoriteIcon sx={{ color: '#51365F' }} />,
             title: 'Smart Matching',
             description: 'Our algorithm suggests highly compatible matches daily'
         }
@@ -179,7 +179,7 @@ const Membership = () => {
         if (currentSubscription && currentSubscription.planId === plan._id) {
             return currentSubscription.status === 'active' ? '#4caf50' : '#ff9800';
         }
-        const colorMap = { Basic: "#9c27b0", Premium: "#d81b60", Elite: "#ff6f00" };
+        const colorMap = { Basic: "#9c27b0", Premium: "#51365F", Elite: "#ff6f00" };
         return colorMap[plan?.name] || "#37474f";
     };
 
@@ -210,7 +210,7 @@ const Membership = () => {
             ) : (
                 <Container maxWidth="xl">
                     <Box textAlign="center" mb={6}>
-                        <Typography variant="h2" component="h1" gutterBottom sx={{ color: '#C8A2C8', fontStyle: 'italic', fontWeight: 800, mb: 2 }}>
+                        <Typography variant="h2" component="h1" gutterBottom sx={{ color: '#51365F', fontStyle: 'italic', fontWeight: 800, mb: 2 }}>
                             Find Your Perfect Match
                         </Typography>
                         <Typography variant="h6" sx={{ color: 'black', maxWidth: '600px', margin: '0 auto', mb: 3 }}>
@@ -219,7 +219,7 @@ const Membership = () => {
 
                         {/* Billing Toggle */}
                         <Paper elevation={2} sx={{ display: 'inline-flex', alignItems: 'center', p: 1, borderRadius: 4 }}>
-                            <Typography sx={{ color: yearlyBilling ? '#888' : '#d81b60', fontWeight: yearlyBilling ? 400 : 600 }}>
+                            <Typography sx={{ color: yearlyBilling ? '#888' : '#51365F', fontWeight: yearlyBilling ? 400 : 600 }}>
                                 Monthly
                             </Typography>
                             <FormControlLabel
@@ -230,7 +230,7 @@ const Membership = () => {
                                         sx={{
                                             m: 1,
                                             '& .MuiSwitch-switchBase.Mui-checked': {
-                                                color: '#d81b60',
+                                                color: '#51365F',
                                             },
                                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
                                                 backgroundColor: '#ff80ab',
@@ -241,7 +241,7 @@ const Membership = () => {
                                 label=""
                             />
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <Typography sx={{ color: yearlyBilling ? '#d81b60' : '#888', fontWeight: yearlyBilling ? 600 : 400 }}>
+                                <Typography sx={{ color: yearlyBilling ? '#51365F' : '#888', fontWeight: yearlyBilling ? 600 : 400 }}>
                                     Yearly
                                 </Typography>
                                 <Box sx={{ ml: 1, background: '#4caf50', color: 'white', fontSize: '12px', px: 1, py: 0.5, borderRadius: 2 }}>
@@ -287,7 +287,7 @@ const Membership = () => {
                     {/* Pricing Plans */}
                     {plans?.length === 0 ? (
                         <Box sx={{ textAlign: 'center', py: 8 }}>
-                            <Typography variant="h5" sx={{ color: '#d81b60', mb: 2 }}>
+                            <Typography variant="h5" sx={{ color: '#51365F', mb: 2 }}>
                                 No plans available for {yearlyBilling ? 'yearly' : 'monthly'} billing
                             </Typography>
                             <Typography variant="body1" sx={{ color: 'gray' }}>
@@ -297,7 +297,7 @@ const Membership = () => {
                     ) : (
                         <Grid container spacing={3} justifyContent="center" sx={{ mb: 10 }}>
                             {plans?.map((plan, index) => {
-                            const colorMap = { Basic: "#9c27b0", Premium: "#d81b60", Elite: "#ff6f00" };
+                            const colorMap = { Basic: "#9c27b0", Premium: "#51365F", Elite: "#ff6f00" };
                             const planColor = colorMap[plan?.name] || "#37474f";
                             const buttonColor = getButtonColor(plan);
                             const buttonText = getButtonText(plan);
@@ -377,7 +377,7 @@ const Membership = () => {
                                                 variant="contained"
                                                 fullWidth
                                                 size="large"
-                                                disabled={isCurrent}
+                                                disabled={isCurrent || paymentLoading}
                                                 sx={{
                                                     mt: 'auto',
                                                     py: 1.5,
@@ -394,7 +394,6 @@ const Membership = () => {
                                                     }
                                                 }}
                                                 onClick={() => !isCurrent && handleChoosePlan(plan)}
-                                                disabled={paymentLoading}
                                             >
                                                 {buttonText}
                                             </Button>
@@ -408,7 +407,7 @@ const Membership = () => {
 
                     {/* Features Section */}
                     <Box sx={{ mb: 10 }}>
-                        <Typography variant="h3" align="center" gutterBottom sx={{ color: '#C8A2C8', fontStyle: 'italic', mb: 1, fontWeight: 700 }}>
+                        <Typography variant="h3" align="center" gutterBottom sx={{ color: '#51365F', fontStyle: 'italic', mb: 1, fontWeight: 700 }}>
                             Premium Features
                         </Typography>
                         <Typography variant="h6" align="center" sx={{ color: 'black', maxWidth: '700px', margin: '0 auto', mb: 5 }}>
@@ -468,7 +467,7 @@ const Membership = () => {
                     {/* FAQ Section */}
                     <Box sx={{ background: 'white', borderRadius: 4, p: 5, boxShadow: 3 }}>
                         <Typography variant="h3" align="center" gutterBottom sx={{
-                            color: '#C8A2C8',
+                            color: '#51365F',
                             fontStyle: 'italic', mb: 1, fontWeight: 700
                         }}>
                             Frequently Asked Questions
@@ -479,21 +478,21 @@ const Membership = () => {
 
                         <Grid container spacing={4}>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#51365F' }}>
                                     Can I change my plan later?
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
                                     Yes, you can upgrade or downgrade your plan at any time. When upgrading, the new rate will be applied immediately. When downgrading, the change will take effect at the end of your current billing cycle.
                                 </Typography>
 
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#51365F' }}>
                                     Is my payment information secure?
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
                                     Absolutely. We use industry-standard encryption to protect your payment information. We don't store your credit card details on our servers.
                                 </Typography>
 
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#51365F' }}>
                                     How do I cancel my subscription?
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#78909c' }}>
@@ -502,21 +501,21 @@ const Membership = () => {
                             </Grid>
 
                             <Grid item xs={12} md={6}>
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#51365F' }}>
                                     What payment methods do you accept?
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
                                     We accept all major credit cards, debit cards, UPI payments, and net banking. All payments are processed through secure payment gateways.
                                 </Typography>
 
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#51365F' }}>
                                     Do you offer refunds?
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#78909c', mb: 3 }}>
                                     We offer a 7-day money-back guarantee for all annual plans. If you're not satisfied with our service, you can request a full refund within 7 days of purchase.
                                 </Typography>
 
-                                <Typography variant="h6" gutterBottom sx={{ color: '#d81b60' }}>
+                                <Typography variant="h6" gutterBottom sx={{ color: '#51365F' }}>
                                     Are there any hidden fees?
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: '#78909c' }}>
@@ -529,7 +528,7 @@ const Membership = () => {
                     {/* Final CTA */}
                     <Box textAlign="center" sx={{ mt: 8 }}>
                         <Typography variant="h4" gutterBottom sx={{
-                            color: '#C8A2C8',
+                            color: '#51365F',
                             fontStyle: 'italic', fontWeight: 700
                         }}>
                             Ready to Find Your Life Partner?
@@ -544,7 +543,7 @@ const Membership = () => {
                                 px: 5,
                                 py: 1.5,
                                 borderRadius: 3,
-                                background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                background: '#51365F',
                                 fontWeight: 'bold',
                                 fontSize: '1.1rem',
                                 '&:hover': {
@@ -565,7 +564,7 @@ const Membership = () => {
                 maxWidth="sm"
                 fullWidth
             >
-                <DialogTitle sx={{ color: '#d81b60', fontWeight: 'bold' }}>
+                <DialogTitle sx={{ color: '#51365F', fontWeight: 'bold' }}>
                     Cancel Subscription
                 </DialogTitle>
                 <DialogContent>

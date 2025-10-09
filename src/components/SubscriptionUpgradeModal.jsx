@@ -23,7 +23,7 @@ import {
   Check as CheckIcon,
   Star as StarIcon,
   Diamond as DiamondIcon,
-  Crown as CrownIcon,
+  EmojiEvents as CrownIcon,
   Lock as LockIcon
 } from '@mui/icons-material';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -131,7 +131,7 @@ const PaymentForm = ({ plan, onSuccess, onCancel }) => {
           variant="contained"
           disabled={!stripe || loading}
           sx={{
-            background: 'linear-gradient(135deg, #d81b60 0%, #ad1457 100%)',
+            background: 'linear-gradient(135deg, #51365F 0%, #ad1457 100%)',
             '&:hover': {
               background: 'linear-gradient(135deg, #ad1457 0%, #880e4f 100%)',
             },
@@ -160,7 +160,7 @@ const SubscriptionUpgradeModal = () => {
   const getPlanIcon = (planName) => {
     switch (planName) {
       case 'Basic': return <LockIcon sx={{ color: '#9c27b0' }} />;
-      case 'Entry': return <StarIcon sx={{ color: '#d81b60' }} />;
+      case 'Entry': return <StarIcon sx={{ color: '#51365F' }} />;
       case 'Advanced': return <DiamondIcon sx={{ color: '#ff6f00' }} />;
       case 'Premium': return <CrownIcon sx={{ color: '#4caf50' }} />;
       case 'Elite': return <CrownIcon sx={{ color: '#ff9800' }} />;
@@ -171,11 +171,11 @@ const SubscriptionUpgradeModal = () => {
   const getPlanColor = (planName) => {
     switch (planName) {
       case 'Basic': return '#9c27b0';
-      case 'Entry': return '#d81b60';
+      case 'Entry': return '#51365F';
       case 'Advanced': return '#ff6f00';
       case 'Premium': return '#4caf50';
       case 'Elite': return '#ff9800';
-      default: return '#d81b60';
+      default: return '#51365F';
     }
   };
 

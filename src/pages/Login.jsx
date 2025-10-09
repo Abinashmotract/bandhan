@@ -138,7 +138,7 @@ const LoginPage = ({onToggleForm}) => {
                                 left: 0,
                                 right: 0,
                                 height: "5px",
-                                background: "linear-gradient(90deg, #d81b60, #880e4f)",
+                                background: "linear-gradient(90deg, #51365F, #880e4f)",
                                 borderRadius: "10px 10px 0 0",
                             },
                         }}
@@ -147,7 +147,7 @@ const LoginPage = ({onToggleForm}) => {
                             <Typography
                                 variant="h3"
                                 sx={{
-                                    color: "#C8A2C8",
+                                    color: "#51365F",
                                     fontStyle: "italic",
                                     fontWeight: 700,
                                     mb: 1,
@@ -181,7 +181,7 @@ const LoginPage = ({onToggleForm}) => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Email sx={{color: "#d81b60"}} />
+                                            <Email sx={{color: "#51365F"}} />
                                         </InputAdornment>
                                     ),
                                 }}
@@ -189,7 +189,7 @@ const LoginPage = ({onToggleForm}) => {
                                     "& .MuiOutlinedInput-root": {
                                         borderRadius: "12px",
                                         "&.Mui-focused fieldset": {
-                                            borderColor: "#d81b60",
+                                            borderColor: "#51365F",
                                         },
                                     },
                                 }}
@@ -209,7 +209,7 @@ const LoginPage = ({onToggleForm}) => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Favorite sx={{color: "#d81b60"}} />
+                                            <Favorite sx={{color: "#51365F"}} />
                                         </InputAdornment>
                                     ),
                                     endAdornment: (
@@ -224,7 +224,7 @@ const LoginPage = ({onToggleForm}) => {
                                     "& .MuiOutlinedInput-root": {
                                         borderRadius: "12px",
                                         "&.Mui-focused fieldset": {
-                                            borderColor: "#d81b60",
+                                            borderColor: "#51365F",
                                         },
                                     },
                                 }}
@@ -241,7 +241,7 @@ const LoginPage = ({onToggleForm}) => {
                                     mb: 2,
                                     py: 1.5,
                                     borderRadius: "12px",
-                                    background: "linear-gradient(135deg, #d81b60 0%, #880e4f 100%)",
+                                    background: "#51365F",
                                     fontSize: "1.1rem",
                                     fontWeight: 600,
                                     boxShadow: "0 4px 15px rgba(216, 27, 96, 0.3)",
@@ -285,8 +285,8 @@ const LoginPage = ({onToggleForm}) => {
                                         borderColor: "#ddd",
                                         color: "#5f6368",
                                         "&:hover": {
-                                            borderColor: "#d81b60",
-                                            color: "#d81b60",
+                                            borderColor: "#51365F",
+                                            color: "#51365F",
                                         },
                                     }}
                                 >
@@ -318,7 +318,7 @@ const LoginPage = ({onToggleForm}) => {
                                         <span
                                             onClick={onToggleForm}
                                             style={{
-                                                color: "#d81b60",
+                                                color: "#51365F",
                                                 cursor: "pointer",
                                                 fontWeight: 600,
                                             }}

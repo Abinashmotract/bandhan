@@ -14,7 +14,7 @@ import {
   Lock as LockIcon,
   Star as StarIcon,
   Diamond as DiamondIcon,
-  Crown as CrownIcon
+  EmojiEvents as CrownIcon
 } from '@mui/material';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
@@ -40,7 +40,7 @@ const ProfileAccessRestriction = ({ profile, children, onUpgrade }) => {
   const getPlanIcon = (planName) => {
     switch (planName) {
       case 'Basic': return <LockIcon sx={{ color: '#9c27b0' }} />;
-      case 'Entry': return <StarIcon sx={{ color: '#d81b60' }} />;
+      case 'Entry': return <StarIcon sx={{ color: '#51365F' }} />;
       case 'Advanced': return <DiamondIcon sx={{ color: '#ff6f00' }} />;
       case 'Premium': return <CrownIcon sx={{ color: '#4caf50' }} />;
       case 'Elite': return <CrownIcon sx={{ color: '#ff9800' }} />;
@@ -51,11 +51,11 @@ const ProfileAccessRestriction = ({ profile, children, onUpgrade }) => {
   const getPlanColor = (planName) => {
     switch (planName) {
       case 'Basic': return '#9c27b0';
-      case 'Entry': return '#d81b60';
+      case 'Entry': return '#51365F';
       case 'Advanced': return '#ff6f00';
       case 'Premium': return '#4caf50';
       case 'Elite': return '#ff9800';
-      default: return '#d81b60';
+      default: return '#51365F';
     }
   };
 

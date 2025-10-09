@@ -102,6 +102,38 @@ export const SubscriptionProvider = ({ children }) => {
     return state.currentSubscription.interestsUsed < currentPlan.interests;
   };
 
+  const getRemainingInterests = () => {
+    if (!user || !state.currentSubscription) {
+      return 0;
+    }
+
+    const currentPlan = state.plans.find(plan => plan._id === state.currentSubscription.plan);
+    
+    if (!currentPlan) {
+      return 0;
+    }
+
+    if (currentPlan.interests === -1) {
+      return -1; // Unlimited
+    }
+
+    return Math.max(0, currentPlan.interests - state.currentSubscription.interestsUsed);
+  };
+
+  const getInterestLimit = () => {
+    if (!user || !state.currentSubscription) {
+      return 0;
+    }
+
+    const currentPlan = state.plans.find(plan => plan._id === state.currentSubscription.plan);
+    
+    if (!currentPlan) {
+      return 0;
+    }
+
+    return currentPlan.interests === -1 ? -1 : currentPlan.interests;
+  };
+
   const canSendMessage = () => {
     if (!user || !state.currentSubscription) {
       return false;
@@ -179,6 +211,8 @@ export const SubscriptionProvider = ({ children }) => {
     checkProfileAccess,
     canSendInterest,
     canSendMessage,
+    getRemainingInterests,
+    getInterestLimit,
     openUpgradeModal,
     closeUpgradeModal,
     handleSubscription,

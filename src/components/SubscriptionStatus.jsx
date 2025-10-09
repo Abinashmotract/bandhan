@@ -18,17 +18,18 @@ import {
   Check as CheckIcon,
   Star as StarIcon,
   Diamond as DiamondIcon,
-  Crown as CrownIcon,
+  EmojiEvents as CrownIcon,
   Lock as LockIcon,
   Upgrade as UpgradeIcon
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
 const SubscriptionStatus = () => {
+  const navigate = useNavigate();
   const {
     currentSubscription,
     plans,
-    openUpgradeModal,
     handleCancelSubscription,
     paymentLoading
   } = useSubscription();
@@ -48,11 +49,11 @@ const SubscriptionStatus = () => {
           <Button
             variant="contained"
             startIcon={<UpgradeIcon />}
-            onClick={() => openUpgradeModal()}
+            onClick={() => navigate('/membership')}
             sx={{
-              background: 'linear-gradient(135deg, #d81b60 0%, #ad1457 100%)',
+              background: 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
               '&:hover': {
-                background: 'linear-gradient(135deg, #ad1457 0%, #880e4f 100%)',
+                background: 'linear-gradient(135deg, #3A2640 0%, #51365F 100%)',
               }
             }}
           >
@@ -66,7 +67,7 @@ const SubscriptionStatus = () => {
   const getPlanIcon = (planName) => {
     switch (planName) {
       case 'Basic': return <LockIcon sx={{ color: '#9c27b0' }} />;
-      case 'Entry': return <StarIcon sx={{ color: '#d81b60' }} />;
+      case 'Entry': return <StarIcon sx={{ color: '#51365F' }} />;
       case 'Advanced': return <DiamondIcon sx={{ color: '#ff6f00' }} />;
       case 'Premium': return <CrownIcon sx={{ color: '#4caf50' }} />;
       case 'Elite': return <CrownIcon sx={{ color: '#ff9800' }} />;
@@ -77,11 +78,11 @@ const SubscriptionStatus = () => {
   const getPlanColor = (planName) => {
     switch (planName) {
       case 'Basic': return '#9c27b0';
-      case 'Entry': return '#d81b60';
+      case 'Entry': return '#51365F';
       case 'Advanced': return '#ff6f00';
       case 'Premium': return '#4caf50';
       case 'Elite': return '#ff9800';
-      default: return '#d81b60';
+      default: return '#51365F';
     }
   };
 
@@ -127,7 +128,7 @@ const SubscriptionStatus = () => {
           
           <Button
             variant="outlined"
-            onClick={() => openUpgradeModal()}
+            onClick={() => navigate('/membership')}
             sx={{
               borderColor: getPlanColor(currentPlan.name),
               color: getPlanColor(currentPlan.name),

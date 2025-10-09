@@ -76,7 +76,7 @@ const PrivacyPolicy = () => {
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography variant="h2" sx={{ 
             fontWeight: 800, 
-            color: '#C8A2C8', 
+            color: '#51365F', 
             fontStyle: 'italic',
             mb: 2
           }}>
@@ -99,8 +99,8 @@ const PrivacyPolicy = () => {
                 label={link}
                 variant="outlined"
                 sx={{ 
-                  color: '#d81b60', 
-                  borderColor: '#d81b60',
+                  color: '#51365F', 
+                  borderColor: '#51365F',
                   fontWeight: 500
                 }}
               />
@@ -117,7 +117,7 @@ const PrivacyPolicy = () => {
         }}>
           {/* Introduction */}
           <Box sx={{ mb: 6 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               Interpretation and Definitions
             </Typography>
             <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, mb: 3 }}>
@@ -126,7 +126,7 @@ const PrivacyPolicy = () => {
             
             <Accordion sx={{ mb: 2 }}>
               <AccordionSummary expandIcon={<ExpandMore />}>
-                <Typography variant="h6" sx={{ color: '#C8A2C8' }}>
+                <Typography variant="h6" sx={{ color: '#51365F' }}>
                   Key Definitions
                 </Typography>
               </AccordionSummary>
@@ -134,7 +134,7 @@ const PrivacyPolicy = () => {
                 <List>
                   <ListItem>
                     <ListItemIcon>
-                      <Policy sx={{ color: '#d81b60' }} />
+                      <Policy sx={{ color: '#51365F' }} />
                     </ListItemIcon>
                     <ListItemText 
                       primary="Company"
@@ -143,7 +143,7 @@ const PrivacyPolicy = () => {
                   </ListItem>
                   <ListItem>
                     <ListItemIcon>
-                      <Security sx={{ color: '#d81b60' }} />
+                      <Security sx={{ color: '#51365F' }} />
                     </ListItemIcon>
                     <ListItemText 
                       primary="Personal Data"
@@ -152,7 +152,7 @@ const PrivacyPolicy = () => {
                   </ListItem>
                   <ListItem>
                     <ListItemIcon>
-                      <DataUsage sx={{ color: '#d81b60' }} />
+                      <DataUsage sx={{ color: '#51365F' }} />
                     </ListItemIcon>
                     <ListItemText 
                       primary="Service"
@@ -161,7 +161,7 @@ const PrivacyPolicy = () => {
                   </ListItem>
                   <ListItem>
                     <ListItemIcon>
-                      <Cookie sx={{ color: '#d81b60' }} />
+                      <Cookie sx={{ color: '#51365F' }} />
                     </ListItemIcon>
                     <ListItemText 
                       primary="Cookies"
@@ -177,16 +177,16 @@ const PrivacyPolicy = () => {
 
           {/* Data Collection Section */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               Collecting and Using Your Personal Data
             </Typography>
             
-            <Typography variant="h5" sx={{ color: '#C8A2C8', mb: 2, fontWeight: 600 }}>
+            <Typography variant="h5" sx={{ color: '#51365F', mb: 2, fontWeight: 600 }}>
               Types of Data Collected
             </Typography>
 
             <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ color: '#d81b60', mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#51365F', mb: 2 }}>
                 Personal Data
               </Typography>
               <Typography variant="body1" sx={{ color: 'black', mb: 2, lineHeight: 1.7 }}>
@@ -195,25 +195,25 @@ const PrivacyPolicy = () => {
               <List>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                    <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                   </ListItemIcon>
                   <ListItemText primary="Email address" />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                    <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                   </ListItemIcon>
                   <ListItemText primary="First and last name" />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                    <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                   </ListItemIcon>
                   <ListItemText primary="Phone number" />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon>
-                    <CheckCircle sx={{ color: '#d81b60', fontSize: 20 }} />
+                    <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                   </ListItemIcon>
                   <ListItemText primary="Address, State, Province, ZIP/Postal code, City" />
                 </ListItem>
@@ -221,7 +221,7 @@ const PrivacyPolicy = () => {
             </Box>
 
             <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ color: '#d81b60', mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#51365F', mb: 2 }}>
                 Usage Data
               </Typography>
               <Typography variant="body1" sx={{ color: 'black', mb: 2, lineHeight: 1.7 }}>
@@ -229,7 +229,7 @@ const PrivacyPolicy = () => {
               </Typography>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
                 <Card sx={{ p: 2, background: 'rgba(216, 27, 96, 0.05)' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: '#d81b60' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: '#51365F' }}>
                     Device Information
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'black' }}>
@@ -237,7 +237,7 @@ const PrivacyPolicy = () => {
                   </Typography>
                 </Card>
                 <Card sx={{ p: 2, background: 'rgba(216, 27, 96, 0.05)' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: '#d81b60' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: '#51365F' }}>
                     Usage Patterns
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'black' }}>
@@ -252,7 +252,7 @@ const PrivacyPolicy = () => {
 
           {/* Third-Party Services */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               Information from Third-Party Social Media Services
             </Typography>
             <Typography variant="body1" sx={{ color: 'black', mb: 3, lineHeight: 1.7 }}>
@@ -266,7 +266,7 @@ const PrivacyPolicy = () => {
                   label={platform}
                   variant="filled"
                   sx={{ 
-                    background: 'linear-gradient(135deg, #d81b60, #880e4f)',
+                    background: 'linear-gradient(135deg, #51365F, #880e4f)',
                     color: 'white',
                     fontWeight: 600
                   }}
@@ -285,7 +285,7 @@ const PrivacyPolicy = () => {
 
           {/* Cookies Section */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <Cookie sx={{ mr: 2 }} />
               Tracking Technologies and Cookies
             </Typography>
@@ -298,7 +298,7 @@ const PrivacyPolicy = () => {
               {cookieTypes.map((cookie, index) => (
                 <Accordion key={index} sx={{ mb: 1 }}>
                   <AccordionSummary expandIcon={<ExpandMore />}>
-                    <Typography sx={{ fontWeight: 600, color: '#C8A2C8' }}>
+                    <Typography sx={{ fontWeight: 600, color: '#51365F' }}>
                       {cookie.name}
                     </Typography>
                   </AccordionSummary>
@@ -313,7 +313,7 @@ const PrivacyPolicy = () => {
 
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               <Card sx={{ p: 2, textAlign: 'center', background: 'rgba(200, 162, 200, 0.1)' }}>
-                <Typography variant="h6" sx={{ color: '#C8A2C8' }}>
+                <Typography variant="h6" sx={{ color: '#51365F' }}>
                   Session Cookies
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'black' }}>
@@ -321,7 +321,7 @@ const PrivacyPolicy = () => {
                 </Typography>
               </Card>
               <Card sx={{ p: 2, textAlign: 'center', background: 'rgba(216, 27, 96, 0.1)' }}>
-                <Typography variant="h6" sx={{ color: '#d81b60' }}>
+                <Typography variant="h6" sx={{ color: '#51365F' }}>
                   Persistent Cookies
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'black' }}>
@@ -335,7 +335,7 @@ const PrivacyPolicy = () => {
 
           {/* Data Usage Section */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <DataUsage sx={{ mr: 2 }} />
               Use of Your Personal Data
             </Typography>
@@ -348,7 +348,7 @@ const PrivacyPolicy = () => {
               {dataUsagePurposes.map((purpose, index) => (
                 <Card key={index} sx={{ p: 2, background: 'rgba(216, 27, 96, 0.05)' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                    <CheckCircle sx={{ color: '#d81b60', mr: 2, mt: 0.5 }} />
+                    <CheckCircle sx={{ color: '#51365F', mr: 2, mt: 0.5 }} />
                     <Typography variant="body2" sx={{ color: 'black' }}>
                       {purpose}
                     </Typography>
@@ -362,7 +362,7 @@ const PrivacyPolicy = () => {
 
           {/* Data Sharing Section */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <Share sx={{ mr: 2 }} />
               Sharing of Your Data
             </Typography>
@@ -374,7 +374,7 @@ const PrivacyPolicy = () => {
             <List>
               <ListItem>
                 <ListItemIcon>
-                  <Security sx={{ color: '#d81b60' }} />
+                  <Security sx={{ color: '#51365F' }} />
                 </ListItemIcon>
                 <ListItemText 
                   primary="Service Providers"
@@ -383,7 +383,7 @@ const PrivacyPolicy = () => {
               </ListItem>
               <ListItem>
                 <ListItemIcon>
-                  <Policy sx={{ color: '#d81b60' }} />
+                  <Policy sx={{ color: '#51365F' }} />
                 </ListItemIcon>
                 <ListItemText 
                   primary="Business Partners"
@@ -392,7 +392,7 @@ const PrivacyPolicy = () => {
               </ListItem>
               <ListItem>
                 <ListItemIcon>
-                  <Warning sx={{ color: '#d81b60' }} />
+                  <Warning sx={{ color: '#51365F' }} />
                 </ListItemIcon>
                 <ListItemText 
                   primary="Legal Requirements"
@@ -406,15 +406,15 @@ const PrivacyPolicy = () => {
 
           {/* Data Rights Section */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <Delete sx={{ mr: 2 }} />
               Your Data Rights
             </Typography>
 
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
               <Card sx={{ p: 3, textAlign: 'center', background: 'linear-gradient(135deg, rgba(200, 162, 200, 0.1), rgba(216, 27, 96, 0.05))' }}>
-                <Delete sx={{ fontSize: 40, color: '#C8A2C8', mb: 2 }} />
-                <Typography variant="h6" sx={{ color: '#d81b60', mb: 1 }}>
+                <Delete sx={{ fontSize: 40, color: '#51365F', mb: 2 }} />
+                <Typography variant="h6" sx={{ color: '#51365F', mb: 1 }}>
                   Right to Delete
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'black' }}>
@@ -423,8 +423,8 @@ const PrivacyPolicy = () => {
               </Card>
 
               <Card sx={{ p: 3, textAlign: 'center', background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05), rgba(200, 162, 200, 0.1))' }}>
-                <PrivacyTip sx={{ fontSize: 40, color: '#d81b60', mb: 2 }} />
-                <Typography variant="h6" sx={{ color: '#C8A2C8', mb: 1 }}>
+                <PrivacyTip sx={{ fontSize: 40, color: '#51365F', mb: 2 }} />
+                <Typography variant="h6" sx={{ color: '#51365F', mb: 1 }}>
                   Data Retention
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'black' }}>
@@ -438,7 +438,7 @@ const PrivacyPolicy = () => {
 
           {/* Children's Privacy */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               Children's Privacy
             </Typography>
             <Alert severity="error">
@@ -455,7 +455,7 @@ const PrivacyPolicy = () => {
 
           {/* Security Section */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
               Security of Your Personal Data
             </Typography>
             <Alert severity="info">
@@ -469,19 +469,19 @@ const PrivacyPolicy = () => {
 
           {/* Contact Information */}
           <Box sx={{ mb: 5 }}>
-            <Typography variant="h4" sx={{ color: '#d81b60', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
               <ContactSupport sx={{ mr: 2 }} />
               Contact Us
             </Typography>
             <Card sx={{ p: 4, background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05) 0%, rgba(200, 162, 200, 0.1) 100%)' }}>
-              <Typography variant="h6" sx={{ color: '#d81b60', mb: 2 }}>
+              <Typography variant="h6" sx={{ color: '#51365F', mb: 2 }}>
                 For questions or concerns about this Privacy Policy:
               </Typography>
               <Box sx={{ mb: 2 }}>
                 <Typography variant="body1" sx={{ color: 'black', fontWeight: 600 }}>
                   Email:
                 </Typography>
-                <Link href="mailto:adm1.bandhnam@gmail.com" sx={{ color: '#d81b60' }}>
+                <Link href="mailto:adm1.bandhnam@gmail.com" sx={{ color: '#51365F' }}>
                   adm1.bandhnam@gmail.com
                 </Link>
               </Box>
@@ -489,7 +489,7 @@ const PrivacyPolicy = () => {
                 <Typography variant="body1" sx={{ color: 'black', fontWeight: 600 }}>
                   Website:
                 </Typography>
-                <Link href="https://www.bandhnam.com" sx={{ color: '#d81b60' }}>
+                <Link href="https://www.bandhnam.com" sx={{ color: '#51365F' }}>
                   https://www.bandhnam.com
                 </Link>
               </Box>
@@ -524,7 +524,7 @@ const PrivacyPolicy = () => {
                   borderRadius: '50px',
                   px: 4,
                   py: 1.5,
-                  background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                  background: '#51365F',
                   fontWeight: 'bold',
                   '&:hover': {
                     background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)'
@@ -540,12 +540,12 @@ const PrivacyPolicy = () => {
                   borderRadius: '50px',
                   px: 4,
                   py: 1.5,
-                  color: '#d81b60',
-                  borderColor: '#d81b60',
+                  color: '#51365F',
+                  borderColor: '#51365F',
                   fontWeight: 'bold',
                   '&:hover': {
                     background: 'rgba(216, 27, 96, 0.1)',
-                    borderColor: '#d81b60'
+                    borderColor: '#51365F'
                   }
                 }}
               >

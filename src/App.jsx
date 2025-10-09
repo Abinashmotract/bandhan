@@ -25,7 +25,7 @@ function App() {
     <Provider store={store}>
       <AuthInitializer>
         <SubscriptionProvider>
-          <ClickSpark color="#ff5722" />
+          <ClickSpark color="#51365F" />
           <ScrollToTop />
           <AppRoutes />
           <Toaster />

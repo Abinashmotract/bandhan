@@ -319,14 +319,14 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Person sx={{ color: '#d81b60' }} />
+                                        <Person sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
-                                    '&.Mui-focused fieldset': { borderColor: '#d81b60' }
+                                    '&.Mui-focused fieldset': { borderColor: '#51365F' }
                                 }
                             }}
                         />
@@ -345,14 +345,14 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Email sx={{ color: '#d81b60' }} />
+                                        <Email sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
-                                    '&.Mui-focused fieldset': { borderColor: '#d81b60' }
+                                    '&.Mui-focused fieldset': { borderColor: '#51365F' }
                                 }
                             }}
                         />
@@ -370,14 +370,14 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Phone sx={{ color: '#d81b60' }} />
+                                        <Phone sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
-                                    '&.Mui-focused fieldset': { borderColor: '#d81b60' }
+                                    '&.Mui-focused fieldset': { borderColor: '#51365F' }
                                 }
                             }}
                         />
@@ -396,7 +396,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Lock sx={{ color: '#d81b60' }} />
+                                        <Lock sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 ),
                                 endAdornment: (
@@ -410,7 +410,7 @@ const Register = ({ onToggleForm }) => {
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
-                                    '&.Mui-focused fieldset': { borderColor: '#d81b60' }
+                                    '&.Mui-focused fieldset': { borderColor: '#51365F' }
                                 }
                             }}
                         />
@@ -429,7 +429,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Lock sx={{ color: '#d81b60' }} />
+                                        <Lock sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
@@ -437,7 +437,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -454,7 +454,7 @@ const Register = ({ onToggleForm }) => {
                                 value={formData.profileFor}
                                 onChange={handleChange}
                                 label="Create Profile For"
-                                sx={{ borderRadius: '12px', '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#d81b60' } }}
+                                sx={{ borderRadius: '12px', '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#51365F' } }}
                             >
                                 {PROFILE_FOR_OPTIONS.map(option => (
                                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
@@ -490,12 +490,12 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Cake sx={{ color: '#d81b60' }} />
+                                        <Cake sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
                             sx={{
-                                '& .MuiOutlinedInput-root': { borderRadius: '12px', '&.Mui-focused fieldset': { borderColor: '#d81b60' } }
+                                '& .MuiOutlinedInput-root': { borderRadius: '12px', '&.Mui-focused fieldset': { borderColor: '#51365F' } }
                             }}
                         />
 
@@ -591,7 +591,7 @@ const Register = ({ onToggleForm }) => {
                                         startAdornment: (
                                             <>
                                                 <InputAdornment position="start">
-                                                    <AccountBalance sx={{ color: '#d81b60' }} />
+                                                    <AccountBalance sx={{ color: '#51365F' }} />
                                                 </InputAdornment>
                                                 {params.InputProps.startAdornment}
                                             </>
@@ -612,7 +612,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -736,7 +736,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <LocationOn sx={{ color: '#d81b60' }} />
+                                        <LocationOn sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
@@ -744,7 +744,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -754,7 +754,7 @@ const Register = ({ onToggleForm }) => {
             case 2:
                 return (
                     <>
-                        <Typography variant="h6" sx={{ mt: 2, mb: 1, color: '#d81b60' }}>
+                        <Typography variant="h6" sx={{ mt: 2, mb: 1, color: '#51365F' }}>
                             Physical Attributes
                         </Typography>
 
@@ -783,7 +783,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <FitnessCenter sx={{ color: '#d81b60' }} />
+                                        <FitnessCenter sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
@@ -791,7 +791,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -825,7 +825,7 @@ const Register = ({ onToggleForm }) => {
                             </Select>
                         </FormControl>
 
-                        <Typography variant="h6" sx={{ mt: 3, mb: 1, color: '#d81b60' }}>
+                        <Typography variant="h6" sx={{ mt: 3, mb: 1, color: '#51365F' }}>
                             Lifestyle
                         </Typography>
 
@@ -898,7 +898,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -932,7 +932,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -966,7 +966,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -984,13 +984,13 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
                         />
 
-                        <Typography variant="h6" sx={{ mt: 3, mb: 1, color: '#d81b60' }}>
+                        <Typography variant="h6" sx={{ mt: 3, mb: 1, color: '#51365F' }}>
                             Family Details
                         </Typography>
 
@@ -1033,7 +1033,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <FamilyRestroom sx={{ color: '#d81b60' }} />
+                                        <FamilyRestroom sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
@@ -1041,7 +1041,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1058,7 +1058,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <FamilyRestroom sx={{ color: '#d81b60' }} />
+                                        <FamilyRestroom sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
@@ -1066,7 +1066,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1083,7 +1083,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <FamilyRestroom sx={{ color: '#d81b60' }} />
+                                        <FamilyRestroom sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
@@ -1091,7 +1091,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1108,7 +1108,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <FamilyRestroom sx={{ color: '#d81b60' }} />
+                                        <FamilyRestroom sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
@@ -1116,7 +1116,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1151,7 +1151,7 @@ const Register = ({ onToggleForm }) => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <LocationOn sx={{ color: '#d81b60' }} />
+                                        <LocationOn sx={{ color: '#51365F' }} />
                                     </InputAdornment>
                                 )
                             }}
@@ -1159,7 +1159,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1189,7 +1189,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1199,7 +1199,7 @@ const Register = ({ onToggleForm }) => {
             case 3:
                 return (
                     <>
-                        <Typography variant="h6" sx={{ mt: 2, mb: 1, color: '#d81b60' }}>
+                        <Typography variant="h6" sx={{ mt: 2, mb: 1, color: '#51365F' }}>
                             Partner Preferences
                         </Typography>
 
@@ -1289,7 +1289,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1323,7 +1323,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1371,7 +1371,7 @@ const Register = ({ onToggleForm }) => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: '12px',
                                     '&.Mui-focused fieldset': {
-                                        borderColor: '#d81b60'
+                                        borderColor: '#51365F'
                                     }
                                 }
                             }}
@@ -1391,7 +1391,7 @@ const Register = ({ onToggleForm }) => {
                             </Select>
                         </FormControl>
 
-                        <Typography variant="subtitle1" sx={{ mt: 3, mb: 1, color: '#d81b60' }}>
+                        <Typography variant="subtitle1" sx={{ mt: 3, mb: 1, color: '#51365F' }}>
                             Lifestyle Expectations
                         </Typography>
 
@@ -1514,7 +1514,7 @@ const Register = ({ onToggleForm }) => {
                                     name="agreeToTerms"
                                     checked={formData.agreeToTerms}
                                     onChange={handleChange}
-                                    sx={{ color: '#d81b60', '&.Mui-checked': { color: '#d81b60' } }}
+                                    sx={{ color: '#51365F', '&.Mui-checked': { color: '#51365F' } }}
                                 />
                             }
                             label="I agree to the Terms and Conditions"
@@ -1526,14 +1526,14 @@ const Register = ({ onToggleForm }) => {
             case 4:
                 return (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
-                        <Favorite sx={{ fontSize: 60, color: '#d81b60', mb: 2 }} />
-                        <Typography variant="h5" sx={{ color: '#d81b60', mb: 2 }}>
+                        <Favorite sx={{ fontSize: 60, color: '#51365F', mb: 2 }} />
+                        <Typography variant="h5" sx={{ color: '#51365F', mb: 2 }}>
                             Registration Complete!
                         </Typography>
                         <Typography variant="body1" sx={{ color: '#78909c', mb: 2 }}>
                             Thank you for joining Bandhan Nammatch. Your journey to find your perfect partner begins now.
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#d81b60', fontWeight: 'bold' }}>
+                        <Typography variant="body2" sx={{ color: '#51365F', fontWeight: 'bold' }}>
                             Selected Plan: {formData.selectedPlan}
                         </Typography>
                     </Box>
@@ -1581,13 +1581,13 @@ const Register = ({ onToggleForm }) => {
                                 left: 0,
                                 right: 0,
                                 height: '5px',
-                                background: 'linear-gradient(90deg, #d81b60, #880e4f)',
+                                background: 'linear-gradient(90deg, #51365F, #880e4f)',
                                 borderRadius: '10px 10px 0 0'
                             }
                         }}
                     >
                         <Box sx={{ textAlign: 'center', mb: 4 }}>
-                            <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 700, color: '#C8A2C8', fontStyle: 'italic', mb: 1 }}>
+                            <Typography variant="h3" sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 700, color: '#51365F', fontStyle: 'italic', mb: 1 }}>
                                 Begin Your Journey
                             </Typography>
                             <Typography variant="body1" sx={{ color: '#78909c' }}>
@@ -1619,7 +1619,7 @@ const Register = ({ onToggleForm }) => {
                                 {activeStep !== 0 && (
                                     <Button
                                         onClick={handleBack}
-                                        sx={{ mr: 1, color: '#d81b60', borderRadius: '8px', px: 3 }}
+                                        sx={{ mr: 1, color: '#51365F', borderRadius: '8px', px: 3 }}
                                     >
                                         Back
                                     </Button>
@@ -1632,7 +1632,7 @@ const Register = ({ onToggleForm }) => {
                                         sx={{
                                             borderRadius: '8px',
                                             px: 4,
-                                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                            background: '#51365F',
                                             '&:hover': {
                                                 background:
                                                     'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
@@ -1649,7 +1649,7 @@ const Register = ({ onToggleForm }) => {
                                         sx={{
                                             borderRadius: '8px',
                                             px: 4,
-                                            background: 'linear-gradient(135deg, #d81b60 0%, #880e4f 100%)',
+                                            background: '#51365F',
                                             '&:hover': {
                                                 background:
                                                     'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
@@ -1685,7 +1685,7 @@ const Register = ({ onToggleForm }) => {
                                             fullWidth
                                             variant="outlined"
                                             startIcon={<Google />}
-                                            sx={{ py: 1.5, borderRadius: '12px', borderColor: '#ddd', color: '#5f6368', '&:hover': { borderColor: '#d81b60', color: '#d81b60' } }}
+                                            sx={{ py: 1.5, borderRadius: '12px', borderColor: '#ddd', color: '#5f6368', '&:hover': { borderColor: '#51365F', color: '#51365F' } }}
                                         >
                                             Google
                                         </Button>
@@ -1703,7 +1703,7 @@ const Register = ({ onToggleForm }) => {
                                         <Typography variant="body2" sx={{ color: '#78909c' }}>
                                             Already have an account?{' '}
                                             <Link to="/login" style={{ textDecoration: 'none' }}>
-                                                <span onClick={onToggleForm} style={{ color: '#d81b60', cursor: 'pointer', fontWeight: 600 }}>
+                                                <span onClick={onToggleForm} style={{ color: '#51365F', cursor: 'pointer', fontWeight: 600 }}>
                                                     Sign In
                                                 </span>
                                             </Link>
