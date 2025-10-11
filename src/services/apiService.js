@@ -98,6 +98,24 @@ export const authAPI = {
   removeProfileImage: () => apiClient.delete('/auth/user/remove-profile-image')
 };
 
+// Notifications API
+export const notificationsAPI = {
+  // Get user notifications
+  getNotifications: (params = {}) => apiClient.get('/notifications', { params }),
+  
+  // Get notification count
+  getNotificationCount: () => apiClient.get('/notifications/count'),
+  
+  // Mark notification as read
+  markAsRead: (notificationId) => apiClient.patch(`/notifications/${notificationId}/read`),
+  
+  // Mark all notifications as read
+  markAllAsRead: () => apiClient.patch('/notifications/read-all'),
+  
+  // Delete notification
+  deleteNotification: (notificationId) => apiClient.delete(`/notifications/${notificationId}`)
+};
+
 // ================================
 // PROFILE MANAGEMENT
 // ================================

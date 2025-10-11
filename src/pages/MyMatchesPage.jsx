@@ -27,7 +27,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  ListItemButton
+  ListItemButton,
+  Chip
 } from '@mui/material';
 import {
   FavoriteBorder as FavoriteBorderIcon,
@@ -102,7 +103,9 @@ const MyMatchesPage = () => {
   const [editingProfile, setEditingProfile] = useState({});
   
   // Dynamic middle section view states
-  const [middleSectionView, setMiddleSectionView] = useState('matches'); // 'matches', 'profile-edit', 'profile-details'
+  const [middleSectionView, setMiddleSectionView] = useState('matches'); // 'matches', 'profile-edit', 'profile-details', 'activity', 'search', 'messenger'
+  const [searchActiveTab, setSearchActiveTab] = useState('criteria');
+  const [profileId, setProfileId] = useState('');
 
   useEffect(() => {
     loadMatches();
@@ -340,6 +343,19 @@ const MyMatchesPage = () => {
     setMiddleSectionView('matches');
   };
 
+  // Navigation handlers for different sections
+  const handleActivityClick = () => {
+    setMiddleSectionView('activity');
+  };
+
+  const handleSearchClick = () => {
+    setMiddleSectionView('search');
+  };
+
+  const handleMessengerClick = () => {
+    setMiddleSectionView('messenger');
+  };
+
   // Render matches list view
   const renderMatchesListView = () => (
     <>
@@ -465,6 +481,1024 @@ const MyMatchesPage = () => {
           {filteredMatches.map((match) => renderMatchCard(match))}
         </Box>
       )}
+    </>
+  );
+
+  // Render activity view
+  const renderActivityView = () => (
+    <>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ 
+          color: '#333', 
+          fontWeight: 800, 
+          mb: 2
+        }}>
+          Activity Dashboard
+        </Typography>
+      </Box>
+
+      {/* Activity Cards */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={2.4}>
+          <Card sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            backgroundColor: '#f8f9fa',
+            border: '1px solid #e0e0e0',
+            '&:hover': {
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              transform: 'translateY(-2px)',
+              transition: 'all 0.3s ease'
+            }
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+              <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 32, mr: 1 }} />
+              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
+                00
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
+              Accepted Interests
+            </Typography>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} sm={6} md={2.4}>
+          <Card sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            backgroundColor: '#f8f9fa',
+            border: '1px solid #e0e0e0',
+            '&:hover': {
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              transform: 'translateY(-2px)',
+              transition: 'all 0.3s ease'
+            }
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+              <FavoriteBorderIcon sx={{ color: '#e91e63', fontSize: 32, mr: 1 }} />
+              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
+                00
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
+              Interests Received
+            </Typography>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} sm={6} md={2.4}>
+          <Card sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            backgroundColor: '#f8f9fa',
+            border: '1px solid #e0e0e0',
+            '&:hover': {
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              transform: 'translateY(-2px)',
+              transition: 'all 0.3s ease'
+            }
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+              <TrendingUpIcon sx={{ color: '#2196f3', fontSize: 32, mr: 1 }} />
+              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
+                02
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
+              Interests Sent
+            </Typography>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} sm={6} md={2.4}>
+          <Card sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            backgroundColor: '#f8f9fa',
+            border: '1px solid #e0e0e0',
+            '&:hover': {
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              transform: 'translateY(-2px)',
+              transition: 'all 0.3s ease'
+            }
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+              <StarIcon sx={{ color: '#ff9800', fontSize: 32, mr: 1 }} />
+              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
+                00
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
+              Shortlisted Profiles
+            </Typography>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} sm={6} md={2.4}>
+          <Card sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            backgroundColor: '#f8f9fa',
+            border: '1px solid #e0e0e0',
+            '&:hover': {
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              transform: 'translateY(-2px)',
+              transition: 'all 0.3s ease'
+            }
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+              <CloseIcon sx={{ color: '#f44336', fontSize: 32, mr: 1 }} />
+              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
+                00
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
+              Declined Interests
+            </Typography>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* UP Match Hour Card */}
+      <Card sx={{ 
+        p: 3, 
+        mb: 3, 
+        backgroundColor: '#f8f9fa',
+        border: '1px solid #e0e0e0',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', gap: -1 }}>
+              <Avatar sx={{ width: 30, height: 30, border: '2px solid white', ml: -1 }}>
+                <PersonIcon />
+              </Avatar>
+              <Avatar sx={{ width: 30, height: 30, border: '2px solid white', ml: -1 }}>
+                <PersonIcon />
+              </Avatar>
+              <Avatar sx={{ width: 30, height: 30, border: '2px solid white', ml: -1 }}>
+                <PersonIcon />
+              </Avatar>
+            </Box>
+            <Box>
+              <Typography variant="body2" sx={{ color: '#666', fontSize: '0.875rem' }}>
+                12806+ registered
+              </Typography>
+            </Box>
+          </Box>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 1 }}>
+              UP Match Hour
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
+              12 Oct, Sun 08:00 PM - 09:00 PM
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              sx={{
+                backgroundColor: '#e91e63',
+                px: 3,
+                py: 1,
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: '#c2185b'
+                }
+              }}
+            >
+              Register Now
+            </Button>
+          </Box>
+        </Box>
+      </Card>
+
+      {/* Online Matches Section */}
+      <Card sx={{ p: 3, mb: 3, backgroundColor: '#f8f9fa' }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 1 }}>
+          Online Matches (12)
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
+          Chat with users who are currently online to get faster responses
+        </Typography>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, overflowX: 'auto', pb: 1 }}>
+          {['Sakshi Tomar', 'Poojita Singh', 'URSY4371', 'Aastha Solanki', 'Sakshi Singh', 'WSTR3527'].map((name, index) => (
+            <Box key={index} sx={{ textAlign: 'center', minWidth: 80 }}>
+              <Avatar sx={{ 
+                width: 50, 
+                height: 50, 
+                mb: 1,
+                backgroundColor: '#e91e63',
+                color: 'white',
+                fontSize: '0.875rem'
+              }}>
+                {name.charAt(0)}
+              </Avatar>
+              <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem' }}>
+                {name}
+              </Typography>
+            </Box>
+          ))}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            minWidth: 60,
+            height: 50,
+            backgroundColor: '#e91e63',
+            borderRadius: '50%',
+            color: 'white',
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: '#c2185b'
+            }
+          }}>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              +6 View All
+            </Typography>
+          </Box>
+        </Box>
+      </Card>
+
+      {/* This might interest you section */}
+      <Card sx={{ p: 3, mb: 3, backgroundColor: '#f8f9fa' }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 1 }}>
+          This might interest you
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
+          We've curated some insights that you might like
+        </Typography>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: -1 }}>
+            <Avatar sx={{ width: 40, height: 40, border: '2px solid white', ml: -1 }}>
+              <PersonIcon />
+            </Avatar>
+            <Avatar sx={{ width: 40, height: 40, border: '2px solid white', ml: -1 }}>
+              <PersonIcon />
+            </Avatar>
+            <Avatar sx={{ width: 40, height: 40, border: '2px solid white', ml: -1 }}>
+              <PersonIcon />
+            </Avatar>
+          </Box>
+          <Typography variant="body1" sx={{ fontWeight: 600, color: '#333' }}>
+            8 Profiles Visited by You
+          </Typography>
+        </Box>
+      </Card>
+    </>
+  );
+
+  // Render search view
+  const renderSearchView = () => {
+    const handleTabChange = (tab) => {
+      setSearchActiveTab(tab);
+    };
+
+    const handleProfileIdSearch = () => {
+      if (profileId.trim()) {
+        // Handle profile ID search
+        console.log('Searching for profile ID:', profileId);
+        // You can implement the actual search logic here
+      }
+    };
+
+    return (
+      <>
+        {/* Header */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" sx={{ 
+            color: '#333', 
+            fontWeight: 800, 
+            mb: 2
+          }}>
+            Search
+          </Typography>
+        </Box>
+
+        {/* Search Tabs */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Box sx={{ display: 'flex' }}>
+            <Button
+              onClick={() => handleTabChange('criteria')}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                color: searchActiveTab === 'criteria' ? '#e91e63' : '#666',
+                borderBottom: searchActiveTab === 'criteria' ? '2px solid #e91e63' : '2px solid transparent',
+                borderRadius: 0,
+                px: 3,
+                py: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(233, 30, 99, 0.1)'
+                }
+              }}
+            >
+              Search by Criteria
+            </Button>
+            <Button
+              onClick={() => handleTabChange('profileId')}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                color: searchActiveTab === 'profileId' ? '#e91e63' : '#666',
+                borderBottom: searchActiveTab === 'profileId' ? '2px solid #e91e63' : '2px solid transparent',
+                borderRadius: 0,
+                px: 3,
+                py: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(233, 30, 99, 0.1)'
+                }
+              }}
+            >
+              Search by Profile ID
+            </Button>
+          </Box>
+        </Box>
+
+        {/* Tab Content */}
+        {searchActiveTab === 'criteria' ? (
+          // Search by Criteria Content - Jeevansathi Style
+          <Box sx={{ 
+            backgroundColor: 'white', 
+            borderRadius: 2, 
+            p: 3, 
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid #e0e0e0'
+          }}>
+            {/* Header */}
+            <Typography variant="h5" sx={{ 
+              fontWeight: 700, 
+              color: '#333', 
+              mb: 3,
+              fontSize: '1.5rem'
+            }}>
+              Search by Criteria
+            </Typography>
+
+            <Grid container spacing={3}>
+              {/* Age Range */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Age
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="22 Years - 27 Years"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Height Range */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Height
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="4' 6 inches (1.37 mts) - 5' 6 inches (1.68 mts)"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Marital Status */}
+              <Grid item xs={12}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 2, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Marital Status
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  {['Doesn\'t Matter', 'Never Married', 'Awaiting Divorce', 'Divorced', 'Widowed', 'Annulled', 'Married'].map((status) => (
+                    <Chip
+                      key={status}
+                      label={status}
+                      variant={status === 'Never Married' ? 'filled' : 'outlined'}
+                      size="small"
+                      icon={status === 'Never Married' ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <Box sx={{ fontSize: '0.875rem' }}>+</Box>}
+                      sx={{
+                        backgroundColor: status === 'Never Married' ? '#e91e63' : 'transparent',
+                        color: status === 'Never Married' ? 'white' : '#666',
+                        borderColor: '#e0e0e0',
+                        fontSize: '0.75rem',
+                        height: '28px',
+                        '& .MuiChip-icon': {
+                          color: status === 'Never Married' ? 'white' : '#666',
+                          fontSize: '0.875rem'
+                        },
+                        '&:hover': {
+                          backgroundColor: status === 'Never Married' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Grid>
+
+              {/* Religion */}
+              <Grid item xs={12}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 2, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Religion
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  {['Doesn\'t Matter', 'Hindu', 'Muslim', 'Sikh', 'Christian', 'Buddhist', 'Jain', 'Parsi', 'Jewish', 'Bahai'].map((religion) => (
+                    <Chip
+                      key={religion}
+                      label={religion}
+                      variant={religion === 'Hindu' ? 'filled' : 'outlined'}
+                      size="small"
+                      icon={religion === 'Hindu' ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <Box sx={{ fontSize: '0.875rem' }}>+</Box>}
+                      sx={{
+                        backgroundColor: religion === 'Hindu' ? '#e91e63' : 'transparent',
+                        color: religion === 'Hindu' ? 'white' : '#666',
+                        borderColor: '#e0e0e0',
+                        fontSize: '0.75rem',
+                        height: '28px',
+                        '& .MuiChip-icon': {
+                          color: religion === 'Hindu' ? 'white' : '#666',
+                          fontSize: '0.875rem'
+                        },
+                        '&:hover': {
+                          backgroundColor: religion === 'Hindu' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Grid>
+
+              {/* Caste */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Caste
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="Rajput All"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Mother Tongue */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Mother Tongue
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="Doesn't Matter"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Annual Income */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Annual Income
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="Rs. 0 - and above"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Country */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Country
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="India"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* City/State */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  City/State
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="Doesn't Matter"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Show Profiles */}
+              <Grid item xs={12}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 2, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Show Profiles
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Chip
+                    label="All Profiles"
+                    variant="filled"
+                    size="small"
+                    sx={{
+                      backgroundColor: '#e91e63',
+                      color: 'white',
+                      fontSize: '0.75rem',
+                      height: '28px'
+                    }}
+                  />
+                  <Chip
+                    label="Profile with photos"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      borderColor: '#e0e0e0',
+                      color: '#666',
+                      fontSize: '0.75rem',
+                      height: '28px'
+                    }}
+                  />
+                </Box>
+              </Grid>
+
+              {/* Manglik */}
+              <Grid item xs={12}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 2, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Manglik
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  {['Doesn\'t Matter', 'Manglik', 'Non Manglik', 'Angshik (Partial Manglik)'].map((manglik) => (
+                    <Chip
+                      key={manglik}
+                      label={manglik}
+                      variant={manglik === 'Doesn\'t Matter' ? 'filled' : 'outlined'}
+                      size="small"
+                      icon={manglik === 'Doesn\'t Matter' ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <Box sx={{ fontSize: '0.875rem' }}>+</Box>}
+                      sx={{
+                        backgroundColor: manglik === 'Doesn\'t Matter' ? '#e91e63' : 'transparent',
+                        color: manglik === 'Doesn\'t Matter' ? 'white' : '#666',
+                        borderColor: '#e0e0e0',
+                        fontSize: '0.75rem',
+                        height: '28px',
+                        '& .MuiChip-icon': {
+                          color: manglik === 'Doesn\'t Matter' ? 'white' : '#666',
+                          fontSize: '0.875rem'
+                        },
+                        '&:hover': {
+                          backgroundColor: manglik === 'Doesn\'t Matter' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Grid>
+
+              {/* Diet */}
+              <Grid item xs={12}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 2, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Diet
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  {['Doesn\'t Matter', 'Vegetarian', 'Non Vegetarian', 'Jain', 'Eggetarian'].map((diet) => (
+                    <Chip
+                      key={diet}
+                      label={diet}
+                      variant={diet === 'Doesn\'t Matter' ? 'filled' : 'outlined'}
+                      size="small"
+                      icon={diet === 'Doesn\'t Matter' ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <Box sx={{ fontSize: '0.875rem' }}>+</Box>}
+                      sx={{
+                        backgroundColor: diet === 'Doesn\'t Matter' ? '#e91e63' : 'transparent',
+                        color: diet === 'Doesn\'t Matter' ? 'white' : '#666',
+                        borderColor: '#e0e0e0',
+                        fontSize: '0.75rem',
+                        height: '28px',
+                        '& .MuiChip-icon': {
+                          color: diet === 'Doesn\'t Matter' ? 'white' : '#666',
+                          fontSize: '0.875rem'
+                        },
+                        '&:hover': {
+                          backgroundColor: diet === 'Doesn\'t Matter' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Grid>
+
+              {/* Education */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Education
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="B.A, B.Com +142 More"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Occupation */}
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: '#333',
+                  fontSize: '0.875rem'
+                }}>
+                  Occupation
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value="Doesn't Matter"
+                  InputProps={{ 
+                    readOnly: true,
+                    sx: {
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#e0e0e0'
+                      }
+                    }
+                  }}
+                  sx={{ 
+                    '& .MuiInputBase-root': {
+                      fontSize: '0.875rem'
+                    }
+                  }}
+                />
+              </Grid>
+            </Grid>
+
+            {/* Search Button */}
+            <Box sx={{ textAlign: 'center', mt: 4 }}>
+              <Button
+                variant="contained"
+                size="large"
+                sx={{
+                  backgroundColor: '#e91e63',
+                  px: 6,
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderRadius: 2,
+                  boxShadow: '0 2px 4px rgba(233, 30, 99, 0.3)',
+                  '&:hover': {
+                    backgroundColor: '#c2185b',
+                    boxShadow: '0 4px 8px rgba(233, 30, 99, 0.4)'
+                  }
+                }}
+              >
+                Show Me Profiles
+              </Button>
+            </Box>
+          </Box>
+        ) : (
+          // Search by Profile ID Content
+          <Card sx={{ p: 4, textAlign: 'center', backgroundColor: '#f8f9fa' }}>
+            <Box sx={{ maxWidth: 400, mx: 'auto' }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, color: '#333', mb: 3 }}>
+                Search by Profile ID
+              </Typography>
+              
+              <TextField
+                fullWidth
+                placeholder="Enter Profile ID"
+                value={profileId}
+                onChange={(e) => setProfileId(e.target.value)}
+                sx={{
+                  mb: 3,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '& fieldset': {
+                      borderColor: '#e0e0e0',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#e91e63',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#e91e63',
+                    },
+                  }
+                }}
+              />
+              
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handleProfileIdSearch}
+                disabled={!profileId.trim()}
+                sx={{
+                  backgroundColor: '#e91e63',
+                  px: 6,
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderRadius: 2,
+                  '&:hover': {
+                    backgroundColor: '#c2185b'
+                  },
+                  '&:disabled': {
+                    backgroundColor: '#ccc',
+                    color: '#666'
+                  }
+                }}
+              >
+                Show Me Profile
+              </Button>
+            </Box>
+          </Card>
+        )}
+      </>
+    );
+  };
+
+  // Render messenger view
+  const renderMessengerView = () => (
+    <>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ 
+          color: '#333', 
+          fontWeight: 800, 
+          mb: 2
+        }}>
+          My Conversations
+        </Typography>
+      </Box>
+
+      {/* Conversation Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Box sx={{ display: 'flex' }}>
+          <Button
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              color: '#e91e63',
+              borderBottom: '2px solid #e91e63',
+              borderRadius: 0,
+              px: 3,
+              py: 1
+            }}
+          >
+            Acceptances
+          </Button>
+          <Button
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              color: '#666',
+              px: 3,
+              py: 1
+            }}
+          >
+            Interests
+          </Button>
+          <Button
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              color: '#666',
+              px: 3,
+              py: 1
+            }}
+          >
+            Calls
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Conversation Content */}
+      <Card sx={{ p: 4, textAlign: 'center', backgroundColor: '#f8f9fa' }}>
+        <Box sx={{ mb: 3 }}>
+          <MessageIcon sx={{ fontSize: 64, color: '#e0e0e0', mb: 2 }} />
+          <Typography variant="h6" sx={{ color: '#666', mb: 1 }}>
+            You can initiate a conversation with your acceptances here through our chatting & calling services!
+          </Typography>
+        </Box>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
+          <Button
+            variant="contained"
+            startIcon={<MessageIcon />}
+            sx={{
+              backgroundColor: '#e91e63',
+              px: 4,
+              py: 1.5,
+              fontWeight: 600,
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#c2185b'
+              }
+            }}
+          >
+            Start Chatting
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<PhoneIcon />}
+            sx={{
+              borderColor: '#e91e63',
+              color: '#e91e63',
+              px: 4,
+              py: 1.5,
+              fontWeight: 600,
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: 'rgba(233, 30, 99, 0.1)'
+              }
+            }}
+          >
+            Make a Call
+          </Button>
+        </Box>
+      </Card>
     </>
   );
 
@@ -1982,29 +3016,73 @@ const MyMatchesPage = () => {
 
         {/* Navigation */}
         <List sx={{ mb: 4 }}>
-          <ListItemButton sx={{ borderRadius: 1, mb: 1, backgroundColor: '#e91e63', color: 'white' }}>
-            <ListItemIcon sx={{ color: 'white' }}>
+          <ListItemButton 
+            sx={{ 
+              borderRadius: 1, 
+              mb: 1, 
+              backgroundColor: middleSectionView === 'matches' ? '#e91e63' : 'transparent',
+              color: middleSectionView === 'matches' ? 'white' : 'inherit',
+              '&:hover': {
+                backgroundColor: middleSectionView === 'matches' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
+              }
+            }}
+            onClick={() => setMiddleSectionView('matches')}
+          >
+            <ListItemIcon sx={{ color: middleSectionView === 'matches' ? 'white' : 'inherit' }}>
               <PersonIcon />
             </ListItemIcon>
             <ListItemText primary="Matches" />
             <KeyboardArrowRightIcon />
           </ListItemButton>
-          <ListItemButton sx={{ borderRadius: 1, mb: 1 }}>
-            <ListItemIcon>
+          <ListItemButton 
+            sx={{ 
+              borderRadius: 1, 
+              mb: 1,
+              backgroundColor: middleSectionView === 'activity' ? '#e91e63' : 'transparent',
+              color: middleSectionView === 'activity' ? 'white' : 'inherit',
+              '&:hover': {
+                backgroundColor: middleSectionView === 'activity' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
+              }
+            }}
+            onClick={handleActivityClick}
+          >
+            <ListItemIcon sx={{ color: middleSectionView === 'activity' ? 'white' : 'inherit' }}>
               <TrendingUpIcon />
             </ListItemIcon>
             <ListItemText primary="Activity" />
             <KeyboardArrowRightIcon />
           </ListItemButton>
-          <ListItemButton sx={{ borderRadius: 1, mb: 1 }}>
-            <ListItemIcon>
+          <ListItemButton 
+            sx={{ 
+              borderRadius: 1, 
+              mb: 1,
+              backgroundColor: middleSectionView === 'search' ? '#e91e63' : 'transparent',
+              color: middleSectionView === 'search' ? 'white' : 'inherit',
+              '&:hover': {
+                backgroundColor: middleSectionView === 'search' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
+              }
+            }}
+            onClick={handleSearchClick}
+          >
+            <ListItemIcon sx={{ color: middleSectionView === 'search' ? 'white' : 'inherit' }}>
               <SearchIcon />
             </ListItemIcon>
             <ListItemText primary="Search" />
             <KeyboardArrowRightIcon />
           </ListItemButton>
-          <ListItemButton sx={{ borderRadius: 1, mb: 1 }}>
-            <ListItemIcon>
+          <ListItemButton 
+            sx={{ 
+              borderRadius: 1, 
+              mb: 1,
+              backgroundColor: middleSectionView === 'messenger' ? '#e91e63' : 'transparent',
+              color: middleSectionView === 'messenger' ? 'white' : 'inherit',
+              '&:hover': {
+                backgroundColor: middleSectionView === 'messenger' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
+              }
+            }}
+            onClick={handleMessengerClick}
+          >
+            <ListItemIcon sx={{ color: middleSectionView === 'messenger' ? 'white' : 'inherit' }}>
               <MessageIcon />
             </ListItemIcon>
             <ListItemText primary="Messenger" />
@@ -2050,6 +3128,9 @@ const MyMatchesPage = () => {
         {middleSectionView === 'matches' && renderMatchesListView()}
         {middleSectionView === 'profile-edit' && renderProfileEditView()}
         {middleSectionView === 'profile-details' && renderProfileDetailsView()}
+        {middleSectionView === 'activity' && renderActivityView()}
+        {middleSectionView === 'search' && renderSearchView()}
+        {middleSectionView === 'messenger' && renderMessengerView()}
       </Box>
 
       {/* Right Sidebar - Premium Benefits */}

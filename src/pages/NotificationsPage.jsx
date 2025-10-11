@@ -1,455 +1,483 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Box,
-    Container,
-    Paper,
-    Typography,
-    List,
-    ListItem,
-    ListItemText,
-    ListItemIcon,
-    ListItemSecondaryAction,
-    IconButton,
-    Chip,
-    Button,
-    Tabs,
-    Tab,
-    CircularProgress,
-    Alert,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Badge,
-    Divider,
-    Avatar,
-    Tooltip
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Avatar,
+  Button,
+  Grid,
+  Chip,
+  IconButton,
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Badge,
+  Paper,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import {
-    Notifications as NotificationIcon,
-    Delete as DeleteIcon,
-    MarkEmailRead as MarkReadIcon,
-    MarkEmailUnread as MarkUnreadIcon,
-    ClearAll as ClearAllIcon,
-    Favorite as LikeIcon,
-    Message as MessageIcon,
-    PersonAdd as MatchIcon,
-    Security as SecurityIcon,
-    Star as StarIcon,
-    CheckCircle as CheckIcon,
-    Error as ErrorIcon,
-    Info as InfoIcon,
-    Warning as WarningIcon,
-    Schedule as ScheduleIcon
+  ArrowBack,
+  Notifications,
+  Person,
+  Visibility,
+  Phone,
+  ContactPhone,
+  Search,
+  Star,
+  CheckCircle,
+  TrendingUp,
+  Favorite,
+  Message
 } from '@mui/icons-material';
-import { useDispatch, useSelector } from 'react-redux';
-import { formatTimeAgo } from '../utils/dateUtils';
-import {
-    getNotifications,
-    markNotificationRead,
-    markAllNotificationsRead,
-    deleteNotification,
-    deleteAllNotifications
-} from '../store/slices/notificationSlice';
+import { motion } from 'framer-motion';
+import { useSelector } from 'react-redux';
+import { notificationsAPI } from '../services/apiService';
 import { showSuccess, showError } from '../utils/toast';
 
 const NotificationsPage = () => {
-    const dispatch = useDispatch();
-    const { 
-        notifications, 
-        loading, 
-        error,
-        unreadCount 
-    } = useSelector(state => state.notification);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { user } = useSelector(state => state.auth);
 
-    const [activeTab, setActiveTab] = useState(0);
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [selectedNotification, setSelectedNotification] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-    const notificationTypes = [
-        { label: 'All', value: 'all', count: notifications?.length || 0 },
-        { label: 'Unread', value: 'unread', count: unreadCount || 0 },
-        { label: 'Matches', value: 'match', count: notifications?.filter(n => n.type === 'match').length || 0 },
-        { label: 'Messages', value: 'message', count: notifications?.filter(n => n.type === 'message').length || 0 },
-        { label: 'Likes', value: 'like', count: notifications?.filter(n => n.type === 'like').length || 0 },
-        { label: 'System', value: 'system', count: notifications?.filter(n => n.type === 'system').length || 0 }
-    ];
+  // Load notifications on component mount
+  useEffect(() => {
+    loadNotifications();
+    loadNotificationCount();
+  }, []);
 
-    useEffect(() => {
-        dispatch(getNotifications());
-    }, [dispatch]);
+  const loadNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await notificationsAPI.getNotifications();
+      if (response.data.success) {
+        setNotifications(response.data.data.notifications);
+      }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+      showError('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleTabChange = (event, newValue) => {
-        setActiveTab(newValue);
-    };
+  const loadNotificationCount = async () => {
+    try {
+      const response = await notificationsAPI.getNotificationCount();
+      if (response.data.success) {
+        setUnreadCount(response.data.data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Error loading notification count:', error);
+    }
+  };
 
-    const handleMarkAsRead = async (notificationId) => {
-        try {
-            await dispatch(markNotificationRead(notificationId)).unwrap();
-            showSuccess('Notification marked as read');
-        } catch (error) {
-            showError(error || 'Failed to mark notification as read');
-        }
-    };
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      await notificationsAPI.markAsRead(notificationId);
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif._id === notificationId ? { ...notif, isRead: true } : notif
+        )
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      showError('Failed to mark notification as read');
+    }
+  };
 
-    const handleMarkAllAsRead = async () => {
-        try {
-            await dispatch(markAllNotificationsRead()).unwrap();
-            showSuccess('All notifications marked as read');
-        } catch (error) {
-            showError(error || 'Failed to mark all notifications as read');
-        }
-    };
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationsAPI.markAllAsRead();
+      setNotifications(prev => 
+        prev.map(notif => ({ ...notif, isRead: true }))
+      );
+      setUnreadCount(0);
+      showSuccess('All notifications marked as read');
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      showError('Failed to mark all notifications as read');
+    }
+  };
 
-    const handleDeleteNotification = async (notificationId) => {
-        try {
-            await dispatch(deleteNotification(notificationId)).unwrap();
-            showSuccess('Notification deleted');
-            setDeleteDialogOpen(false);
-            setSelectedNotification(null);
-        } catch (error) {
-            showError(error || 'Failed to delete notification');
-        }
-    };
+  const handleDeleteNotification = async (notificationId) => {
+    try {
+      await notificationsAPI.deleteNotification(notificationId);
+      setNotifications(prev => prev.filter(notif => notif._id !== notificationId));
+      showSuccess('Notification deleted');
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      showError('Failed to delete notification');
+    }
+  };
 
-    const handleDeleteAllNotifications = async () => {
-        try {
-            await dispatch(deleteAllNotifications()).unwrap();
-            showSuccess('All notifications deleted');
-            setDeleteDialogOpen(false);
-            setSelectedNotification(null);
-        } catch (error) {
-            showError(error || 'Failed to delete all notifications');
-        }
-    };
+  const premiumBenefits = [
+    {
+      icon: <Visibility sx={{ color: '#9c27b0', fontSize: 28 }} />,
+      title: 'Get upto 3x more profile views',
+      description: 'Increase your visibility'
+    },
+    {
+      icon: <Phone sx={{ color: '#ff9800', fontSize: 28 }} />,
+      title: 'Unlimited voice & video calls',
+      description: 'Connect directly with matches'
+    },
+    {
+      icon: <ContactPhone sx={{ color: '#4caf50', fontSize: 28 }} />,
+      title: 'Get access to contact details',
+      description: 'Skip the wait, get direct contact'
+    },
+    {
+      icon: <Search sx={{ color: '#2196f3', fontSize: 28 }} />,
+      title: 'Perform unlimited searches',
+      description: 'Find your perfect match faster'
+    }
+  ];
 
-    const openDeleteDialog = (notification) => {
-        setSelectedNotification(notification);
-        setDeleteDialogOpen(true);
-    };
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'match_of_day':
+        return <Star sx={{ color: '#e91e63', fontSize: 24 }} />;
+      case 'profile_live':
+        return <CheckCircle sx={{ color: '#4caf50', fontSize: 24 }} />;
+      case 'profile_view':
+        return <Visibility sx={{ color: '#2196f3', fontSize: 24 }} />;
+      case 'interest_received':
+        return <Favorite sx={{ color: '#e91e63', fontSize: 24 }} />;
+      case 'premium_reminder':
+        return <TrendingUp sx={{ color: '#ff9800', fontSize: 24 }} />;
+      default:
+        return <Notifications sx={{ color: '#666', fontSize: 24 }} />;
+    }
+  };
 
-    const getNotificationIcon = (type) => {
-        switch (type) {
-            case 'like': return <LikeIcon sx={{ color: '#e91e63' }} />;
-            case 'match': return <MatchIcon sx={{ color: '#4caf50' }} />;
-            case 'message': return <MessageIcon sx={{ color: '#2196f3' }} />;
-            case 'system': return <SecurityIcon sx={{ color: '#ff9800' }} />;
-            case 'superlike': return <StarIcon sx={{ color: '#ffeb3b' }} />;
-            case 'verification': return <CheckIcon sx={{ color: '#4caf50' }} />;
-            default: return <NotificationIcon sx={{ color: '#9e9e9e' }} />;
-        }
-    };
+  const getNotificationColor = (type) => {
+    switch (type) {
+      case 'match_of_day':
+        return '#e91e63';
+      case 'profile_live':
+        return '#4caf50';
+      case 'profile_view':
+        return '#2196f3';
+      case 'interest_received':
+        return '#e91e63';
+      case 'premium_reminder':
+        return '#ff9800';
+      default:
+        return '#666';
+    }
+  };
 
-    const getNotificationColor = (type) => {
-        switch (type) {
-            case 'like': return '#e91e63';
-            case 'match': return '#4caf50';
-            case 'message': return '#2196f3';
-            case 'system': return '#ff9800';
-            case 'superlike': return '#ffeb3b';
-            case 'verification': return '#4caf50';
-            default: return '#9e9e9e';
-        }
-    };
+  const formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const notificationDate = new Date(dateString);
+    const diffInHours = Math.floor((now - notificationDate) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d`;
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    return `${diffInWeeks}w`;
+  };
 
-    const getNotificationTitle = (notification) => {
-        switch (notification.type) {
-            case 'like':
-                return `${notification.senderName} liked your profile`;
-            case 'superlike':
-                return `${notification.senderName} super liked your profile`;
-            case 'match':
-                return `New match with ${notification.senderName}!`;
-            case 'message':
-                return `New message from ${notification.senderName}`;
-            case 'system':
-                return notification.title || 'System notification';
-            case 'verification':
-                return 'Verification update';
-            default:
-                return notification.title || 'Notification';
-        }
-    };
-
-    const getNotificationDescription = (notification) => {
-        switch (notification.type) {
-            case 'message':
-                return notification.message || 'You have a new message';
-            case 'like':
-                return 'Someone is interested in your profile';
-            case 'superlike':
-                return 'You received a super like!';
-            case 'match':
-                return 'You both liked each other. Start a conversation!';
-            case 'verification':
-                return notification.message || 'Your verification status has been updated';
-            default:
-                return notification.message || 'You have a new notification';
-        }
-    };
-
-    const filteredNotifications = () => {
-        const currentFilter = notificationTypes[activeTab]?.value;
-        
-        if (currentFilter === 'all') {
-            return notifications || [];
-        } else if (currentFilter === 'unread') {
-            return notifications?.filter(n => !n.read) || [];
-        } else {
-            return notifications?.filter(n => n.type === currentFilter) || [];
-        }
-    };
-
-    const renderNotificationItem = (notification) => (
-        <ListItem
-            key={notification._id}
-            sx={{
-                backgroundColor: notification.read ? 'transparent' : 'rgba(216, 27, 96, 0.05)',
-                borderLeft: notification.read ? 'none' : '4px solid #51365F',
-                mb: 1,
-                borderRadius: 2,
-                '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                }
-            }}
-        >
-            <ListItemIcon>
+  const renderNotificationCard = (notification) => (
+    <motion.div
+      key={notification._id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card
+        sx={{
+          mb: 2,
+          border: '1px solid #e0e0e0',
+          borderRadius: 2,
+          backgroundColor: notification.isRead ? '#fafafa' : '#fff',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            transform: 'translateY(-2px)',
+            transition: 'all 0.3s ease'
+          }
+        }}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+            {/* Profile Image or Icon */}
+            <Box sx={{ position: 'relative' }}>
+              {notification.relatedUserId?.profileImage ? (
                 <Avatar
-                    sx={{
-                        backgroundColor: getNotificationColor(notification.type),
-                        width: 40,
-                        height: 40
-                    }}
+                  src={notification.relatedUserId.profileImage?.startsWith('http') 
+                    ? notification.relatedUserId.profileImage 
+                    : `http://localhost:3000/uploads/${notification.relatedUserId.profileImage}`}
+                  sx={{ width: 50, height: 50, border: '2px solid #e91e63' }}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: '50%',
+                    backgroundColor: getNotificationColor(notification.type),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
                 >
-                    {getNotificationIcon(notification.type)}
-                </Avatar>
-            </ListItemIcon>
-            
-            <ListItemText
-                primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography 
-                            variant="subtitle1" 
-                            sx={{ 
-                                fontWeight: notification.read ? 'normal' : 'bold',
-                                color: notification.read ? 'text.primary' : 'text.primary'
-                            }}
-                        >
-                            {getNotificationTitle(notification)}
-                        </Typography>
-                        {!notification.read && (
-                            <Chip 
-                                label="New" 
-                                size="small" 
-                                color="primary" 
-                                sx={{ height: 20, fontSize: '0.7rem' }}
-                            />
-                        )}
-                    </Box>
-                }
-                secondary={
-                    <Box>
-                        <Typography 
-                            variant="body2" 
-                            color="text.secondary"
-                            sx={{ mb: 0.5 }}
-                        >
-                            {getNotificationDescription(notification)}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <ScheduleIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
-                            <Typography variant="caption" color="text.disabled">
-                                {formatTimeAgo(notification.createdAt)}
-                            </Typography>
-                        </Box>
-                    </Box>
-                }
-            />
-            
-            <ListItemSecondaryAction>
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    {!notification.read && (
-                        <Tooltip title="Mark as read">
-                            <IconButton
-                                size="small"
-                                onClick={() => handleMarkAsRead(notification._id)}
-                                sx={{ color: '#4caf50' }}
-                            >
-                                <MarkReadIcon />
-                            </IconButton>
-                        </Tooltip>
-                    )}
-                    
-                    <Tooltip title="Delete">
-                        <IconButton
-                            size="small"
-                            onClick={() => openDeleteDialog(notification)}
-                            sx={{ color: '#f44336' }}
-                        >
-                            <DeleteIcon />
-                        </IconButton>
-                    </Tooltip>
+                  {getNotificationIcon(notification.type)}
                 </Box>
-            </ListItemSecondaryAction>
-        </ListItem>
-    );
+              )}
+              {!notification.isRead && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -2,
+                    right: -2,
+                    width: 12,
+                    height: 12,
+                    borderRadius: '50%',
+                    backgroundColor: '#e91e63'
+                  }}
+                />
+              )}
+            </Box>
 
-    const renderEmptyState = () => (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-            <NotificationIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-                No notifications yet
-            </Typography>
-            <Typography variant="body2" color="text.disabled">
-                {activeTab === 0 ? 'You\'re all caught up!' : 
-                 activeTab === 1 ? 'No unread notifications' : 
-                 'No notifications of this type'}
-            </Typography>
-        </Box>
-    );
+            {/* Content */}
+            <Box sx={{ flex: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#333', fontSize: '1rem' }}>
+                  {notification.title}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#666', fontSize: '0.875rem' }}>
+                    {formatTimeAgo(notification.createdAt)}
+                  </Typography>
+                  {!notification.isRead && (
+                    <Button
+                      size="small"
+                      onClick={() => handleMarkAsRead(notification._id)}
+                      sx={{ minWidth: 'auto', p: 0.5 }}
+                    >
+                      <CheckCircle sx={{ fontSize: 16, color: '#4caf50' }} />
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+              
+              <Typography variant="body2" sx={{ color: '#666', mb: 2, lineHeight: 1.5 }}>
+                {notification.message}
+              </Typography>
 
-    return (
-        <Box sx={{ py: 4 }}>
-            <Container maxWidth="md">
-                <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
-                    {/* Header */}
-                    <Box sx={{ 
-                        p: 3, 
-                        background: '#51365F',
+              {notification.actionText && (
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      borderColor: '#e91e63',
+                      color: '#e91e63',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      px: 2,
+                      py: 0.5,
+                      '&:hover': {
+                        backgroundColor: '#e91e63',
                         color: 'white'
-                    }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Box>
-                                <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-                                    Notifications
-                                </Typography>
-                                <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                                    Stay updated with your matches and activities
-                                </Typography>
-                            </Box>
-                            <Badge badgeContent={unreadCount} color="error">
-                                <NotificationIcon sx={{ fontSize: 40, opacity: 0.8 }} />
-                            </Badge>
-                        </Box>
-                    </Box>
+                      }
+                    }}
+                  >
+                    {notification.actionText}
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() => handleDeleteNotification(notification._id)}
+                    sx={{ minWidth: 'auto', p: 0.5, color: '#f44336' }}
+                  >
+                    Delete
+                  </Button>
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
 
-                    {/* Action Buttons */}
-                    <Box sx={{ p: 2, display: 'flex', gap: 2, backgroundColor: '#f5f5f5' }}>
-                        <Button
-                            variant="outlined"
-                            startIcon={<MarkReadIcon />}
-                            onClick={handleMarkAllAsRead}
-                            disabled={unreadCount === 0 || loading}
-                            size="small"
-                        >
-                            Mark All Read
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            startIcon={<ClearAllIcon />}
-                            onClick={() => openDeleteDialog(null)}
-                            disabled={!notifications?.length || loading}
-                            size="small"
-                        >
-                            Clear All
-                        </Button>
-                    </Box>
+  const renderPremiumSidebar = () => (
+    <Paper
+      sx={{
+        p: 3,
+        borderRadius: 2,
+        backgroundColor: '#fff',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        border: '1px solid #e0e0e0'
+      }}
+    >
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 700,
+          color: '#333',
+          mb: 3,
+          textAlign: 'center',
+          '& span': { color: '#e91e63' }
+        }}
+      >
+        You are <span>missing</span> out on the premium benefits!
+      </Typography>
 
-                    {error && (
-                        <Alert severity="error" sx={{ m: 2 }}>
-                            {error}
-                        </Alert>
-                    )}
+      <List sx={{ mb: 3 }}>
+        {premiumBenefits.map((benefit, index) => (
+          <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              {benefit.icon}
+            </ListItemIcon>
+            <ListItemText
+              primary={benefit.title}
+              secondary={benefit.description}
+              primaryTypographyProps={{
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                color: '#333'
+              }}
+              secondaryTypographyProps={{
+                fontSize: '0.8rem',
+                color: '#666'
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
 
-                    {/* Tabs */}
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <Tabs 
-                            value={activeTab} 
-                            onChange={handleTabChange}
-                            variant="scrollable"
-                            scrollButtons="auto"
-                        >
-                            {notificationTypes.map((type, index) => (
-                                <Tab
-                                    key={type.value}
-                                    label={
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            {type.label}
-                                            {type.count > 0 && (
-                                                <Chip 
-                                                    label={type.count} 
-                                                    size="small" 
-                                                    color={type.value === 'unread' ? 'error' : 'default'}
-                                                    sx={{ height: 20, fontSize: '0.7rem' }}
-                                                />
-                                            )}
-                                        </Box>
-                                    }
-                                />
-                            ))}
-                        </Tabs>
-                    </Box>
+      <Box sx={{ textAlign: 'center', mb: 2 }}>
+        <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+          Flat 54% OFF till 17 Oct
+        </Typography>
+      </Box>
 
-                    {/* Notifications List */}
-                    <Box sx={{ minHeight: 400, maxHeight: 600, overflow: 'auto' }}>
-                        {loading ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                                <CircularProgress />
-                            </Box>
-                        ) : filteredNotifications().length > 0 ? (
-                            <List sx={{ p: 0 }}>
-                                {filteredNotifications().map((notification, index) => (
-                                    <React.Fragment key={notification._id}>
-                                        {renderNotificationItem(notification)}
-                                        {index < filteredNotifications().length - 1 && <Divider />}
-                                    </React.Fragment>
-                                ))}
-                            </List>
-                        ) : (
-                            renderEmptyState()
-                        )}
-                    </Box>
-                </Paper>
+      <Button
+        variant="contained"
+        fullWidth
+        sx={{
+          backgroundColor: '#e91e63',
+          py: 1.5,
+          fontSize: '1rem',
+          fontWeight: 600,
+          textTransform: 'none',
+          borderRadius: 2,
+          '&:hover': {
+            backgroundColor: '#c2185b'
+          }
+        }}
+      >
+        Upgrade now →
+      </Button>
+    </Paper>
+  );
 
-                {/* Delete Confirmation Dialog */}
-                <Dialog
-                    open={deleteDialogOpen}
-                    onClose={() => setDeleteDialogOpen(false)}
-                    maxWidth="sm"
-                    fullWidth
-                >
-                    <DialogTitle>
-                        {selectedNotification ? 'Delete Notification' : 'Clear All Notifications'}
-                    </DialogTitle>
-                    <DialogContent>
-                        <Typography>
-                            {selectedNotification 
-                                ? 'Are you sure you want to delete this notification?'
-                                : 'Are you sure you want to delete all notifications? This action cannot be undone.'
-                            }
-                        </Typography>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setDeleteDialogOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={() => selectedNotification 
-                                ? handleDeleteNotification(selectedNotification._id)
-                                : handleDeleteAllNotifications()
-                            }
-                            color="error"
-                            variant="contained"
-                            disabled={loading}
-                        >
-                            {loading ? <CircularProgress size={20} /> : 'Delete'}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </Container>
+  return (
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      {/* Header */}
+      <Box
+        sx={{
+          backgroundColor: '#fff',
+          borderBottom: '1px solid #e0e0e0',
+          p: 2,
+          position: 'sticky',
+          top: 0,
+          zIndex: 100
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton>
+            <ArrowBack sx={{ color: '#666' }} />
+          </IconButton>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: '#333' }}>
+            What's New?
+          </Typography>
         </Box>
-    );
+      </Box>
+
+      <Box sx={{ p: 3 }}>
+        <Grid container spacing={3}>
+          {/* Main Content */}
+          <Grid item xs={12} lg={8}>
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#333' }}>
+                  Recent
+                </Typography>
+                {unreadCount > 0 && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={handleMarkAllAsRead}
+                    sx={{
+                      borderColor: '#4caf50',
+                      color: '#4caf50',
+                      textTransform: 'none',
+                      '&:hover': {
+                        backgroundColor: '#4caf50',
+                        color: 'white'
+                      }
+                    }}
+                  >
+                    Mark all as read
+                  </Button>
+                )}
+              </Box>
+              
+              {loading ? (
+                <Box sx={{ textAlign: 'center', py: 8 }}>
+                  <Typography variant="h6" sx={{ color: '#666' }}>
+                    Loading notifications...
+                  </Typography>
+                </Box>
+              ) : notifications.length > 0 ? (
+                <Box>
+                  {notifications.map(renderNotificationCard)}
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 8 }}>
+                  <Notifications sx={{ fontSize: 64, color: '#e0e0e0', mb: 2 }} />
+                  <Typography variant="h6" sx={{ color: '#666', mb: 1 }}>
+                    No notifications yet
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#999' }}>
+                    We'll notify you when there's something new
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </Grid>
+
+          {/* Premium Sidebar */}
+          {!isMobile && (
+            <Grid item xs={12} lg={4}>
+              {renderPremiumSidebar()}
+            </Grid>
+          )}
+        </Grid>
+
+        {/* Mobile Premium Section */}
+        {isMobile && (
+          <Box sx={{ mt: 3 }}>
+            {renderPremiumSidebar()}
+          </Box>
+        )}
+      </Box>
+    </Box>
+  );
 };
 
 export default NotificationsPage;
