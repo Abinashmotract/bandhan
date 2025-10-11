@@ -147,7 +147,12 @@ export const searchAPI = {
   getSavedFilters: () => apiClient.get('/search/saved'),
   
   // Delete saved search filter
-  deleteSavedFilter: (filterId) => apiClient.delete(`/search/saved/${filterId}`)
+  deleteSavedFilter: (filterId) => apiClient.delete(`/search/saved/${filterId}`),
+  
+  // New search methods for dynamic data
+  getCriteria: () => apiClient.get('/search/criteria'),
+  searchByCriteria: (criteria) => apiClient.post('/search/by-criteria', criteria),
+  searchByProfileId: (profileId) => apiClient.get(`/search/by-profile-id/${profileId}`)
 };
 
 // ================================
@@ -363,6 +368,24 @@ export const contactAPI = {
   // Submit contact form
   submitContactForm: (contactData) => apiClient.post('/contact', contactData)
 };
+
+// ================================
+// ACTIVITY
+// ================================
+export const activityAPI = {
+  getDashboard: () => apiClient.get('/activity/dashboard'),
+  getOnlineMatches: (limit = 22) => apiClient.get('/activity/online-matches', { params: { limit } })
+};
+
+// ================================
+// CONVERSATIONS
+// ================================
+export const conversationAPI = {
+  getConversations: (tab = 'acceptances') => apiClient.get('/conversations', { params: { tab } }),
+  getUpMatchHour: () => apiClient.get('/conversations/up-match-hour'),
+  getOnlineMatches: (limit = 22) => apiClient.get('/conversations/online-matches', { params: { limit } })
+};
+
 
 // Export default apiClient for custom requests
 export default apiClient;
