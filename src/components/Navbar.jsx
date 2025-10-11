@@ -87,7 +87,6 @@ const Navbar = () => {
         { text: 'Events', href: 'events' },
         { text: 'Notifications', href: 'notifications', showBadge: true },
         { text: 'Verification', href: 'verification' },
-        { text: 'Profile', href: 'profile' },
     ];
 
     // Get user info for admin check

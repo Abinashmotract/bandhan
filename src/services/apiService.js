@@ -87,7 +87,15 @@ export const authAPI = {
   // Update profile picture
   updateProfilePicture: (formData) => apiClient.put('/auth/user/profile-picture', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  }),
+  
+  // Upload profile image
+  uploadProfileImage: (formData) => apiClient.post('/auth/user/upload-profile-image', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  
+  // Remove profile image
+  removeProfileImage: () => apiClient.delete('/auth/user/remove-profile-image')
 };
 
 // ================================

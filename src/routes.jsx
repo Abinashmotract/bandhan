@@ -26,20 +26,14 @@ import NotificationsPage from "./pages/NotificationsPage";
 import AdminPanel from "./pages/AdminPanel";
 import FavoritesPage from "./pages/FavoritesPage";
 import TermsConditions from "./pages/TermsConditions";
-<<<<<<< HEAD
 import HoroscopePage from "./pages/HoroscopePage";
 import VideoCallPage from "./pages/VideoCallPage";
 import EventsPage from "./pages/EventsPage";
-import TestUserDetails from "./components/TestUserDetails";
-import AbinashProfileTest from "./components/AbinashProfileTest";
 // import PrivacyPolicy from "./pages/PrivacyPolicy";
-=======
-import PrivacyPolicy from "./pages/PrivacyPolicy";
->>>>>>> 2cfc7f6096df4bc900bd1db97da1a5788c9fd637
 
 // Protected routes array - यहाँ सभी protected routes डालें
 const protectedRoutes = [
-  { path: "/profile", component: Profile },
+  { path: "/profile", component: () => { window.location.href = '/matches'; return null; } },
   { path: "/success-stories", component: SuccessStories },
   { path: "/membership", component: Membership },
   { path: "/payment-success", component: PaymentSuccessPage },
@@ -52,8 +46,6 @@ const protectedRoutes = [
   { path: "/horoscope", component: HoroscopePage },
   { path: "/video-call/:userId", component: VideoCallPage },
   { path: "/events", component: EventsPage },
-  { path: "/test-user", component: TestUserDetails },
-  { path: "/abinash-test", component: AbinashProfileTest },
   { path: "/admin", component: AdminPanel }
 ];
 
@@ -70,7 +62,7 @@ const publicRoutes = [
   { path: "/faq", component: FAQPage },
   { path: "/blog", component: BlogPage },
   { path: "/terms-condition", component: TermsConditions },
-  { path: "/privacy-policy", component: PrivacyPolicy },
+  // { path: "/privacy-policy", component: PrivacyPolicy },
 ];
 
 export default function AppRoutes() {
