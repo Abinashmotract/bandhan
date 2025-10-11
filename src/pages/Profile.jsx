@@ -28,6 +28,7 @@ import {
     VerifiedUser,
     PhotoCamera,
     Person,
+    Delete,
 } from "@mui/icons-material";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchUserDetails} from "../store/slices/authSlice";
@@ -527,12 +528,36 @@ const Profile = () => {
                                 iconPosition="start"
                                 label={
                                     <Box sx={{display: "flex", alignItems: "center"}}>
-                                        Preferences
+                                        Family
                                         <Box
                                             sx={{
                                                 ml: 1,
                                                 background: tabValue === 2 ? "#51365F" : "rgba(216, 27, 96, 0.1)",
                                                 color: tabValue === 2 ? "white" : "#51365F",
+                                                borderRadius: "10px",
+                                                px: 1,
+                                                py: 0.2,
+                                                fontSize: "0.7rem",
+                                                fontWeight: "bold",
+                                                transition: "all 0.3s ease",
+                                            }}
+                                        >
+                                            6
+                                        </Box>
+                                    </Box>
+                                }
+                            />
+                            <Tab
+                                icon={<Favorite sx={{fontSize: "20px", mb: 0.5}} />}
+                                iconPosition="start"
+                                label={
+                                    <Box sx={{display: "flex", alignItems: "center"}}>
+                                        Preferences
+                                        <Box
+                                            sx={{
+                                                ml: 1,
+                                                background: tabValue === 3 ? "#51365F" : "rgba(216, 27, 96, 0.1)",
+                                                color: tabValue === 3 ? "white" : "#51365F",
                                                 borderRadius: "10px",
                                                 px: 1,
                                                 py: 0.2,
@@ -624,26 +649,172 @@ const Profile = () => {
                     </TabPanel>
 
                     <TabPanel value={tabValue} index={1}>
-                        <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600, mb: 3}}>
-                            Photos
-                        </Typography>
-                        <Grid container spacing={2}>
-                            {user?.photos?.map((photo, index) => (
-                                <Grid size={{xs: 12, sm: 6, md: 4}} key={index}>
-                                    <Card sx={{borderRadius: "12px", overflow: "hidden"}}>
-                                        <CardMedia
-                                            component="img"
-                                            height="200"
-                                            image={photo}
-                                            alt={`Profile photo ${index + 1}`}
-                                        />
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
+                        <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3}}>
+                            <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600}}>
+                                Photos
+                            </Typography>
+                            <Button
+                                variant="outlined"
+                                startIcon={<PhotoCamera />}
+                                onClick={handleProfilePictureClick}
+                                sx={{
+                                    borderRadius: "20px",
+                                    borderColor: "#51365F",
+                                    color: "#51365F",
+                                    "&:hover": {
+                                        borderColor: "#51365F",
+                                        backgroundColor: "rgba(216, 27, 96, 0.1)",
+                                    },
+                                }}
+                            >
+                                Add Photos
+                            </Button>
+                        </Box>
+                        
+                        {user?.photos && user.photos.length > 0 ? (
+                            <Grid container spacing={2}>
+                                {user.photos.map((photo, index) => (
+                                    <Grid size={{xs: 12, sm: 6, md: 4}} key={index}>
+                                        <Card sx={{borderRadius: "12px", overflow: "hidden", position: "relative"}}>
+                                            <CardMedia
+                                                component="img"
+                                                height="200"
+                                                image={photo}
+                                                alt={`Profile photo ${index + 1}`}
+                                                sx={{cursor: "pointer"}}
+                                                onClick={() => {
+                                                    // Open photo in full screen
+                                                    window.open(photo, '_blank');
+                                                }}
+                                            />
+                                            <Box sx={{
+                                                position: "absolute",
+                                                top: 8,
+                                                right: 8,
+                                                display: "flex",
+                                                gap: 1
+                                            }}>
+                                                <IconButton
+                                                    size="small"
+                                                    sx={{
+                                                        backgroundColor: "rgba(0,0,0,0.5)",
+                                                        color: "white",
+                                                        "&:hover": {
+                                                            backgroundColor: "rgba(0,0,0,0.7)",
+                                                        }
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // Set as profile picture
+                                                        console.log("Set as profile picture");
+                                                    }}
+                                                >
+                                                    <Person fontSize="small" />
+                                                </IconButton>
+                                                <IconButton
+                                                    size="small"
+                                                    sx={{
+                                                        backgroundColor: "rgba(0,0,0,0.5)",
+                                                        color: "white",
+                                                        "&:hover": {
+                                                            backgroundColor: "rgba(0,0,0,0.7)",
+                                                        }
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // Delete photo
+                                                        console.log("Delete photo");
+                                                    }}
+                                                >
+                                                    <Delete fontSize="small" />
+                                                </IconButton>
+                                            </Box>
+                                        </Card>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        ) : (
+                            <Box sx={{
+                                textAlign: "center",
+                                py: 8,
+                                border: "2px dashed #e0e0e0",
+                                borderRadius: "12px",
+                                backgroundColor: "#fafafa"
+                            }}>
+                                <PhotoCamera sx={{fontSize: 64, color: "#e0e0e0", mb: 2}} />
+                                <Typography variant="h6" sx={{color: "#78909c", mb: 1}}>
+                                    No photos uploaded yet
+                                </Typography>
+                                <Typography variant="body2" sx={{color: "#78909c", mb: 3}}>
+                                    Upload photos to make your profile more attractive
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    startIcon={<PhotoCamera />}
+                                    onClick={handleProfilePictureClick}
+                                    sx={{
+                                        borderRadius: "20px",
+                                        background: "#51365F",
+                                        "&:hover": {
+                                            background: "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
+                                        },
+                                    }}
+                                >
+                                    Upload Photos
+                                </Button>
+                            </Box>
+                        )}
                     </TabPanel>
 
                     <TabPanel value={tabValue} index={2}>
+                        <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600, mb: 3}}>
+                            Family Details
+                        </Typography>
+                        <Grid container spacing={2}>
+                            <Grid size={{xs: 12, md: 6}}>
+                                <DetailItem 
+                                    icon={<Person />} 
+                                    label="Father's Name" 
+                                    value={user?.familyDetails?.fatherName || "Not specified"} 
+                                />
+                                <DetailItem 
+                                    icon={<Work />} 
+                                    label="Father's Occupation" 
+                                    value={user?.familyDetails?.fatherOccupation || "Not specified"} 
+                                />
+                                <DetailItem 
+                                    icon={<Person />} 
+                                    label="Mother's Name" 
+                                    value={user?.familyDetails?.motherName || "Not specified"} 
+                                />
+                                <DetailItem 
+                                    icon={<Work />} 
+                                    label="Mother's Occupation" 
+                                    value={user?.familyDetails?.motherOccupation || "Not specified"} 
+                                />
+                            </Grid>
+                            <Grid size={{xs: 12, md: 6}}>
+                                <DetailItem 
+                                    label="Family Type" 
+                                    value={user?.familyDetails?.familyType || "Not specified"} 
+                                />
+                                <DetailItem 
+                                    label="Family Status" 
+                                    value={user?.familyDetails?.familyStatus || "Not specified"} 
+                                />
+                                <DetailItem 
+                                    label="No. of Brothers" 
+                                    value={user?.familyDetails?.brothers || "Not specified"} 
+                                />
+                                <DetailItem 
+                                    label="No. of Sisters" 
+                                    value={user?.familyDetails?.sisters || "Not specified"} 
+                                />
+                            </Grid>
+                        </Grid>
+                    </TabPanel>
+
+                    <TabPanel value={tabValue} index={3}>
                         <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                             <Typography variant="h6" gutterBottom sx={{color: "#51365F", fontWeight: 600, mb: 3}}>
                                 Partner Preferences

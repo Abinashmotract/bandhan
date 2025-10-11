@@ -34,6 +34,8 @@ import {
     School as SchoolIcon,
     Visibility as VisibilityIcon,
     Message as MessageIcon,
+    Videocam as VideoCallIcon,
+    Phone as PhoneCallIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -622,6 +624,48 @@ const PartnerMatchesPage = () => {
                                                             }}
                                                         >
                                                             Msg
+                                                        </Button>
+
+                                                        <Button
+                                                            variant="outlined"
+                                                            startIcon={<VideoCallIcon />}
+                                                            onClick={() => navigate(`/video-call/${profile.id}`)}
+                                                            sx={{
+                                                                borderRadius: 2,
+                                                                borderColor: "#2196f3",
+                                                                color: "#2196f3",
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                fontSize: "0.875rem",
+                                                                minWidth: "auto",
+                                                                "&:hover": {
+                                                                    borderColor: "#2196f3",
+                                                                    backgroundColor: "rgba(33, 150, 243, 0.1)",
+                                                                },
+                                                            }}
+                                                        >
+                                                            Video
+                                                        </Button>
+
+                                                        <Button
+                                                            variant="outlined"
+                                                            startIcon={<PhoneCallIcon />}
+                                                            onClick={() => navigate(`/video-call/${profile.id}?type=voice`)}
+                                                            sx={{
+                                                                borderRadius: 2,
+                                                                borderColor: "#ff9800",
+                                                                color: "#ff9800",
+                                                                px: 1.5,
+                                                                py: 0.5,
+                                                                fontSize: "0.875rem",
+                                                                minWidth: "auto",
+                                                                "&:hover": {
+                                                                    borderColor: "#ff9800",
+                                                                    backgroundColor: "rgba(255, 152, 0, 0.1)",
+                                                                },
+                                                            }}
+                                                        >
+                                                            Call
                                                         </Button>
 
                                                         <Button

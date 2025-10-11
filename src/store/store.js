@@ -8,6 +8,7 @@ import subscriptionReducer from './slices/subscriptionSlice';
 import verificationReducer from './slices/verificationSlice';
 import notificationReducer from './slices/notificationSlice';
 import adminReducer from './slices/adminSlice';
+import matchesReducer from './slices/matchesSlice';
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     verification: verificationReducer,
     notification: notificationReducer,
     admin: adminReducer,
+    matches: matchesReducer,
   },
 });
 

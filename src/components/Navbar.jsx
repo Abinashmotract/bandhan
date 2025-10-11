@@ -3,11 +3,11 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AppBar, Toolbar, IconButton, Drawer, List, ListItem, ListItemText, Box, Typography, Badge } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../store/slices/authSlice';
 import { showError, showSuccess } from '../utils/toast';
-import logo from '../assets/WhatsApp Image 2025-01-28 at 9.41.07 PM.jpeg';
+import logo from '../assets/WhatsApp Image 2025-01-28 at 9.41.07 PM.png';
 
 const theme = createTheme({
     palette: {
@@ -39,9 +39,18 @@ const Navbar = () => {
     const [openDialog, setOpenDialog] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
     const { isAuthenticated, loading, isInitialized } = useSelector((state) => state.auth);
     const { unreadCount } = useSelector((state) => state.notification);
+
+    // Function to check if a route is active
+    const isActiveRoute = (href) => {
+        if (href === '/') {
+            return location.pathname === '/';
+        }
+        return location.pathname.startsWith(href);
+    };
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -64,9 +73,9 @@ const Navbar = () => {
     // Public navigation items (visible to all users)
     const publicNavItems = [
         { text: 'Home', href: '/' },
-        { text: 'About', href: 'about' },
+        // { text: 'About', href: 'about' },
         { text: 'Search', href: 'search-match' },
-        { text: 'Blog', href: 'blog' },
+        // { text: 'Blog', href: 'blog' },
     ];
 
     // Authenticated navigation items (only visible to logged-in users)
@@ -74,6 +83,8 @@ const Navbar = () => {
         { text: 'Matches', href: 'matches' },
         { text: 'Favorites', href: 'favorites' },
         { text: 'Messages', href: 'chat' },
+        { text: 'Horoscope', href: 'horoscope' },
+        { text: 'Events', href: 'events' },
         { text: 'Notifications', href: 'notifications', showBadge: true },
         { text: 'Verification', href: 'verification' },
         { text: 'Profile', href: 'profile' },
@@ -103,31 +114,36 @@ const Navbar = () => {
                 </IconButton>
             </Box>
             <List>
-                {navItems?.map((item) => (
-                    <ListItem
-                        key={item.text}
-                        component={Link}
-                        to={item.href}
-                        sx={{
-                            color: 'white',
-                            justifyContent: 'center',
-                            '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
-                        }}
-                        onClick={handleDrawerToggle}
-                    >
-                        <ListItemText 
-                            primary={
-                                item.showBadge && unreadCount > 0 ? (
-                                    <Badge badgeContent={unreadCount} color="error">
-                                        {item.text}
-                                    </Badge>
-                                ) : (
-                                    item.text
-                                )
-                            } 
-                        />
-                    </ListItem>
-                ))}
+                {navItems?.map((item) => {
+                    const isActive = isActiveRoute(item.href);
+                    return (
+                        <ListItem
+                            key={item.text}
+                            component={Link}
+                            to={item.href}
+                            sx={{
+                                color: isActive ? '#FFD700' : 'white',
+                                justifyContent: 'center',
+                                backgroundColor: isActive ? 'rgba(255, 215, 0, 0.1)' : 'transparent',
+                                borderLeft: isActive ? '4px solid #FFD700' : '4px solid transparent',
+                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
+                            }}
+                            onClick={handleDrawerToggle}
+                        >
+                            <ListItemText 
+                                primary={
+                                    item.showBadge && unreadCount > 0 ? (
+                                        <Badge badgeContent={unreadCount} color="error">
+                                            {item.text}
+                                        </Badge>
+                                    ) : (
+                                        item.text
+                                    )
+                                } 
+                            />
+                        </ListItem>
+                    );
+                })}
                 
                 {/* Upgrade Button for Mobile */}
                 <ListItem
@@ -206,50 +222,47 @@ const Navbar = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <AppBar position="sticky" sx={{ background: 'var(--background-gradient)', boxShadow: '0 2px 15px var(--shadow-primary)' }}>
+            <AppBar position="sticky" sx={{ background: '#51375f', boxShadow: '0 2px 15px var(--shadow-primary)' }}>
                 <Toolbar>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
                         <Link to="/" style={{ textDecoration: "none" }}>
-                            <img src={logo} alt="Bandhnam Logo" style={{ width: 200, height: 80, objectFit: 'contain' }} />
+                            <img src={logo} alt="Bandhnam Logo" style={{ width: 200, height: 90 }} />
                         </Link>
                     </Box>
 
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.text}
-                                to={item.href}
-                                style={{
-                                    textDecoration: 'none',
-                                    color: '#3A2640',
-                                    fontWeight: '500',
-                                    margin: '0 12px',
-                                    padding: '8px 0',
-                                    position: 'relative',
-                                    transition: 'all 0.3s',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.color = '#51365F';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.color = '#3A2640';
-                                }}
-                            >
-                                {item.text}
-                                <span
+                        {navItems.map((item) => {
+                            const isActive = isActiveRoute(item.href);
+                            return (
+                                <Link
+                                    key={item.text}
+                                    to={item.href}
                                     style={{
-                                        position: 'absolute',
-                                        bottom: 0,
-                                        left: 0,
-                                        width: '0',
-                                        height: '2px',
-                                        background: '#51365F',
+                                        textDecoration: 'none',
+                                        color: isActive ? '#FFD700' : 'white',
+                                        fontWeight: 'bold',
+                                        margin: '0 12px',
+                                        padding: '8px 0',
+                                        position: 'relative',
                                         transition: 'all 0.3s',
                                     }}
-                                    className="nav-underline"
-                                ></span>
-                            </Link>
-                        ))}
+                                >
+                                    {item?.text}
+                                    <span
+                                        style={{
+                                            position: 'absolute',
+                                            bottom: 0,
+                                            left: 0,
+                                            width: isActive ? '100%' : '0',
+                                            height: '2px',
+                                            background: '#FFD700',
+                                            transition: 'all 0.3s',
+                                        }}
+                                        className="nav-underline"
+                                    ></span>
+                                </Link>
+                            );
+                        })}
 
                         {/* Upgrade Button - Always visible */}
                         <Link to="/membership" style={{ textDecoration: 'none' }}>
@@ -303,7 +316,7 @@ const Navbar = () => {
                                     borderRadius: '25px',
                                     padding: '10px 25px',
                                     marginLeft: '15px',
-                                    fontWeight: '500',
+                                    fontWeight: 'bold',
                                     cursor: 'pointer',
                                     transition: 'all 0.3s',
                                     boxShadow: '0 4px 8px rgba(106, 27, 154, 0.3)'

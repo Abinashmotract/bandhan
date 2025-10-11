@@ -1,0 +1,141 @@
+// Test user credentials for testing the My Matches functionality
+export const testUser = {
+  email: "testuser@example.com",
+  password: "TestUser123!",
+  name: "Test User",
+  customId: "TEST1234",
+  profileImage: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+  profileCompletion: 95,
+  isEmailVerified: true,
+  isPhoneVerified: true,
+  isIdVerified: true,
+  isPhotoVerified: true,
+  isVerified: true,
+  isActive: true,
+  isOnline: true,
+  lastSeen: "Online",
+  city: "Mumbai",
+  state: "Maharashtra",
+  occupation: "Software Engineer",
+  education: "B.Tech",
+  religion: "Hindu",
+  caste: "Brahmin",
+  height: "5'8\"",
+  maritalStatus: "never_married",
+  annualIncome: "10-15 Lakh",
+  about: "I am a software engineer from Mumbai, passionate about technology and looking for a life partner who shares similar values and interests.",
+  hobbies: ["Reading", "Traveling", "Cooking", "Photography"],
+  interests: ["Technology", "Music", "Movies", "Fitness"],
+  languagesKnown: ["Hindi", "English", "Marathi"],
+  familyType: "Nuclear",
+  familyStatus: "Upper Middle Class",
+  fatherOccupation: "Business Owner",
+  motherOccupation: "Teacher",
+  brothers: 1,
+  sisters: 1,
+  brothersMarried: true,
+  sistersMarried: false,
+  nativePlace: "Mumbai",
+  preferences: {
+    ageRange: { min: 25, max: 32 },
+    heightRange: { min: "5'2\"", max: "5'8\"" },
+    maritalStatus: "never_married",
+    religion: "Hindu",
+    education: "B.Tech",
+    profession: "Software Engineer",
+    location: "Mumbai",
+    diet: "Vegetarian",
+    qualities: ["Family Oriented", "Career Focused", "Good Looking", "Well Educated"],
+    dealBreakers: ["Smoking", "Drinking"],
+    educationPref: "B.Tech",
+    occupationPref: ["Software Engineer", "Doctor", "Teacher"],
+    annualIncomePref: "5-15 Lakh",
+    lifestyleExpectations: {
+      diet: "Vegetarian",
+      drinking: "Never",
+      smoking: "Never"
+    },
+    religionCastePref: "Hindu",
+    locationPref: "Mumbai",
+    relocation: "No",
+    familyOrientation: "Traditional",
+    maritalStatusPref: "never_married"
+  }
+};
+
+// Test user login credentials
+export const testCredentials = {
+  email: "testuser@example.com",
+  password: "TestUser123!"
+};
+
+// Alternative test user (female profile)
+export const testUserFemale = {
+  email: "testuserfemale@example.com",
+  password: "TestUser123!",
+  name: "Priya Sharma",
+  customId: "TEST5678",
+  profileImage: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+  profileCompletion: 90,
+  isEmailVerified: true,
+  isPhoneVerified: true,
+  isIdVerified: false,
+  isPhotoVerified: true,
+  isVerified: true,
+  isActive: true,
+  isOnline: false,
+  lastSeen: "Active today",
+  city: "Delhi",
+  state: "Delhi",
+  occupation: "Doctor",
+  education: "MBBS",
+  religion: "Hindu",
+  caste: "Sharma",
+  height: "5'4\"",
+  maritalStatus: "never_married",
+  annualIncome: "15-25 Lakh",
+  about: "I am a doctor from Delhi, passionate about helping people and looking for a partner who understands the demands of my profession.",
+  hobbies: ["Reading", "Music", "Dancing", "Yoga"],
+  interests: ["Healthcare", "Music", "Travel", "Fitness"],
+  languagesKnown: ["Hindi", "English", "Punjabi"],
+  familyType: "Joint",
+  familyStatus: "Upper Middle Class",
+  fatherOccupation: "Doctor",
+  motherOccupation: "Homemaker",
+  brothers: 0,
+  sisters: 1,
+  brothersMarried: false,
+  sistersMarried: false,
+  nativePlace: "Delhi",
+  preferences: {
+    ageRange: { min: 28, max: 35 },
+    heightRange: { min: "5'6\"", max: "6'0\"" },
+    maritalStatus: "never_married",
+    religion: "Hindu",
+    education: "MBBS",
+    profession: "Doctor",
+    location: "Delhi",
+    diet: "Vegetarian",
+    qualities: ["Family Oriented", "Career Focused", "Good Looking", "Well Educated"],
+    dealBreakers: ["Smoking", "Drinking"],
+    educationPref: "MBBS",
+    occupationPref: ["Doctor", "Engineer", "Business"],
+    annualIncomePref: "10-25 Lakh",
+    lifestyleExpectations: {
+      diet: "Vegetarian",
+      drinking: "Never",
+      smoking: "Never"
+    },
+    religionCastePref: "Hindu",
+    locationPref: "Delhi",
+    relocation: "Yes",
+    familyOrientation: "Traditional",
+    maritalStatusPref: "never_married"
+  }
+};
+
+// Test user login credentials (female)
+export const testCredentialsFemale = {
+  email: "testuserfemale@example.com",
+  password: "TestUser123!"
+};

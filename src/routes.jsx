@@ -14,6 +14,7 @@ import SuccessStories from "./pages/SuccessStories";
 import Membership from "./pages/Membership";
 import ContactUs from "./pages/ContactUs";
 import PartnerMatchesPage from "./pages/PartnerMatchesPage";
+import MyMatchesPage from "./pages/MyMatchesPage";
 import FAQPage from "./pages/FAQPage";
 import SearchPage from "./pages/SearchPage";
 import BlogPage from "./pages/BlogPage";
@@ -25,6 +26,11 @@ import NotificationsPage from "./pages/NotificationsPage";
 import AdminPanel from "./pages/AdminPanel";
 import FavoritesPage from "./pages/FavoritesPage";
 import TermsConditions from "./pages/TermsConditions";
+import HoroscopePage from "./pages/HoroscopePage";
+import VideoCallPage from "./pages/VideoCallPage";
+import EventsPage from "./pages/EventsPage";
+import TestUserDetails from "./components/TestUserDetails";
+import AbinashProfileTest from "./components/AbinashProfileTest";
 // import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Protected routes array - यहाँ सभी protected routes डालें
@@ -33,12 +39,17 @@ const protectedRoutes = [
   { path: "/success-stories", component: SuccessStories },
   { path: "/membership", component: Membership },
   { path: "/payment-success", component: PaymentSuccessPage },
-  { path: "/matches", component: PartnerMatchesPage },
+  { path: "/matches", component: MyMatchesPage },
   { path: "/search-match", component: SearchPage },
   { path: "/chat", component: ChatPage },
   { path: "/verification", component: VerificationPage },
   { path: "/notifications", component: NotificationsPage },
   { path: "/favorites", component: FavoritesPage },
+  { path: "/horoscope", component: HoroscopePage },
+  { path: "/video-call/:userId", component: VideoCallPage },
+  { path: "/events", component: EventsPage },
+  { path: "/test-user", component: TestUserDetails },
+  { path: "/abinash-test", component: AbinashProfileTest },
   { path: "/admin", component: AdminPanel }
 ];
 
