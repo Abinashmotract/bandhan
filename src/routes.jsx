@@ -16,7 +16,6 @@ import ContactUs from "./pages/ContactUs";
 import PartnerMatchesPage from "./pages/PartnerMatchesPage";
 import MyMatchesPage from "./pages/MyMatchesPage";
 import FAQPage from "./pages/FAQPage";
-import SearchPage from "./pages/SearchPage";
 import BlogPage from "./pages/BlogPage";
 import VerifyOtp from "./pages/VerifyOtp";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
@@ -38,7 +37,6 @@ const protectedRoutes = [
   { path: "/membership", component: Membership },
   { path: "/payment-success", component: PaymentSuccessPage },
   { path: "/matches", component: MyMatchesPage },
-  { path: "/search-match", component: SearchPage },
   { path: "/chat", component: ChatPage },
   { path: "/verification", component: VerificationPage },
   { path: "/notifications", component: NotificationsPage },

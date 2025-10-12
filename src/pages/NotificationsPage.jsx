@@ -145,13 +145,13 @@ const NotificationsPage = () => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'match_of_day':
-        return <Star sx={{ color: '#e91e63', fontSize: 24 }} />;
+        return <Star sx={{ color: '#51365F', fontSize: 24 }} />;
       case 'profile_live':
         return <CheckCircle sx={{ color: '#4caf50', fontSize: 24 }} />;
       case 'profile_view':
         return <Visibility sx={{ color: '#2196f3', fontSize: 24 }} />;
       case 'interest_received':
-        return <Favorite sx={{ color: '#e91e63', fontSize: 24 }} />;
+        return <Favorite sx={{ color: '#51365F', fontSize: 24 }} />;
       case 'premium_reminder':
         return <TrendingUp sx={{ color: '#ff9800', fontSize: 24 }} />;
       default:
@@ -162,13 +162,13 @@ const NotificationsPage = () => {
   const getNotificationColor = (type) => {
     switch (type) {
       case 'match_of_day':
-        return '#e91e63';
+        return '#51365F';
       case 'profile_live':
         return '#4caf50';
       case 'profile_view':
         return '#2196f3';
       case 'interest_received':
-        return '#e91e63';
+        return '#51365F';
       case 'premium_reminder':
         return '#ff9800';
       default:
@@ -219,7 +219,7 @@ const NotificationsPage = () => {
                   src={notification.relatedUserId.profileImage?.startsWith('http') 
                     ? notification.relatedUserId.profileImage 
                     : `http://localhost:3000/uploads/${notification.relatedUserId.profileImage}`}
-                  sx={{ width: 50, height: 50, border: '2px solid #e91e63' }}
+                  sx={{ width: 50, height: 50, border: '2px solid #51365F' }}
                 />
               ) : (
                 <Box
@@ -245,7 +245,7 @@ const NotificationsPage = () => {
                     width: 12,
                     height: 12,
                     borderRadius: '50%',
-                    backgroundColor: '#e91e63'
+                    backgroundColor: '#51365F'
                   }}
                 />
               )}
@@ -283,14 +283,14 @@ const NotificationsPage = () => {
                     variant="outlined"
                     size="small"
                     sx={{
-                      borderColor: '#e91e63',
-                      color: '#e91e63',
+                      borderColor: '#51365F',
+                      color: '#51365F',
                       textTransform: 'none',
                       fontWeight: 600,
                       px: 2,
                       py: 0.5,
                       '&:hover': {
-                        backgroundColor: '#e91e63',
+                        backgroundColor: '#51365F',
                         color: 'white'
                       }
                     }}
@@ -330,7 +330,7 @@ const NotificationsPage = () => {
           color: '#333',
           mb: 3,
           textAlign: 'center',
-          '& span': { color: '#e91e63' }
+          '& span': { color: '#51365F' }
         }}
       >
         You are <span>missing</span> out on the premium benefits!
@@ -369,7 +369,7 @@ const NotificationsPage = () => {
         variant="contained"
         fullWidth
         sx={{
-          backgroundColor: '#e91e63',
+          backgroundColor: '#51365F',
           py: 1.5,
           fontSize: '1rem',
           fontWeight: 600,

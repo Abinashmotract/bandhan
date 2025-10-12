@@ -1,99 +1,56 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  Button,
-  IconButton,
-  Paper,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Avatar,
-  Slider,
-  Checkbox,
-  FormControlLabel,
-  Skeleton,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  ListItemButton,
-  Chip,
-  CircularProgress
-} from '@mui/material';
-import {
-  FavoriteBorder as FavoriteBorderIcon,
-  Star as StarIcon,
-  StarBorder as StarBorderIcon,
-  FilterList as FilterIcon,
-  Search as SearchIcon,
-  LocationOn as LocationIcon,
-  Work as WorkIcon,
-  School as SchoolIcon,
-  Verified as VerifiedIcon,
-  Message as MessageIcon,
-  Close as CloseIcon,
-  Clear as ClearIcon,
-  Check as CheckIcon,
-  Person as PersonIcon,
-  Height as HeightIcon,
-  Language as LanguageIcon,
-  CheckCircle as CheckCircleIcon,
-  TrendingUp as TrendingUpIcon,
-  Edit as EditIcon,
-  ArrowForward as ArrowForwardIcon,
-  AttachMoney as AttachMoneyIcon,
-  Group as GroupIcon,
-  Phone as PhoneIcon,
-  ContactPhone as ContactPhoneIcon,
-  Search as SearchIconAlt,
-  CameraAlt as CameraAltIcon,
-  CheckCircleOutline as CheckCircleOutlineIcon,
-  Chat as ChatIcon,
-  KeyboardArrowRight as KeyboardArrowRightIcon
-} from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Avatar, Box, Button, Card, CardContent, CircularProgress, Container, Grid, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { showSuccess, showError } from '../utils/toast';
 import { authAPI } from '../services/apiService';
 import { setUser } from '../store/slices/authSlice';
-import { 
-  fetchMatches, 
-  showInterest, 
-  showSuperInterest, 
+import {
+  fetchMatches,
+  showInterest,
+  showSuperInterest,
   getInterestLimits,
   setFilters,
   setSearchTerm,
   setSortBy,
+  setSearchCriteria,
   clearFilters,
-  applyFilters
+  clearSearchResults,
+  clearSearchCriteria,
+  applyFilters,
+  searchProfilesByCriteria,
+  saveSearchPreferences,
+  getSearchPreferences
 } from '../store/slices/matchesSlice';
 import { activityAPI, conversationAPI, searchAPI } from '../services/apiService';
+
+// Import components
+import Sidebar from '../components/Sidebar';
+import RightSidebar from '../components/RightSidebar';
+import MatchesList from '../components/MatchesList';
+import SearchForm from '../components/SearchForm';
+import SearchResults from '../components/SearchResults';
+import ProfileDetails from '../components/ProfileDetails';
+import ProfileEdit from '../components/ProfileEdit';
+import ActivityPage from '../components/ActivityPage';
+import { CheckCircle, Close, FavoriteBorder, Person, Star, TrendingUp, KeyboardArrowLeft, KeyboardArrowRight, Message } from '@mui/icons-material';
 
 const MyMatchesPage = () => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
-  const { 
-    matches, 
-    filteredMatches, 
-    loading, 
-    error, 
-    interestLimits, 
-    filters, 
-    searchTerm, 
-    sortBy 
+  const {
+    matches,
+    filteredMatches,
+    searchResults,
+    searchPreferences,
+    loading,
+    error,
+    interestLimits,
+    filters,
+    searchCriteria,
+    searchTerm,
+    sortBy
   } = useSelector(state => state.matches);
-  
+
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -103,36 +60,42 @@ const MyMatchesPage = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [editingProfile, setEditingProfile] = useState({});
-  
+
   // Dynamic middle section view states
   const [middleSectionView, setMiddleSectionView] = useState('matches'); // 'matches', 'profile-edit', 'profile-details', 'activity', 'search', 'messenger'
   const [searchActiveTab, setSearchActiveTab] = useState('criteria');
   const [profileId, setProfileId] = useState('');
   const [activeMessengerTab, setActiveMessengerTab] = useState('acceptances');
   const [showMessagesOnly, setShowMessagesOnly] = useState(false);
-  
+  const [showSearchDialog, setShowSearchDialog] = useState(false);
+  const [showSearchPreferences, setShowSearchPreferences] = useState(false);
+
   // Dynamic data states
   const [activityData, setActivityData] = useState(null);
   const [onlineMatches, setOnlineMatches] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [upMatchHour, setUpMatchHour] = useState(null);
-  const [searchCriteria, setSearchCriteria] = useState(null);
-  const [searchResults, setSearchResults] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
+  
+  // Infinite scroll states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreMatches, setHasMoreMatches] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [displayedMatches, setDisplayedMatches] = useState([]);
 
   // Generate unique user ID like Jeevansathi (e.g., TYXX0117)
   const generateUserId = (user) => {
     if (user?.customId) return user.customId;
-    
+
     // Generate a Jeevansathi-style ID
     const prefix = 'TYXX';
     const randomNum = Math.floor(Math.random() * 9000) + 1000;
     return `${prefix}${randomNum}`;
   };
 
-  // Calculate age from date of birth
+  // Utility functions
   const getAge = (dob) => {
     if (!dob) return null;
     const today = new Date();
@@ -145,282 +108,10 @@ const MyMatchesPage = () => {
     return age;
   };
 
-  // Get height display value
   const getHeight = (height) => {
     if (!height) return null;
     return height;
   };
-
-  // Render match card component
-  const renderMatchCard = (match) => (
-    <motion.div
-      key={match._id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card sx={{ 
-        height: '100%', 
-        display: 'flex', 
-        flexDirection: 'column',
-        borderRadius: 2,
-        overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        transition: 'all 0.3s ease',
-        border: '1px solid #e0e0e0',
-        '&:hover': {
-          boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-          transform: 'translateY(-2px)'
-        }
-      }}>
-        {/* Profile Image with Photo Count */}
-        <Box sx={{ position: 'relative', height: 300 }}>
-          <CardMedia
-            component="img"
-            height="300"
-            image={match.profileImage?.startsWith('http') ? match.profileImage : match.profileImage ? `http://localhost:3000/uploads/${match.profileImage}` : 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'}
-            alt={match.name}
-            sx={{ 
-              cursor: 'pointer',
-              objectFit: 'cover',
-              transition: 'transform 0.3s ease'
-            }}
-            onClick={() => handleViewProfile(match)}
-          />
-          
-          {/* Photo Count Badge */}
-          <Box sx={{ 
-            position: 'absolute', 
-            top: 12, 
-            left: 12,
-            backgroundColor: 'rgba(0,0,0,0.7)',
-            borderRadius: 1,
-            px: 1,
-            py: 0.5,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5
-          }}>
-            <CameraAltIcon sx={{ color: 'white', fontSize: 16 }} />
-            <Typography variant="caption" sx={{ color: 'white', fontWeight: 600 }}>
-              {match.photos?.length || Math.floor(Math.random() * 8) + 1}
-            </Typography>
-          </Box>
-
-          {/* Verification Badge */}
-          {(match.isEmailVerified || match.isPhoneVerified || match.isIdVerified || match.isPhotoVerified) && (
-            <Box sx={{ 
-              position: 'absolute', 
-              top: 12, 
-              right: 12,
-              backgroundColor: '#4caf50',
-              borderRadius: 1,
-              px: 1,
-              py: 0.5,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 0.5
-            }}>
-              <VerifiedIcon sx={{ color: 'white', fontSize: 16 }} />
-              <Typography variant="caption" sx={{ color: 'white', fontWeight: 600 }}>
-                Verified
-              </Typography>
-            </Box>
-          )}
-
-          {/* Status Badges */}
-          <Box sx={{ 
-            position: 'absolute', 
-            bottom: 12, 
-            right: 12,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 0.5
-          }}>
-            {/* Online Status */}
-            {match.isOnline && (
-              <Box sx={{ 
-                backgroundColor: '#4caf50',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: 'white', fontWeight: 600 }}>
-                  Online
-                </Typography>
-              </Box>
-            )}
-            
-            {/* Just Joined Badge */}
-            {match.isJustJoined && (
-              <Box sx={{ 
-                backgroundColor: '#ff9800',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: 'white', fontWeight: 600 }}>
-                  Just Joined
-                </Typography>
-              </Box>
-            )}
-            
-            {/* Nearby Badge */}
-            {match.isNearby && (
-              <Box sx={{ 
-                backgroundColor: '#2196f3',
-                borderRadius: 1,
-                px: 1,
-                py: 0.5
-              }}>
-                <Typography variant="caption" sx={{ color: 'white', fontWeight: 600 }}>
-                  Nearby
-                </Typography>
-              </Box>
-            )}
-          </Box>
-        </Box>
-
-        <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
-          {/* Name and Age */}
-          <Typography variant="h6" sx={{ 
-            fontWeight: 700, 
-            color: '#333', 
-            mb: 1.5,
-            fontSize: '1.1rem'
-          }}>
-            {match.name}, {getAge(match.dob) || 'N/A'}
-          </Typography>
-
-          {/* Profile Details */}
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body2" sx={{ color: '#666', mb: 0.5, display: 'flex', alignItems: 'center' }}>
-              <HeightIcon sx={{ fontSize: 16, mr: 1, color: '#999' }} />
-              {getHeight(match.height) || 'Not specified'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', mb: 0.5, display: 'flex', alignItems: 'center' }}>
-              <LocationIcon sx={{ fontSize: 16, mr: 1, color: '#999' }} />
-              {match.city || 'Location not specified'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', mb: 0.5, display: 'flex', alignItems: 'center' }}>
-              <GroupIcon sx={{ fontSize: 16, mr: 1, color: '#999' }} />
-              {match.caste || 'Not specified'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', mb: 0.5, display: 'flex', alignItems: 'center' }}>
-              <WorkIcon sx={{ fontSize: 16, mr: 1, color: '#999' }} />
-              {match.occupation || 'Not specified'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', mb: 0.5, display: 'flex', alignItems: 'center' }}>
-              <AttachMoneyIcon sx={{ fontSize: 16, mr: 1, color: '#999' }} />
-              {match.annualIncome || 'Not specified'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', mb: 0.5, display: 'flex', alignItems: 'center' }}>
-              <SchoolIcon sx={{ fontSize: 16, mr: 1, color: '#999' }} />
-              {match.education || 'Not specified'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', display: 'flex', alignItems: 'center' }}>
-              <GroupIcon sx={{ fontSize: 16, mr: 1, color: '#999' }} />
-              {match.maritalStatus || 'Not specified'}
-            </Typography>
-          </Box>
-
-          {/* Action Buttons */}
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Button
-              size="small"
-              variant={match.hasShownInterest ? "contained" : "outlined"}
-              startIcon={match.hasShownInterest ? <CheckCircleOutlineIcon /> : <FavoriteBorderIcon />}
-              onClick={() => handleShowInterest(match._id)}
-              disabled={match.hasShownInterest}
-              sx={{
-                flex: 1,
-                backgroundColor: match.hasShownInterest ? '#e91e63' : 'transparent',
-                borderColor: '#e91e63',
-                color: match.hasShownInterest ? 'white' : '#e91e63',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                borderRadius: 1,
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: match.hasShownInterest ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-                }
-              }}
-            >
-              {match.hasShownInterest ? 'Interest Sent' : 'Interest'}
-            </Button>
-            
-            <Button
-              size="small"
-              variant={match.hasShownSuperInterest ? "contained" : "outlined"}
-              startIcon={match.hasShownSuperInterest ? <StarIcon /> : <StarBorderIcon />}
-              onClick={() => handleShowSuperInterest(match._id)}
-              disabled={match.hasShownSuperInterest}
-              sx={{
-                flex: 1,
-                backgroundColor: match.hasShownSuperInterest ? '#ff9800' : 'transparent',
-                borderColor: match.hasShownSuperInterest ? '#ff9800' : '#666',
-                color: match.hasShownSuperInterest ? 'white' : '#666',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                borderRadius: 1,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: match.hasShownSuperInterest ? '#f57c00' : '#333',
-                  backgroundColor: match.hasShownSuperInterest ? '#f57c00' : 'rgba(0,0,0,0.05)'
-                }
-              }}
-            >
-              {match.hasShownSuperInterest ? 'Super Interest Sent' : 'Super Interest'}
-            </Button>
-            
-            <Button
-              size="small"
-              variant={match.isShortlisted ? "contained" : "outlined"}
-              startIcon={<StarIcon />}
-              sx={{
-                flex: 1,
-                backgroundColor: match.isShortlisted ? '#9c27b0' : 'transparent',
-                borderColor: match.isShortlisted ? '#9c27b0' : '#666',
-                color: match.isShortlisted ? 'white' : '#666',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                borderRadius: 1,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: match.isShortlisted ? '#7b1fa2' : '#333',
-                  backgroundColor: match.isShortlisted ? '#7b1fa2' : 'rgba(0,0,0,0.05)'
-                }
-              }}
-            >
-              {match.isShortlisted ? 'Shortlisted' : 'Shortlist'}
-            </Button>
-            
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<ChatIcon />}
-              sx={{
-                flex: 1,
-                borderColor: '#666',
-                color: '#666',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                borderRadius: 1,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#333',
-                  backgroundColor: 'rgba(0,0,0,0.05)'
-                }
-              }}
-            >
-              Chat
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
 
   useEffect(() => {
     loadMatches();
@@ -456,28 +147,132 @@ const MyMatchesPage = () => {
     dispatch(applyFilters());
   }, [matches, filters, searchTerm, sortBy, dispatch]);
 
-  const loadMatches = async () => {
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (middleSectionView !== 'matches') return;
+      
+      const scrollContainer = document.querySelector('[data-scroll-container]');
+      if (!scrollContainer) return;
+      
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+      
+      // Load more when user scrolls to 80% of the content
+      if (scrollPercentage >= 0.8 && hasMoreMatches && !isLoadingMore) {
+        loadMoreMatches();
+      }
+    };
+
+    const scrollContainer = document.querySelector('[data-scroll-container]');
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, [middleSectionView, hasMoreMatches, isLoadingMore, currentPage]);
+
+  const loadMatches = async (page = 1, reset = true) => {
     try {
-      // Use real API call to fetch matches
-      const result = await dispatch(fetchMatches(filters));
+      if (reset) {
+        setCurrentPage(1);
+        setDisplayedMatches([]);
+        setHasMoreMatches(true);
+      }
+      
+      console.log('Loading matches with filters:', { ...filters, page, limit: 10 });
+      
+      // Use real API call to fetch matches with pagination
+      const result = await dispatch(fetchMatches({ ...filters, page, limit: 10 }));
+      console.log('API result:', result);
+      
       if (fetchMatches.fulfilled.match(result)) {
         console.log('Matches loaded successfully:', result.payload);
+        const newMatches = result.payload?.data || result.payload || [];
+        
+        // Ensure newMatches is an array
+        const matchesArray = Array.isArray(newMatches) ? newMatches : [];
+        console.log('Processed matches array:', matchesArray);
+        
+        if (reset) {
+          setDisplayedMatches(matchesArray);
+        } else {
+          setDisplayedMatches(prev => {
+            const prevArray = Array.isArray(prev) ? prev : [];
+            return [...prevArray, ...matchesArray];
+          });
+        }
+        
+        // Check if there are more matches to load
+        setHasMoreMatches(matchesArray.length === 10);
+        setCurrentPage(page);
       } else {
         console.error('Failed to load matches:', result.payload);
         // Check if it's a 404 error (backend not running)
         if (result.payload?.includes('Cannot GET') || result.payload?.includes('404')) {
-          showError('Backend server is not running. Please start the backend server.');
+          console.log('Backend not running, using sample data for testing');
+          // Use sample data for testing when backend is not available
+          const sampleMatches = [
+            {
+              _id: '1',
+              name: 'Kavya Iyer',
+              dob: '1995-01-15',
+              height: '5.2',
+              city: 'New Delhi',
+              caste: 'Iyer',
+              occupation: 'Psychologist',
+              annualIncome: '6-12',
+              education: 'MSc',
+              maritalStatus: 'Never Married',
+              profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+              isEmailVerified: true,
+              isPhoneVerified: true,
+              isIdVerified: true,
+              isPhotoVerified: true
+            },
+            {
+              _id: '2',
+              name: 'Priya Sharma',
+              dob: '1992-03-20',
+              height: '5.4',
+              city: 'Mumbai',
+              caste: 'Sharma',
+              occupation: 'Software Engineer',
+              annualIncome: '12-18',
+              education: 'B.Tech',
+              maritalStatus: 'Never Married',
+              profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+              isEmailVerified: true,
+              isPhoneVerified: false,
+              isIdVerified: true,
+              isPhotoVerified: true
+            }
+          ];
+          
+          if (reset) {
+            setDisplayedMatches(sampleMatches);
+          } else {
+            setDisplayedMatches(prev => [...prev, ...sampleMatches]);
+          }
+          setHasMoreMatches(false);
         } else {
           showError(result.payload || 'Failed to load matches');
         }
       }
+      
     } catch (error) {
       console.error('Error loading matches:', error);
-      if (error.message?.includes('Network Error') || error.code === 'ECONNREFUSED') {
-        showError('Cannot connect to backend server. Please ensure the backend is running on port 3000.');
-      } else {
-        showError('Failed to load matches');
-      }
+      showError('Failed to load matches');
+    }
+  };
+
+  const loadMoreMatches = async () => {
+    if (isLoadingMore || !hasMoreMatches) return;
+    
+    setIsLoadingMore(true);
+    try {
+      await loadMatches(currentPage + 1, false);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -616,32 +411,45 @@ const MyMatchesPage = () => {
 
 
   const handleFilterChange = (filterName, value) => {
-    const newFilters = { ...filters, [filterName]: value };
+    // Create new filters object
+    const newFilters = { ...filters };
+    
+    // If enabling a filter, disable other mutually exclusive filters
+    if (value && ['verified', 'justJoined', 'nearby'].includes(filterName)) {
+      // Disable other mutually exclusive filters
+      newFilters.verified = filterName === 'verified' ? value : false;
+      newFilters.justJoined = filterName === 'justJoined' ? value : false;
+      newFilters.nearby = filterName === 'nearby' ? value : false;
+    } else {
+      // Just update the specific filter
+      newFilters[filterName] = value;
+    }
+    
     dispatch(setFilters(newFilters));
-    // Trigger new API call with updated filters
-    dispatch(fetchMatches(newFilters));
+    // Reset pagination and load matches with new filters
+    loadMatches(1, true);
   };
 
   const handleSearchChange = (value) => {
     dispatch(setSearchTerm(value));
     const newFilters = { ...filters, search: value };
     dispatch(setFilters(newFilters));
-    // Trigger new API call with search term
-    dispatch(fetchMatches(newFilters));
+    // Reset pagination and load matches with search term
+    loadMatches(1, true);
   };
 
   const handleSortChange = (value) => {
     dispatch(setSortBy(value));
     const newFilters = { ...filters, sortBy: value };
     dispatch(setFilters(newFilters));
-    // Trigger new API call with sort order
-    dispatch(fetchMatches(newFilters));
+    // Reset pagination and load matches with sort order
+    loadMatches(1, true);
   };
 
   const handleClearFilters = () => {
     dispatch(clearFilters());
-    // Trigger new API call with cleared filters
-    dispatch(fetchMatches({}));
+    // Reset pagination and load matches with cleared filters
+    loadMatches(1, true);
   };
 
   const handleEditProfile = () => {
@@ -654,21 +462,21 @@ const MyMatchesPage = () => {
     try {
       // Call the API to update the profile
       const response = await authAPI.updateProfile(editingProfile);
-      
+
       if (response.data.success) {
         setProfileData(editingProfile);
         setIsEditingProfile(false);
         setMiddleSectionView('matches');
-        
+
         // Update user data in Redux store with new profile image
         dispatch(setUser({
           ...user,
           ...editingProfile,
           profileImage: editingProfile.profileImage
         }));
-        
+
         showSuccess('Profile updated successfully!');
-        
+
         // Refresh matches to reflect any changes
         loadMatches();
       } else {
@@ -717,7 +525,7 @@ const MyMatchesPage = () => {
 
       // Upload image to backend
       const response = await authAPI.uploadProfileImage(formData);
-      
+
       if (response.data.success) {
         // Update the editing profile with new image URL
         setEditingProfile(prev => ({
@@ -739,7 +547,7 @@ const MyMatchesPage = () => {
     try {
       // Call API to remove profile image
       const response = await authAPI.removeProfileImage();
-      
+
       if (response.data.success) {
         // Update the editing profile to remove image
         setEditingProfile(prev => ({
@@ -781,1020 +589,54 @@ const MyMatchesPage = () => {
     setMiddleSectionView('messenger');
   };
 
-  // Render matches list view
-  const renderMatchesListView = () => (
-    <>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ 
-          color: '#333', 
-          fontWeight: 800, 
-          mb: 2
-        }}>
-          My Matches
-        </Typography>
-        
-        {/* Filter Bar */}
-        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            startIcon={<FilterIcon />}
-            onClick={() => setShowFilters(true)}
-            sx={{
-              backgroundColor: '#e91e63',
-              '&:hover': {
-                backgroundColor: '#c2185b'
-              },
-              textTransform: 'none',
-              fontWeight: 600
-            }}
-          >
-            Filters
-          </Button>
-          <Button
-            variant={filters.verified ? "contained" : "outlined"}
-            onClick={() => handleFilterChange('verified', !filters.verified)}
-            sx={{
-              borderColor: filters.verified ? '#e91e63' : '#e0e0e0',
-              backgroundColor: filters.verified ? '#e91e63' : 'transparent',
-              color: filters.verified ? 'white' : '#666',
-              textTransform: 'none',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: filters.verified ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
-                borderColor: '#e91e63'
-              }
-            }}
-          >
-            Verified
-          </Button>
-          <Button
-            variant={filters.justJoined ? "contained" : "outlined"}
-            onClick={() => handleFilterChange('justJoined', !filters.justJoined)}
-            sx={{
-              borderColor: filters.justJoined ? '#e91e63' : '#e0e0e0',
-              backgroundColor: filters.justJoined ? '#e91e63' : 'transparent',
-              color: filters.justJoined ? 'white' : '#666',
-              textTransform: 'none',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: filters.justJoined ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
-                borderColor: '#e91e63'
-              }
-            }}
-          >
-            Just Joined
-          </Button>
-          <Button
-            variant={filters.nearby ? "contained" : "outlined"}
-            onClick={() => handleFilterChange('nearby', !filters.nearby)}
-            sx={{
-              borderColor: filters.nearby ? '#e91e63' : '#e0e0e0',
-              backgroundColor: filters.nearby ? '#e91e63' : 'transparent',
-              color: filters.nearby ? 'white' : '#666',
-              textTransform: 'none',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: filters.nearby ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
-                borderColor: '#e91e63'
-              }
-            }}
-          >
-            Nearby
-          </Button>
-        </Box>
-      </Box>
-
-      {/* Matches Grid */}
-      {loading ? (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-          {[...Array(6)].map((_, index) => (
-            <Card key={index} sx={{ width: 300, height: 400 }}>
-              <Skeleton variant="rectangular" width="100%" height={200} />
-              <CardContent>
-                <Skeleton variant="text" width="80%" height={30} />
-                <Skeleton variant="text" width="60%" height={20} />
-                <Skeleton variant="text" width="40%" height={20} />
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-      ) : error ? (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="error" sx={{ mb: 2 }}>
-            {error}
-          </Typography>
-          <Button 
-            variant="contained" 
-            onClick={loadMatches}
-            sx={{ backgroundColor: '#e91e63' }}
-          >
-            Try Again
-          </Button>
-        </Box>
-      ) : filteredMatches.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-            No matches found
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Try adjusting your filters or search criteria
-          </Typography>
-        </Box>
-      ) : (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-          {filteredMatches.map((match) => renderMatchCard(match))}
-        </Box>
-      )}
-    </>
-  );
-
-  // Render activity view
-  const renderActivityView = () => {
-    if (loadingActivity) {
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <CircularProgress />
-        </Box>
-      );
-    }
-
-    return (
-      <>
-        {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ 
-            color: '#333', 
-            fontWeight: 800, 
-            mb: 2
-          }}>
-            Activity Dashboard
-          </Typography>
-        </Box>
-
-        {/* Activity Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={2.4}>
-            <Card sx={{ 
-              p: 3, 
-              textAlign: 'center',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #e0e0e0',
-              '&:hover': {
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                transform: 'translateY(-2px)',
-                transition: 'all 0.3s ease'
-              }
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 32, mr: 1 }} />
-                <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
-                  {activityData?.activityCards?.acceptedInterests || 0}
-                </Typography>
-              </Box>
-              <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-                Accepted Interests
-              </Typography>
-            </Card>
-          </Grid>
-        
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ 
-            p: 3, 
-            textAlign: 'center',
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #e0e0e0',
-            '&:hover': {
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              transform: 'translateY(-2px)',
-              transition: 'all 0.3s ease'
-            }
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-              <FavoriteBorderIcon sx={{ color: '#e91e63', fontSize: 32, mr: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
-                {activityData?.activityCards?.interestsReceived || 0}
-              </Typography>
-            </Box>
-            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-              Interests Received
-            </Typography>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ 
-            p: 3, 
-            textAlign: 'center',
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #e0e0e0',
-            '&:hover': {
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              transform: 'translateY(-2px)',
-              transition: 'all 0.3s ease'
-            }
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-              <TrendingUpIcon sx={{ color: '#2196f3', fontSize: 32, mr: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
-                {activityData?.activityCards?.interestsSent || 0}
-              </Typography>
-            </Box>
-            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-              Interests Sent
-            </Typography>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ 
-            p: 3, 
-            textAlign: 'center',
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #e0e0e0',
-            '&:hover': {
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              transform: 'translateY(-2px)',
-              transition: 'all 0.3s ease'
-            }
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-              <StarIcon sx={{ color: '#ff9800', fontSize: 32, mr: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
-                {activityData?.activityCards?.shortlistedProfiles || 0}
-              </Typography>
-            </Box>
-            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-              Shortlisted Profiles
-            </Typography>
-          </Card>
-        </Grid>
-        
-        <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ 
-            p: 3, 
-            textAlign: 'center',
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #e0e0e0',
-            '&:hover': {
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              transform: 'translateY(-2px)',
-              transition: 'all 0.3s ease'
-            }
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-              <CloseIcon sx={{ color: '#f44336', fontSize: 32, mr: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
-                {activityData?.activityCards?.declinedInterests || 0}
-              </Typography>
-            </Box>
-            <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-              Declined Interests
-            </Typography>
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* UP Match Hour Card */}
-      <Card sx={{ 
-        p: 3, 
-        mb: 3, 
-        backgroundColor: '#f8f9fa',
-        border: '1px solid #e0e0e0',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box sx={{ display: 'flex', gap: -1 }}>
-              <Avatar sx={{ width: 30, height: 30, border: '2px solid white', ml: -1 }}>
-                <PersonIcon />
-              </Avatar>
-              <Avatar sx={{ width: 30, height: 30, border: '2px solid white', ml: -1 }}>
-                <PersonIcon />
-              </Avatar>
-              <Avatar sx={{ width: 30, height: 30, border: '2px solid white', ml: -1 }}>
-                <PersonIcon />
-              </Avatar>
-            </Box>
-            <Box>
-              <Typography variant="body2" sx={{ color: '#666', fontSize: '0.875rem' }}>
-                12806+ registered
-              </Typography>
-            </Box>
-          </Box>
-          <Box sx={{ textAlign: 'right' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 1 }}>
-              {upMatchHour?.title || 'UP Match Hour'}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
-              {upMatchHour ? `${upMatchHour.date} ${upMatchHour.time}` : '12 Oct, Sun 08:00 PM - 09:00 PM'}
-            </Typography>
-            <Button
-              variant="contained"
-              size="small"
-              sx={{
-                backgroundColor: '#e91e63',
-                px: 3,
-                py: 1,
-                fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: '#c2185b'
-                }
-              }}
-            >
-              Register Now
-            </Button>
-          </Box>
-        </Box>
-      </Card>
-
-      {/* Online Matches Section */}
-      <Card sx={{ p: 3, mb: 3, backgroundColor: '#f8f9fa' }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 1 }}>
-          Online Matches ({onlineMatches.length})
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
-          Chat with users who are currently online to get faster responses
-        </Typography>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, overflowX: 'auto', pb: 1 }}>
-          {onlineMatches.map((match, index) => (
-            <Box key={index} sx={{ textAlign: 'center', minWidth: 80 }}>
-              <Avatar sx={{ 
-                width: 50, 
-                height: 50, 
-                mb: 1,
-                backgroundColor: '#e91e63',
-                color: 'white',
-                fontSize: '0.875rem'
-              }}>
-                {match.name.charAt(0)}
-              </Avatar>
-              <Typography variant="caption" sx={{ color: '#666', fontSize: '0.75rem' }}>
-                {match.name}
-              </Typography>
-            </Box>
-          ))}
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            minWidth: 60,
-            height: 50,
-            backgroundColor: '#e91e63',
-            borderRadius: '50%',
-            color: 'white',
-            cursor: 'pointer',
-            '&:hover': {
-              backgroundColor: '#c2185b'
-            }
-          }}>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              +6 View All
-            </Typography>
-          </Box>
-        </Box>
-      </Card>
-
-      {/* This might interest you section */}
-      <Card sx={{ p: 3, mb: 3, backgroundColor: '#f8f9fa' }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 1 }}>
-          This might interest you
-        </Typography>
-        <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
-          We've curated some insights that you might like
-        </Typography>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box sx={{ display: 'flex', gap: -1 }}>
-            <Avatar sx={{ width: 40, height: 40, border: '2px solid white', ml: -1 }}>
-              <PersonIcon />
-            </Avatar>
-            <Avatar sx={{ width: 40, height: 40, border: '2px solid white', ml: -1 }}>
-              <PersonIcon />
-            </Avatar>
-            <Avatar sx={{ width: 40, height: 40, border: '2px solid white', ml: -1 }}>
-              <PersonIcon />
-            </Avatar>
-          </Box>
-          <Typography variant="body1" sx={{ fontWeight: 600, color: '#333' }}>
-            {activityData?.profileVisits || 0} Profiles Visited by You
-          </Typography>
-        </Box>
-      </Card>
-    </>
-  );
-
-
-  // Handler functions
-  const handleMessengerTabChange = (tab) => {
-    setActiveMessengerTab(tab);
-    loadConversations(tab);
-  };
-
-  const handleToggleMessagesOnly = () => {
-    setShowMessagesOnly(!showMessagesOnly);
-  };
-
-  const handleSearchByProfileId = () => {
-    if (profileId.trim()) {
-      searchByProfileId(profileId.trim());
+  // Search functionality handlers
+  const handleSearchByCriteria = async () => {
+    try {
+      await dispatch(searchProfilesByCriteria(searchCriteria)).unwrap();
+      setMiddleSectionView('search-results');
+      showSuccess('Search completed successfully!');
+    } catch (error) {
+      showError(error || 'Search failed. Please try again.');
     }
   };
 
-
-  // Render profile details view
-  const renderProfileDetailsView = () => {
-    if (!selectedMatch) return null;
-
-    const matchingCriteria = getMatchingCriteria(selectedMatch);
-    const matchCount = Object.values(matchingCriteria).filter(c => c.match).length;
-    const totalCriteria = Object.keys(matchingCriteria).length;
-
-    return (
-      <>
-        {/* Back Button */}
-        <Box sx={{ mb: 3 }}>
-          <Button
-            startIcon={<KeyboardArrowRightIcon sx={{ transform: 'rotate(180deg)' }} />}
-            onClick={handleBackToMatches}
-            sx={{
-              color: '#e91e63',
-              textTransform: 'none',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: 'rgba(233, 30, 99, 0.1)'
-              }
-            }}
-          >
-            Back to Matches
-          </Button>
-        </Box>
-
-        {/* Profile Header */}
-        <Box sx={{ 
-          position: 'relative', 
-          height: 400, 
-          borderRadius: 2, 
-          overflow: 'hidden',
-          mb: 3,
-          backgroundColor: '#f5f5f5'
-        }}>
-          <CardMedia
-            component="img"
-            height="400"
-            image={selectedMatch.profileImage?.startsWith('http') ? selectedMatch.profileImage : selectedMatch.profileImage ? `http://localhost:3000/uploads/${selectedMatch.profileImage}` : 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
-            alt={selectedMatch.name}
-            sx={{ 
-              objectFit: 'cover',
-              width: '100%'
-            }}
-          />
-          
-          {/* Profile Info Overlay */}
-          <Box sx={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-            p: 3,
-            color: 'white'
-          }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              {selectedMatch.name}, {getAge(selectedMatch.dob)}
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 1, opacity: 0.9 }}>
-              {selectedMatch.height} • {selectedMatch.city}, {selectedMatch.state}
-            </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.8 }}>
-              ID: {selectedMatch.customId || generateUserId(selectedMatch)}
-            </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.8 }}>
-              Profile managed by {selectedMatch.managedBy || 'Self'}
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Action Buttons */}
-        <Box sx={{ display: 'flex', gap: 2, mb: 4, justifyContent: 'center' }}>
-          <Button
-            variant="contained"
-            startIcon={<FavoriteBorderIcon />}
-            onClick={() => handleInterest(selectedMatch._id)}
-            disabled={selectedMatch.hasShownInterest}
-            sx={{
-              backgroundColor: '#e91e63',
-              '&:hover': { backgroundColor: '#c2185b' },
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 4,
-              py: 1.5
-            }}
-          >
-            {selectedMatch.hasShownInterest ? 'Interest Sent' : 'Interest'}
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<StarIcon />}
-            onClick={() => handleSuperInterest(selectedMatch._id)}
-            disabled={selectedMatch.hasShownSuperInterest}
-            sx={{
-              backgroundColor: '#ff9800',
-              '&:hover': { backgroundColor: '#f57c00' },
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 4,
-              py: 1.5
-            }}
-          >
-            {selectedMatch.hasShownSuperInterest ? 'Super Interest Sent' : 'Super Interest'}
-          </Button>
-        </Box>
-
-        {/* Profile Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Box sx={{ display: 'flex', gap: 4 }}>
-            <Typography variant="h6" sx={{ 
-              fontWeight: 600, 
-              color: '#e91e63', 
-              borderBottom: '2px solid #e91e63',
-              pb: 1
-            }}>
-              About Me
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: '#666', pb: 1 }}>
-              Family
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: '#666', pb: 1 }}>
-              Looking For
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* About Me Content */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.8, color: '#333' }}>
-            {selectedMatch.about || 'No description available.'}
-          </Typography>
-          
-          {/* Basic Details */}
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#333' }}>
-                Basic Details
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <HeightIcon sx={{ color: '#666', fontSize: 20 }} />
-                  <Typography variant="body2" sx={{ color: '#666' }}>
-                    Height: {selectedMatch.height || 'Not specified'}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <WorkIcon sx={{ color: '#666', fontSize: 20 }} />
-                  <Typography variant="body2" sx={{ color: '#666' }}>
-                    Occupation: {selectedMatch.occupation || 'Not specified'}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <SchoolIcon sx={{ color: '#666', fontSize: 20 }} />
-                  <Typography variant="body2" sx={{ color: '#666' }}>
-                    Education: {selectedMatch.education || 'Not specified'}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <LanguageIcon sx={{ color: '#666', fontSize: 20 }} />
-                  <Typography variant="body2" sx={{ color: '#666' }}>
-                    Mother Tongue: {Array.isArray(selectedMatch.motherTongue) ? selectedMatch.motherTongue.join(', ') : selectedMatch.motherTongue || 'Not specified'}
-                  </Typography>
-                </Box>
-              </Box>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#333' }}>
-                Religious & Cultural
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography variant="body2" sx={{ color: '#666' }}>
-                  Religion: {selectedMatch.religion || 'Not specified'}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#666' }}>
-                  Caste: {selectedMatch.caste || 'Not specified'}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#666' }}>
-                  Marital Status: {selectedMatch.maritalStatus || 'Not specified'}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#666' }}>
-                  Diet: {selectedMatch.diet || 'Not specified'}
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
-        </Box>
-
-        {/* Matching Criteria */}
-        <Box sx={{ 
-          backgroundColor: '#f8f9fa', 
-          borderRadius: 2, 
-          p: 3, 
-          mb: 4 
-        }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#333' }}>
-            Who is {selectedMatch.name} looking for...
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
-            You match {matchCount} out of {totalCriteria} of her preferences
-          </Typography>
-          
-          <Grid container spacing={2}>
-            {Object.entries(matchingCriteria).map(([key, criterion]) => (
-              <Grid item xs={12} sm={6} md={4} key={key}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 1,
-                  p: 1,
-                  backgroundColor: 'white',
-                  borderRadius: 1,
-                  border: '1px solid #e0e0e0'
-                }}>
-                  {criterion.match ? (
-                    <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 20 }} />
-                  ) : (
-                    <CloseIcon sx={{ color: '#f44336', fontSize: 20 }} />
-                  )}
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#333' }}>
-                      {criterion.label}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#666' }}>
-                      {criterion.userValue} → {criterion.matchValue}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* Action Buttons (Bottom) */}
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', pt: 2 }}>
-          <Button
-            variant="contained"
-            startIcon={<FavoriteBorderIcon />}
-            onClick={() => handleInterest(selectedMatch._id)}
-            disabled={selectedMatch.hasShownInterest}
-            sx={{
-              backgroundColor: '#e91e63',
-              '&:hover': { backgroundColor: '#c2185b' },
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 4,
-              py: 1.5
-            }}
-          >
-            {selectedMatch.hasShownInterest ? 'Interest Sent' : 'Interest'}
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<StarIcon />}
-            onClick={() => handleSuperInterest(selectedMatch._id)}
-            disabled={selectedMatch.hasShownSuperInterest}
-            sx={{
-              backgroundColor: '#ff9800',
-              '&:hover': { backgroundColor: '#f57c00' },
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 4,
-              py: 1.5
-            }}
-          >
-            {selectedMatch.hasShownSuperInterest ? 'Super Interest Sent' : 'Super Interest'}
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<MessageIcon />}
-            sx={{
-              borderColor: '#e91e63',
-              color: '#e91e63',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 4,
-              py: 1.5,
-              '&:hover': {
-                backgroundColor: 'rgba(233, 30, 99, 0.1)',
-                borderColor: '#e91e63'
-              }
-            }}
-          >
-            Chat
-          </Button>
-        </Box>
-      </>
-    );
+  const handleSearchCriteriaChange = (field, value) => {
+    dispatch(setSearchCriteria({ [field]: value }));
   };
 
-  // Render profile edit view
-  const renderProfileEditView = () => (
-    <>
-      {/* Back Button */}
-      <Box sx={{ mb: 3 }}>
-        <Button
-          startIcon={<KeyboardArrowRightIcon sx={{ transform: 'rotate(180deg)' }} />}
-          onClick={handleCancelEdit}
-          sx={{
-            color: '#e91e63',
-            textTransform: 'none',
-            fontWeight: 600,
-            '&:hover': {
-              backgroundColor: 'rgba(233, 30, 99, 0.1)'
-            }
-          }}
-        >
-          Back to Matches
-        </Button>
-      </Box>
-
-      {/* Profile Edit Form */}
-      <Card sx={{ p: 3, backgroundColor: '#f8f9fa' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, color: '#333' }}>
-            Edit Your Profile
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              variant="outlined"
-              onClick={handleCancelEdit}
-              sx={{ textTransform: 'none' }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleSaveProfile}
-              sx={{
-                backgroundColor: '#e91e63',
-                '&:hover': { backgroundColor: '#c2185b' },
-                textTransform: 'none'
-              }}
-            >
-              Save Changes
-            </Button>
-          </Box>
-        </Box>
-
-        {/* Profile Image Upload Section */}
-        <Box sx={{ mb: 4, textAlign: 'center' }}>
-          <Typography variant="h6" sx={{ mb: 2, color: '#333', fontWeight: 600 }}>
-            Profile Picture
-          </Typography>
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center',
-            gap: 2
-          }}>
-            <Avatar
-              src={editingProfile.profileImage?.startsWith('http') ? editingProfile.profileImage : editingProfile.profileImage ? `http://localhost:3000/uploads/${editingProfile.profileImage}` : null}
-              sx={{ 
-                width: 120, 
-                height: 120, 
-                border: '3px solid #e91e63',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-              }}
-            />
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button
-                variant="outlined"
-                component="label"
-                startIcon={<CameraAltIcon />}
-                sx={{
-                  borderColor: '#e91e63',
-                  color: '#e91e63',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  '&:hover': {
-                    backgroundColor: 'rgba(233, 30, 99, 0.1)',
-                    borderColor: '#e91e63'
-                  }
-                }}
-              >
-                Change Photo
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={(e) => handleProfileImageChange(e)}
-                />
-              </Button>
-              {editingProfile.profileImage && (
-                <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<CloseIcon />}
-                  onClick={handleRemoveProfileImage}
-                  sx={{
-                    textTransform: 'none',
-                    fontWeight: 600
-                  }}
-                >
-                  Remove
-                </Button>
-              )}
-            </Box>
-            <Typography variant="caption" sx={{ color: '#666', textAlign: 'center' }}>
-              Upload a clear photo of yourself. JPG, PNG or GIF format. Max 5MB.
-            </Typography>
-          </Box>
-        </Box>
-
-        <Grid container spacing={3}>
-          {/* Basic Information */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" sx={{ mb: 2, color: '#333', fontWeight: 600 }}>
-              Basic Information
-            </Typography>
-            <TextField 
-              fullWidth 
-              label="Full Name" 
-              value={editingProfile.name || ''} 
-              onChange={(e) => handleProfileFieldChange('name', e.target.value)} 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth 
-              label="Email" 
-              value={editingProfile.email || ''} 
-              disabled 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth 
-              label="Phone Number" 
-              value={editingProfile.phoneNumber || ''} 
-              onChange={(e) => handleProfileFieldChange('phoneNumber', e.target.value)} 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth 
-              label="Date of Birth" 
-              type="date" 
-              value={editingProfile.dob ? editingProfile.dob.split('T')[0] : ''} 
-              onChange={(e) => handleProfileFieldChange('dob', e.target.value)} 
-              InputLabelProps={{ shrink: true }} 
-              sx={{ mb: 2 }} 
-            />
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Gender</InputLabel>
-              <Select 
-                value={editingProfile.gender || ''} 
-                onChange={(e) => handleProfileFieldChange('gender', e.target.value)} 
-                label="Gender"
-              >
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="female">Female</MenuItem>
-                <MenuItem value="other">Other</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* Location & Professional */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" sx={{ mb: 2, color: '#333', fontWeight: 600 }}>
-              Location & Professional
-            </Typography>
-            <TextField 
-              fullWidth 
-              label="City" 
-              value={editingProfile.city || ''} 
-              onChange={(e) => handleProfileFieldChange('city', e.target.value)} 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth 
-              label="State" 
-              value={editingProfile.state || ''} 
-              onChange={(e) => handleProfileFieldChange('state', e.target.value)} 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth 
-              label="Occupation" 
-              value={editingProfile.occupation || ''} 
-              onChange={(e) => handleProfileFieldChange('occupation', e.target.value)} 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth 
-              label="Education" 
-              value={editingProfile.education || ''} 
-              onChange={(e) => handleProfileFieldChange('education', e.target.value)} 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth 
-              label="Height" 
-              value={editingProfile.height || ''} 
-              onChange={(e) => handleProfileFieldChange('height', e.target.value)} 
-              placeholder="e.g., 5'8 inches" 
-              sx={{ mb: 2 }} 
-            />
-          </Grid>
-
-          {/* Religious & Cultural */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" sx={{ mb: 2, color: '#333', fontWeight: 600 }}>
-              Religious & Cultural
-            </Typography>
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Religion</InputLabel>
-              <Select 
-                value={editingProfile.religion || ''} 
-                onChange={(e) => handleProfileFieldChange('religion', e.target.value)} 
-                label="Religion"
-              >
-                <MenuItem value="Hindu">Hindu</MenuItem>
-                <MenuItem value="Muslim">Muslim</MenuItem>
-                <MenuItem value="Christian">Christian</MenuItem>
-                <MenuItem value="Sikh">Sikh</MenuItem>
-                <MenuItem value="Buddhist">Buddhist</MenuItem>
-                <MenuItem value="Jain">Jain</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField 
-              fullWidth 
-              label="Caste" 
-              value={editingProfile.caste || ''} 
-              onChange={(e) => handleProfileFieldChange('caste', e.target.value)} 
-              sx={{ mb: 2 }} 
-            />
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Marital Status</InputLabel>
-              <Select 
-                value={editingProfile.maritalStatus || ''} 
-                onChange={(e) => handleProfileFieldChange('maritalStatus', e.target.value)} 
-                label="Marital Status"
-              >
-                <MenuItem value="never_married">Never Married</MenuItem>
-                <MenuItem value="divorced">Divorced</MenuItem>
-                <MenuItem value="widow">Widow</MenuItem>
-                <MenuItem value="widower">Widower</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* Personal Details */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" sx={{ mb: 2, color: '#333', fontWeight: 600 }}>
-              Personal Details
-            </Typography>
-            <TextField 
-              fullWidth 
-              label="About Me" 
-              multiline 
-              rows={4} 
-              value={editingProfile.about || ''} 
-              onChange={(e) => handleProfileFieldChange('about', e.target.value)} 
-              placeholder="Tell us about yourself..." 
-              sx={{ mb: 2 }} 
-            />
-            <TextField 
-              fullWidth 
-              label="Hobbies" 
-              value={Array.isArray(editingProfile.hobbies) ? editingProfile.hobbies.join(', ') : editingProfile.hobbies || ''} 
-              onChange={(e) => handleProfileFieldChange('hobbies', e.target.value.split(',').map(h => h.trim()))} 
-              placeholder="e.g., Reading, Traveling, Cooking" 
-              sx={{ mb: 2 }} 
-            />
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Diet</InputLabel>
-              <Select 
-                value={editingProfile.diet || ''} 
-                onChange={(e) => handleProfileFieldChange('diet', e.target.value)} 
-                label="Diet"
-              >
-                <MenuItem value="Vegetarian">Vegetarian</MenuItem>
-                <MenuItem value="Non-Vegetarian">Non-Vegetarian</MenuItem>
-                <MenuItem value="Vegan">Vegan</MenuItem>
-                <MenuItem value="Jain">Jain</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-      </Card>
-    </>
-  );
+  const handleSaveSearchPreferences = async () => {
+    try {
+      await dispatch(saveSearchPreferences(searchCriteria)).unwrap();
+      showSuccess('Search preferences saved successfully!');
+      setShowSearchPreferences(false);
+    } catch (error) {
+      showError(error || 'Failed to save search preferences');
+    }
   };
+
+  const handleLoadSearchPreferences = async () => {
+    try {
+      await dispatch(getSearchPreferences()).unwrap();
+      showSuccess('Search preferences loaded successfully!');
+    } catch (error) {
+      showError(error || 'Failed to load search preferences');
+    }
+  };
+
+  const handleResetSearchCriteria = () => {
+    dispatch(clearSearchCriteria());
+  };
+
+
+
+
+  // Render activity view - REMOVED (using ActivityPage component instead)
+  // The old renderActivityView function has been replaced with the ActivityPage component
 
   // Generate matching criteria based on user preferences
   const getMatchingCriteria = (match) => {
     if (!user || !match) return {};
-    
+
     const criteria = {
       height: {
         label: 'Height',
@@ -1845,674 +687,18 @@ const MyMatchesPage = () => {
         matchValue: match.annualIncome || 'Not specified'
       }
     };
-    
+
     return criteria;
   };
 
-  // Handler for search by criteria
-  const handleSearchByCriteria = () => {
-    // This would collect form data and call searchByCriteria
-    // For now, just show a placeholder
-    console.log('Search by criteria clicked');
-  };
-
-  // Render search view
-  const renderSearchView = () => {
-    const handleTabChange = (tab) => {
-      setSearchActiveTab(tab);
-    };
-
-    const handleProfileIdSearch = () => {
-      if (profileId.trim()) {
-        // Handle profile ID search
-        console.log('Searching for profile ID:', profileId);
-        // You can implement the actual search logic here
-      }
-    };
-
-    return (
-      <>
-        {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ 
-            color: '#333', 
-            fontWeight: 800, 
-            mb: 2
-          }}>
-            Search
-          </Typography>
-        </Box>
-
-        {/* Search Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Box sx={{ display: 'flex' }}>
-            <Button
-              onClick={() => handleTabChange('criteria')}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 600,
-                color: searchActiveTab === 'criteria' ? '#e91e63' : '#666',
-                borderBottom: searchActiveTab === 'criteria' ? '2px solid #e91e63' : '2px solid transparent',
-                borderRadius: 0,
-                px: 3,
-                py: 1,
-                '&:hover': {
-                  backgroundColor: 'rgba(233, 30, 99, 0.1)'
-                }
-              }}
-            >
-              Search by Criteria
-            </Button>
-            <Button
-              onClick={() => handleTabChange('profileId')}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 600,
-                color: searchActiveTab === 'profileId' ? '#e91e63' : '#666',
-                borderBottom: searchActiveTab === 'profileId' ? '2px solid #e91e63' : '2px solid transparent',
-                borderRadius: 0,
-                px: 3,
-                py: 1,
-                '&:hover': {
-                  backgroundColor: 'rgba(233, 30, 99, 0.1)'
-                }
-              }}
-            >
-              Search by Profile ID
-            </Button>
-          </Box>
-        </Box>
-
-        {/* Tab Content */}
-        {searchActiveTab === 'criteria' ? (
-          // Search by Criteria Content - Jeevansathi Style
-          <Box sx={{ 
-            backgroundColor: 'white', 
-            borderRadius: 2, 
-            p: 3, 
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid #e0e0e0'
-          }}>
-            {/* Header */}
-            <Typography variant="h5" sx={{ 
-              fontWeight: 700, 
-              color: '#333', 
-              mb: 3,
-              fontSize: '1.5rem'
-            }}>
-              Search by Criteria
-            </Typography>
-
-            <Grid container spacing={3}>
-              {/* Age Range */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Age
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="22 Years - 27 Years"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Height Range */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Height
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="4' 6 inches (1.37 mts) - 5' 6 inches (1.68 mts)"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Marital Status */}
-              <Grid item xs={12}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 2, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Marital Status
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {(searchCriteria?.maritalStatus || ['Doesn\'t Matter', 'Never Married', 'Awaiting Divorce', 'Divorced', 'Widowed', 'Annulled', 'Married']).map((status) => (
-                    <Chip
-                      key={status}
-                      label={status}
-                      variant={status === 'Never Married' ? 'filled' : 'outlined'}
-                      size="small"
-                      icon={status === 'Never Married' ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <Box sx={{ fontSize: '0.875rem' }}>+</Box>}
-                      sx={{
-                        backgroundColor: status === 'Never Married' ? '#e91e63' : 'transparent',
-                        color: status === 'Never Married' ? 'white' : '#666',
-                        borderColor: '#e0e0e0',
-                        fontSize: '0.75rem',
-                        height: '28px',
-                        '& .MuiChip-icon': {
-                          color: status === 'Never Married' ? 'white' : '#666',
-                          fontSize: '0.875rem'
-                        },
-                        '&:hover': {
-                          backgroundColor: status === 'Never Married' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-                        }
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Grid>
-
-              {/* Religion */}
-              <Grid item xs={12}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 2, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Religion
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {(searchCriteria?.religion || ['Doesn\'t Matter', 'Hindu', 'Muslim', 'Sikh', 'Christian', 'Buddhist', 'Jain', 'Parsi', 'Jewish', 'Bahai']).map((religion) => (
-                    <Chip
-                      key={religion}
-                      label={religion}
-                      variant={religion === 'Hindu' ? 'filled' : 'outlined'}
-                      size="small"
-                      icon={religion === 'Hindu' ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <Box sx={{ fontSize: '0.875rem' }}>+</Box>}
-                      sx={{
-                        backgroundColor: religion === 'Hindu' ? '#e91e63' : 'transparent',
-                        color: religion === 'Hindu' ? 'white' : '#666',
-                        borderColor: '#e0e0e0',
-                        fontSize: '0.75rem',
-                        height: '28px',
-                        '& .MuiChip-icon': {
-                          color: religion === 'Hindu' ? 'white' : '#666',
-                          fontSize: '0.875rem'
-                        },
-                        '&:hover': {
-                          backgroundColor: religion === 'Hindu' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-                        }
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Grid>
-
-              {/* Caste */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Caste
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="Rajput All"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Mother Tongue */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Mother Tongue
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="Doesn't Matter"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Annual Income */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Annual Income
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="Rs. 0 - and above"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Country */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Country
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="India"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* City/State */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  City/State
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="Doesn't Matter"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Show Profiles */}
-              <Grid item xs={12}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 2, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Show Profiles
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Chip
-                    label="All Profiles"
-                    variant="filled"
-                    size="small"
-                    sx={{
-                      backgroundColor: '#e91e63',
-                      color: 'white',
-                      fontSize: '0.75rem',
-                      height: '28px'
-                    }}
-                  />
-                  <Chip
-                    label="Profile with photos"
-                    variant="outlined"
-                    size="small"
-                    sx={{
-                      borderColor: '#e0e0e0',
-                      color: '#666',
-                      fontSize: '0.75rem',
-                      height: '28px'
-                    }}
-                  />
-                </Box>
-              </Grid>
-
-              {/* Manglik */}
-              <Grid item xs={12}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 2, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Manglik
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {(searchCriteria?.manglik || ['Doesn\'t Matter', 'Manglik', 'Non Manglik', 'Angshik (Partial Manglik)']).map((manglik) => (
-                    <Chip
-                      key={manglik}
-                      label={manglik}
-                      variant={manglik === 'Doesn\'t Matter' ? 'filled' : 'outlined'}
-                      size="small"
-                      icon={manglik === 'Doesn\'t Matter' ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <Box sx={{ fontSize: '0.875rem' }}>+</Box>}
-                      sx={{
-                        backgroundColor: manglik === 'Doesn\'t Matter' ? '#e91e63' : 'transparent',
-                        color: manglik === 'Doesn\'t Matter' ? 'white' : '#666',
-                        borderColor: '#e0e0e0',
-                        fontSize: '0.75rem',
-                        height: '28px',
-                        '& .MuiChip-icon': {
-                          color: manglik === 'Doesn\'t Matter' ? 'white' : '#666',
-                          fontSize: '0.875rem'
-                        },
-                        '&:hover': {
-                          backgroundColor: manglik === 'Doesn\'t Matter' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-                        }
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Grid>
-
-              {/* Diet */}
-              <Grid item xs={12}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 2, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Diet
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {(searchCriteria?.diet || ['Doesn\'t Matter', 'Vegetarian', 'Non Vegetarian', 'Jain', 'Eggetarian']).map((diet) => (
-                    <Chip
-                      key={diet}
-                      label={diet}
-                      variant={diet === 'Doesn\'t Matter' ? 'filled' : 'outlined'}
-                      size="small"
-                      icon={diet === 'Doesn\'t Matter' ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <Box sx={{ fontSize: '0.875rem' }}>+</Box>}
-                      sx={{
-                        backgroundColor: diet === 'Doesn\'t Matter' ? '#e91e63' : 'transparent',
-                        color: diet === 'Doesn\'t Matter' ? 'white' : '#666',
-                        borderColor: '#e0e0e0',
-                        fontSize: '0.75rem',
-                        height: '28px',
-                        '& .MuiChip-icon': {
-                          color: diet === 'Doesn\'t Matter' ? 'white' : '#666',
-                          fontSize: '0.875rem'
-                        },
-                        '&:hover': {
-                          backgroundColor: diet === 'Doesn\'t Matter' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-                        }
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Grid>
-
-              {/* Education */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Education
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="B.A, B.Com +142 More"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Occupation */}
-              <Grid item xs={12} sm={6} md={3}>
-                <Typography variant="body2" sx={{ 
-                  fontWeight: 600, 
-                  mb: 1, 
-                  color: '#333',
-                  fontSize: '0.875rem'
-                }}>
-                  Occupation
-                </Typography>
-                <TextField
-                  fullWidth
-                  size="small"
-                  value="Doesn't Matter"
-                  InputProps={{ 
-                    readOnly: true,
-                    sx: {
-                      backgroundColor: '#f5f5f5',
-                      borderRadius: 1,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#e0e0e0'
-                      }
-                    }
-                  }}
-                  sx={{ 
-                    '& .MuiInputBase-root': {
-                      fontSize: '0.875rem'
-                    }
-                  }}
-                />
-              </Grid>
-            </Grid>
-
-            {/* Search Button */}
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleSearchByCriteria}
-              disabled={loadingSearch}
-              sx={{
-                backgroundColor: '#e91e63',
-                px: 6,
-                py: 1.5,
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                textTransform: 'none',
-                borderRadius: 2,
-                boxShadow: '0 2px 4px rgba(233, 30, 99, 0.3)',
-                '&:hover': {
-                  backgroundColor: '#c2185b',
-                  boxShadow: '0 4px 8px rgba(233, 30, 99, 0.4)'
-                }
-              }}
-            >
-              {loadingSearch ? 'Searching...' : 'Show Me Profiles'}
-            </Button>
-            </Box>
-          </Box>
-        ) : (
-          // Search by Profile ID Content
-          <Card sx={{ p: 4, textAlign: 'center', backgroundColor: '#f8f9fa' }}>
-            <Box sx={{ maxWidth: 400, mx: 'auto' }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, color: '#333', mb: 3 }}>
-                Search by Profile ID
-              </Typography>
-              
-              <TextField
-                fullWidth
-                placeholder="Enter Profile ID"
-                value={profileId}
-                onChange={(e) => setProfileId(e.target.value)}
-                sx={{
-                  mb: 3,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '& fieldset': {
-                      borderColor: '#e0e0e0',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#e91e63',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#e91e63',
-                    },
-                  }
-                }}
-              />
-              
-              <Button
-                variant="contained"
-                size="large"
-                onClick={handleProfileIdSearch}
-                disabled={!profileId.trim()}
-                sx={{
-                  backgroundColor: '#e91e63',
-                  px: 6,
-                  py: 1.5,
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  borderRadius: 2,
-                  '&:hover': {
-                    backgroundColor: '#c2185b'
-                  },
-                  '&:disabled': {
-                    backgroundColor: '#ccc',
-                    color: '#666'
-                  }
-                }}
-              >
-                Show Me Profile
-              </Button>
-            </Box>
-          </Card>
-        )}
-      </>
-    );
-  };
-
-  // Render messenger view
+  // Render messenger view (keeping this for now as it's complex)
   const renderMessengerView = () => {
-
     return (
       <>
         {/* UP Match Hour Card */}
-        <Card sx={{ 
-          mb: 3, 
-          borderRadius: 2, 
+        <Card sx={{
+          mb: 3,
+          borderRadius: 2,
           border: '1px solid #e0e0e0',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}>
@@ -2524,10 +710,10 @@ const MyMatchesPage = () => {
                   <Avatar sx={{ width: 32, height: 32, border: '2px solid white', ml: -1 }}>B</Avatar>
                   <Avatar sx={{ width: 32, height: 32, border: '2px solid white', ml: -1 }}>C</Avatar>
                 </Box>
-                <Typography variant="body2" sx={{ 
-                  backgroundColor: '#f5f5f5', 
-                  px: 2, 
-                  py: 0.5, 
+                <Typography variant="body2" sx={{
+                  backgroundColor: '#f5f5f5',
+                  px: 2,
+                  py: 0.5,
                   borderRadius: 2,
                   fontSize: '0.75rem',
                   color: '#666'
@@ -2536,16 +722,16 @@ const MyMatchesPage = () => {
                 </Typography>
               </Box>
             </Box>
-            
+
             <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 1 }}>
               UP Match Hour
             </Typography>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Box sx={{ 
-                width: 16, 
-                height: 16, 
-                backgroundColor: '#e91e63', 
+              <Box sx={{
+                width: 16,
+                height: 16,
+                backgroundColor: '#51365F',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -2556,10 +742,10 @@ const MyMatchesPage = () => {
               <Typography variant="body2" sx={{ color: '#666' }}>
                 12 Oct, Sun
               </Typography>
-              <Box sx={{ 
-                width: 16, 
-                height: 16, 
-                backgroundColor: '#e91e63', 
+              <Box sx={{
+                width: 16,
+                height: 16,
+                backgroundColor: '#51365F',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -2572,11 +758,11 @@ const MyMatchesPage = () => {
                 08:00 PM - 09:00 PM
               </Typography>
             </Box>
-            
+
             <Button
               variant="contained"
               sx={{
-                backgroundColor: '#e91e63',
+                backgroundColor: '#51365F',
                 px: 3,
                 py: 1,
                 borderRadius: 2,
@@ -2593,9 +779,9 @@ const MyMatchesPage = () => {
         </Card>
 
         {/* Online Matches Section */}
-        <Card sx={{ 
-          mb: 3, 
-          borderRadius: 2, 
+        <Card sx={{
+          mb: 3,
+          borderRadius: 2,
           border: '1px solid #e0e0e0',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}>
@@ -2604,13 +790,13 @@ const MyMatchesPage = () => {
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#333' }}>
                 Online Matches (22)
               </Typography>
-              <KeyboardArrowRightIcon sx={{ color: '#666' }} />
+              <KeyboardArrowRight sx={{ color: '#666' }} />
             </Box>
-            
+
             <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
               Chat with users who are currently online to get faster responses
             </Typography>
-            
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, overflowX: 'auto', pb: 1 }}>
               {onlineMatches.map((match, index) => (
                 <Box key={index} sx={{ textAlign: 'center', minWidth: 60 }}>
@@ -2629,8 +815,8 @@ const MyMatchesPage = () => {
                       border: '2px solid white'
                     }} />
                   </Box>
-                  <Typography variant="caption" sx={{ 
-                    display: 'block', 
+                  <Typography variant="caption" sx={{
+                    display: 'block',
                     fontSize: '0.7rem',
                     color: '#333',
                     textAlign: 'center'
@@ -2639,12 +825,12 @@ const MyMatchesPage = () => {
                   </Typography>
                 </Box>
               ))}
-              
+
               <Box sx={{ textAlign: 'center', minWidth: 60 }}>
                 <Box sx={{
                   width: 48,
                   height: 48,
-                  backgroundColor: '#e91e63',
+                  backgroundColor: '#51365F',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
@@ -2656,8 +842,8 @@ const MyMatchesPage = () => {
                     +10
                   </Typography>
                 </Box>
-                <Typography variant="caption" sx={{ 
-                  display: 'block', 
+                <Typography variant="caption" sx={{
+                  display: 'block',
                   fontSize: '0.7rem',
                   color: '#333',
                   textAlign: 'center'
@@ -2670,8 +856,8 @@ const MyMatchesPage = () => {
         </Card>
 
         {/* My Conversations Section */}
-        <Card sx={{ 
-          borderRadius: 2, 
+        <Card sx={{
+          borderRadius: 2,
           border: '1px solid #e0e0e0',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}>
@@ -2690,8 +876,8 @@ const MyMatchesPage = () => {
                     sx={{
                       textTransform: 'none',
                       fontWeight: 600,
-                      color: activeMessengerTab === tab ? '#e91e63' : '#666',
-                      borderBottom: activeMessengerTab === tab ? '2px solid #e91e63' : '2px solid transparent',
+                      color: activeMessengerTab === tab ? '#51365F' : '#666',
+                      borderBottom: activeMessengerTab === tab ? '2px solid #51365F' : '2px solid transparent',
                       borderRadius: 0,
                       px: 3,
                       py: 1,
@@ -2709,16 +895,16 @@ const MyMatchesPage = () => {
             {/* Tab Content */}
             {activeMessengerTab === 'acceptances' && (
               <Box sx={{ textAlign: 'center', py: 6 }}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
                   alignItems: 'center',
                   mb: 3
                 }}>
-                  <Box sx={{ 
-                    width: 120, 
-                    height: 80, 
-                    backgroundColor: '#ffebee', 
+                  <Box sx={{
+                    width: 120,
+                    height: 80,
+                    backgroundColor: '#ffebee',
                     borderRadius: 2,
                     display: 'flex',
                     alignItems: 'center',
@@ -2726,12 +912,12 @@ const MyMatchesPage = () => {
                     position: 'relative',
                     zIndex: 3
                   }}>
-                    <PersonIcon sx={{ fontSize: 40, color: '#e91e63' }} />
+                    <Person sx={{ fontSize: 40, color: '#51365F' }} />
                   </Box>
-                  <Box sx={{ 
-                    width: 120, 
-                    height: 80, 
-                    backgroundColor: '#fff3e0', 
+                  <Box sx={{
+                    width: 120,
+                    height: 80,
+                    backgroundColor: '#fff3e0',
                     borderRadius: 2,
                     display: 'flex',
                     alignItems: 'center',
@@ -2742,11 +928,11 @@ const MyMatchesPage = () => {
                     mt: 1
                   }}>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                      <MessageIcon sx={{ fontSize: 20, color: '#e91e63' }} />
-                      <Box sx={{ 
-                        width: 20, 
-                        height: 20, 
-                        backgroundColor: '#e91e63', 
+                      <Message sx={{ fontSize: 20, color: '#51365F' }} />
+                      <Box sx={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: '#51365F',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
@@ -2754,10 +940,10 @@ const MyMatchesPage = () => {
                       }}>
                         <Typography sx={{ color: 'white', fontSize: '0.6rem' }}>📹</Typography>
                       </Box>
-                      <Box sx={{ 
-                        width: 20, 
-                        height: 20, 
-                        backgroundColor: '#e91e63', 
+                      <Box sx={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: '#51365F',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
@@ -2767,10 +953,10 @@ const MyMatchesPage = () => {
                       </Box>
                     </Box>
                   </Box>
-                  <Box sx={{ 
-                    width: 120, 
-                    height: 80, 
-                    backgroundColor: '#e3f2fd', 
+                  <Box sx={{
+                    width: 120,
+                    height: 80,
+                    backgroundColor: '#e3f2fd',
                     borderRadius: 2,
                     display: 'flex',
                     alignItems: 'center',
@@ -2780,13 +966,13 @@ const MyMatchesPage = () => {
                     ml: -2,
                     mt: 2
                   }}>
-                    <PersonIcon sx={{ fontSize: 40, color: '#2196f3' }} />
+                    <Person sx={{ fontSize: 40, color: '#2196f3' }} />
                   </Box>
                 </Box>
-                
-                <Typography variant="body1" sx={{ 
-                  color: '#666', 
-                  maxWidth: 400, 
+
+                <Typography variant="body1" sx={{
+                  color: '#666',
+                  maxWidth: 400,
                   mx: 'auto',
                   lineHeight: 1.6
                 }}>
@@ -2798,9 +984,9 @@ const MyMatchesPage = () => {
             {activeMessengerTab === 'interests' && (
               <Box>
                 {/* Filter Toggle */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'space-between',
                   mb: 3,
                   py: 2,
@@ -2814,7 +1000,7 @@ const MyMatchesPage = () => {
                     sx={{
                       width: 44,
                       height: 24,
-                      backgroundColor: showMessagesOnly ? '#e91e63' : '#ccc',
+                      backgroundColor: showMessagesOnly ? '#51365F' : '#ccc',
                       borderRadius: 12,
                       position: 'relative',
                       cursor: 'pointer',
@@ -2844,10 +1030,10 @@ const MyMatchesPage = () => {
                       <CircularProgress />
                     </Box>
                   ) : conversations.length > 0 ? conversations.map((conversation, index) => (
-                    <Box key={index} sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      p: 2, 
+                    <Box key={index} sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      p: 2,
                       borderRadius: 2,
                       '&:hover': {
                         backgroundColor: '#f5f5f5'
@@ -2881,24 +1067,24 @@ const MyMatchesPage = () => {
 
             {activeMessengerTab === 'calls' && (
               <Box sx={{ textAlign: 'center', py: 6 }}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
                   alignItems: 'center',
                   mb: 3
                 }}>
-                  <Box sx={{ 
-                    width: 100, 
-                    height: 120, 
-                    border: '3px solid #e3f2fd', 
+                  <Box sx={{
+                    width: 100,
+                    height: 120,
+                    border: '3px solid #e3f2fd',
                     borderRadius: 3,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative'
                   }}>
-                    <PersonIcon sx={{ fontSize: 40, color: '#2196f3' }} />
-                    <Box sx={{ 
+                    <Person sx={{ fontSize: 40, color: '#2196f3' }} />
+                    <Box sx={{
                       position: 'absolute',
                       right: -20,
                       top: 20,
@@ -2906,10 +1092,10 @@ const MyMatchesPage = () => {
                       flexDirection: 'column',
                       gap: 1
                     }}>
-                      <Box sx={{ 
-                        width: 32, 
-                        height: 32, 
-                        backgroundColor: '#e3f2fd', 
+                      <Box sx={{
+                        width: 32,
+                        height: 32,
+                        backgroundColor: '#e3f2fd',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
@@ -2917,10 +1103,10 @@ const MyMatchesPage = () => {
                       }}>
                         <Typography sx={{ color: '#2196f3', fontSize: '0.8rem' }}>📹</Typography>
                       </Box>
-                      <Box sx={{ 
-                        width: 32, 
-                        height: 32, 
-                        backgroundColor: '#e3f2fd', 
+                      <Box sx={{
+                        width: 32,
+                        height: 32,
+                        backgroundColor: '#e3f2fd',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
@@ -2931,10 +1117,10 @@ const MyMatchesPage = () => {
                     </Box>
                   </Box>
                 </Box>
-                
-                <Typography variant="body1" sx={{ 
-                  color: '#666', 
-                  maxWidth: 400, 
+
+                <Typography variant="body1" sx={{
+                  color: '#666',
+                  maxWidth: 400,
                   mx: 'auto',
                   lineHeight: 1.6
                 }}>
@@ -2948,284 +1134,317 @@ const MyMatchesPage = () => {
     );
   };
 
+
   // Main component return
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      {/* Left Sidebar - User Profile & Navigation */}
-      <Box sx={{ 
-        width: 280, 
-        backgroundColor: '#f8f9fa', 
-        borderRight: '1px solid #e0e0e0',
-        minHeight: '100vh',
-        p: 3
-      }}>
-        {/* User Profile */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Box sx={{ position: 'relative', display: 'inline-block' }}>
-            <Avatar
-              src={user?.profileImage?.startsWith('http') ? user.profileImage : user?.profileImage ? `http://localhost:3000/uploads/${user.profileImage}` : editingProfile?.profileImage}
-              sx={{ 
-                width: 80, 
-                height: 80, 
-                mx: 'auto', 
-                mb: 2,
-                backgroundColor: '#e0e0e0',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                  boxShadow: '0 4px 12px rgba(233, 30, 99, 0.3)'
-                }
-              }}
-              onClick={handleEditProfile}
-            />
-            <Box sx={{
-              position: 'absolute',
-              bottom: 8,
-              right: 8,
-              backgroundColor: '#e91e63',
-              borderRadius: '50%',
-              width: 24,
-              height: 24,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                backgroundColor: '#c2185b',
-                transform: 'scale(1.1)'
-              }
-            }}>
-              <CameraAltIcon sx={{ color: 'white', fontSize: 14 }} />
-            </Box>
-          </Box>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 0.5 }}>
-            Hi {user?.name || editingProfile?.name || 'User'}!
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
-            {user?.customId || editingProfile?.customId || generateUserId(user)}
-          </Typography>
-          <Button
-            size="small"
-            startIcon={<EditIcon />}
-            onClick={handleEditProfile}
-            sx={{ 
-              color: '#e91e63', 
-              textTransform: 'none',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: 'rgba(233, 30, 99, 0.1)'
-              }
-            }}
-          >
-            Edit Profile
-          </Button>
-        </Box>
-
-        {/* Navigation */}
-        <List sx={{ mb: 4 }}>
-          <ListItemButton 
-            sx={{ 
-              borderRadius: 1, 
-              mb: 1, 
-              backgroundColor: middleSectionView === 'matches' ? '#e91e63' : 'transparent',
-              color: middleSectionView === 'matches' ? 'white' : 'inherit',
-              '&:hover': {
-                backgroundColor: middleSectionView === 'matches' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-              }
-            }}
-            onClick={() => setMiddleSectionView('matches')}
-          >
-            <ListItemIcon sx={{ color: middleSectionView === 'matches' ? 'white' : 'inherit' }}>
-              <PersonIcon />
-            </ListItemIcon>
-            <ListItemText primary="Matches" />
-            <KeyboardArrowRightIcon />
-          </ListItemButton>
-          <ListItemButton 
-            sx={{ 
-              borderRadius: 1, 
-              mb: 1,
-              backgroundColor: middleSectionView === 'activity' ? '#e91e63' : 'transparent',
-              color: middleSectionView === 'activity' ? 'white' : 'inherit',
-              '&:hover': {
-                backgroundColor: middleSectionView === 'activity' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-              }
-            }}
-            onClick={handleActivityClick}
-          >
-            <ListItemIcon sx={{ color: middleSectionView === 'activity' ? 'white' : 'inherit' }}>
-              <TrendingUpIcon />
-            </ListItemIcon>
-            <ListItemText primary="Activity" />
-            <KeyboardArrowRightIcon />
-          </ListItemButton>
-          <ListItemButton 
-            sx={{ 
-              borderRadius: 1, 
-              mb: 1,
-              backgroundColor: middleSectionView === 'search' ? '#e91e63' : 'transparent',
-              color: middleSectionView === 'search' ? 'white' : 'inherit',
-              '&:hover': {
-                backgroundColor: middleSectionView === 'search' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-              }
-            }}
-            onClick={handleSearchClick}
-          >
-            <ListItemIcon sx={{ color: middleSectionView === 'search' ? 'white' : 'inherit' }}>
-              <SearchIcon />
-            </ListItemIcon>
-            <ListItemText primary="Search" />
-            <KeyboardArrowRightIcon />
-          </ListItemButton>
-          <ListItemButton 
-            sx={{ 
-              borderRadius: 1, 
-              mb: 1,
-              backgroundColor: middleSectionView === 'messenger' ? '#e91e63' : 'transparent',
-              color: middleSectionView === 'messenger' ? 'white' : 'inherit',
-              '&:hover': {
-                backgroundColor: middleSectionView === 'messenger' ? '#c2185b' : 'rgba(233, 30, 99, 0.1)'
-              }
-            }}
-            onClick={handleMessengerClick}
-          >
-            <ListItemIcon sx={{ color: middleSectionView === 'messenger' ? 'white' : 'inherit' }}>
-              <MessageIcon />
-            </ListItemIcon>
-            <ListItemText primary="Messenger" />
-            <KeyboardArrowRightIcon />
-          </ListItemButton>
-        </List>
-
-        {/* Upgrade Section */}
-        <Box sx={{ 
-          backgroundColor: 'white', 
-          borderRadius: 2, 
-          p: 2, 
-          border: '1px solid #e0e0e0'
-        }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 1 }}>
-            Upgrade
-          </Typography>
-          <Box sx={{ 
-            backgroundColor: '#4caf50', 
-            color: 'white', 
-            borderRadius: 1, 
-            px: 1, 
-            py: 0.5, 
-            display: 'inline-block',
-            mb: 1
+    <Container maxWidth="false" sx={{ p: 4 }}>
+      <Grid container spacing={0}>
+        <Grid size={3} sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Card sx={{
+            borderRadius: 4,
+            backgroundColor: 'white',
+            borderRight: '1px solid #e0e0e0',
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column'
           }}>
-            <Typography variant="caption" sx={{ fontWeight: 600 }}>
-              54% Off
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="body2" sx={{ color: '#666' }}>
-              Premium Benefits
-            </Typography>
-            <KeyboardArrowRightIcon sx={{ color: '#666' }} />
-          </Box>
-        </Box>
-      </Box>
+            {/* User Profile Section */}
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Avatar
+                src={user?.profileImage || 'https://via.placeholder.com/80'}
+                sx={{
+                  width: 80,
+                  height: 80,
+                  mx: 'auto',
+                  mb: 2,
+                  border: '3px solid #51365F',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 0.5 }}>
+                Hi {user?.name || 'User'}!
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
+                {user?.profileId || 'TXXR4877'}
+              </Typography>
+              <Button
+                variant="text"
+                sx={{
+                  color: '#51365F',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  '&:hover': { backgroundColor: 'rgba(233, 30, 99, 0.1)' }
+                }}
+                onClick={() => setMiddleSectionView('profile-edit')}
+              >
+                Edit Profile
+              </Button>
+            </Box>
 
-      {/* Main Content Area */}
-      <Box sx={{ flex: 1, p: 3 }}>
-        {/* Dynamic Content Based on View State */}
-        {middleSectionView === 'matches' && renderMatchesListView()}
-        {middleSectionView === 'profile-edit' && renderProfileEditView()}
-        {middleSectionView === 'profile-details' && renderProfileDetailsView()}
-        {middleSectionView === 'activity' && renderActivityView()}
-        {middleSectionView === 'search' && renderSearchView()}
-        {middleSectionView === 'messenger' && renderMessengerView()}
-      </Box>
+            {/* Navigation Menu */}
+            <Box sx={{ flex: 1 }}>
+              {[
+                { text: 'Matches', view: 'matches', icon: '💕' },
+                { text: 'Activity', view: 'activity', icon: '📊' },
+                { text: 'Search', view: 'search', icon: '🔍' },
+                { text: 'Messenger', view: 'messenger', icon: '💬' },
+                { text: 'Upgrade', view: 'upgrade', icon: '⭐', badge: '54% Off' }
+              ].map((item) => {
+                const isActive = middleSectionView === item.view;
+                return (
+                <Box
+                  key={item.view}
+                  onClick={() => setMiddleSectionView(item.view)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    p: 2,
+                    mb: 1,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    backgroundColor: isActive ? '#f3e5f5' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: isActive ? '#f3e5f5' : '#f5f5f5'
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography sx={{ fontSize: '1.2rem' }}>{item.icon}</Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: isActive ? 700 : 500,
+                        color: isActive ? '#51365F' : '#333'
+                      }}
+                    >
+                      {item.text}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {item.badge && (
+                      <Box sx={{
+                        backgroundColor: '#4caf50',
+                        color: 'white',
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: 1,
+                        fontSize: '0.75rem',
+                        fontWeight: 600
+                      }}>
+                        {item.badge}
+                      </Box>
+                    )}
+                    <KeyboardArrowRight sx={{ color: '#666', fontSize: 20 }} />
+                  </Box>
+                </Box>
+                );
+              })}
+            </Box>
+          </Card>
+        </Grid>
 
-      {/* Right Sidebar - Premium Benefits */}
-      <Box sx={{ 
-        width: 300, 
-        backgroundColor: 'white', 
-        borderLeft: '1px solid #e0e0e0',
-        minHeight: '100vh',
-        p: 3
-      }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: '#333', mb: 3 }}>
-          You are <span style={{ color: '#e91e63' }}>missing</span> out on the premium benefits!
-        </Typography>
+        {/* Main Content Area - Grid size 6 */}
+        <Grid size={6} sx={{ display: { xs: 'block', md: 'block' } }}>
+          <Card sx={{
+            borderRadius: 0,
+            backgroundColor: '#f8f9fa',
+            p: 4,
+            overflow: 'auto',
+            boxShadow: 'none',
+            height: '100vh'
+          }} data-scroll-container>
+            {/* Dynamic Content Based on View State */}
+            {middleSectionView === 'matches' && (
+              <MatchesList
+                filteredMatches={(() => {
+                  const data = displayedMatches.length > 0 ? displayedMatches : (filteredMatches || []);
+                  console.log('Passing to MatchesList:', { displayedMatches: displayedMatches.length, filteredMatches: filteredMatches?.length, finalData: data.length });
+                  return data;
+                })()}
+                loading={loading}
+                error={error}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onSearchClick={() => setMiddleSectionView('search')}
+                onRetryLoad={() => loadMatches(1, true)}
+                onShowInterest={handleShowInterest}
+                onShowSuperInterest={handleShowSuperInterest}
+                onViewProfile={handleViewProfile}
+                getAge={getAge}
+                getHeight={getHeight}
+                isLoadingMore={isLoadingMore}
+                hasMoreMatches={hasMoreMatches}
+              />
+            )}
+            {middleSectionView === 'profile-edit' && (
+              <ProfileEdit
+                editingProfile={editingProfile}
+                onBackToMatches={() => setMiddleSectionView('matches')}
+                onSaveProfile={handleSaveProfile}
+                onCancelEdit={handleCancelEdit}
+                onProfileFieldChange={handleProfileFieldChange}
+                onProfileImageChange={handleProfileImageChange}
+                onRemoveProfileImage={handleRemoveProfileImage}
+              />
+            )}
+            {middleSectionView === 'profile-details' && (
+              <ProfileDetails
+                selectedMatch={selectedMatch}
+                onBackToMatches={handleBackToMatches}
+                onShowInterest={handleShowInterest}
+                onShowSuperInterest={handleShowSuperInterest}
+                getAge={getAge}
+                getMatchingCriteria={getMatchingCriteria}
+              />
+            )}
+            {middleSectionView === 'activity' && (
+              <ActivityPage
+                onBackToMatches={() => setMiddleSectionView('matches')}
+                onViewProfile={handleViewProfile}
+                getAge={getAge}
+                getHeight={getHeight}
+              />
+            )}
+            {middleSectionView === 'search' && (
+              <SearchForm
+                searchCriteria={searchCriteria}
+                onCriteriaChange={handleSearchCriteriaChange}
+                onSearch={handleSearchByCriteria}
+                onSavePreferences={handleSaveSearchPreferences}
+                onLoadPreferences={handleLoadSearchPreferences}
+                onResetCriteria={handleResetSearchCriteria}
+                loading={loading}
+              />
+            )}
+            {middleSectionView === 'search-results' && (
+              <SearchResults
+                searchResults={searchResults}
+                loading={loading}
+                error={error}
+                onModifySearch={() => setMiddleSectionView('search')}
+                onRetrySearch={handleSearchByCriteria}
+                onShowInterest={handleShowInterest}
+                onShowSuperInterest={handleShowSuperInterest}
+                onViewProfile={handleViewProfile}
+                getAge={getAge}
+                getHeight={getHeight}
+              />
+            )}
+            {middleSectionView === 'messenger' && renderMessengerView()}
+          </Card>
+        </Grid>
 
-        <List sx={{ mb: 4 }}>
-          <ListItem sx={{ px: 0, py: 1 }}>
-            <ListItemIcon>
-              <AttachMoneyIcon sx={{ color: '#9c27b0' }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Get upto 3x more profile views"
-              primaryTypographyProps={{ fontSize: '0.9rem' }}
-            />
-          </ListItem>
-          <ListItem sx={{ px: 0, py: 1 }}>
-            <ListItemIcon>
-              <PhoneIcon sx={{ color: '#ff9800' }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Unlimited voice & video calls"
-              primaryTypographyProps={{ fontSize: '0.9rem' }}
-            />
-          </ListItem>
-          <ListItem sx={{ px: 0, py: 1 }}>
-            <ListItemIcon>
-              <ContactPhoneIcon sx={{ color: '#4caf50' }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Get access to contact details"
-              primaryTypographyProps={{ fontSize: '0.9rem' }}
-            />
-          </ListItem>
-          <ListItem sx={{ px: 0, py: 1 }}>
-            <ListItemIcon>
-              <SearchIconAlt sx={{ color: '#2196f3' }} />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Perform unlimited searches"
-              primaryTypographyProps={{ fontSize: '0.9rem' }}
-            />
-          </ListItem>
-        </List>
+        {/* Right Sidebar - Grid size 3 */}
+        <Grid size={3} sx={{ display: { xs: 'none', lg: 'block' } }}>
+          <Card sx={{
+            borderRadius: 4,
+            backgroundColor: 'white',
+            borderLeft: '1px solid #e0e0e0',
+            p: 3,
+            overflow: 'auto'
+          }}>
+            {/* Premium Benefits Section */}
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" sx={{
+                fontWeight: 700,
+                color: '#51365F',
+                mb: 3,
+                textAlign: 'center'
+              }}>
+                You are missing out on the premium benefits!
+              </Typography>
 
-        <Box sx={{ 
-          backgroundColor: '#f8f9fa', 
-          borderRadius: 2, 
-          p: 2, 
-          textAlign: 'center',
-          mb: 3
-        }}>
-          <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
-            Flat 54% OFF till 17 Oct
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: '#333' }}>
-            ₹299.00
-          </Typography>
-        </Box>
+              {/* Benefits List */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
+                {[
+                  {
+                    icon: '👤',
+                    color: '#9c27b0',
+                    title: 'Get upto 3x more profile views',
+                    description: 'Increase your visibility'
+                  },
+                  {
+                    icon: '📞',
+                    color: '#ff9800',
+                    title: 'Unlimited voice & video calls',
+                    description: 'Connect directly with matches'
+                  },
+                  {
+                    icon: '📋',
+                    color: '#4caf50',
+                    title: 'Get access to contact details',
+                    description: 'Skip the wait, get direct contact'
+                  },
+                  {
+                    icon: '🔍',
+                    color: '#2196f3',
+                    title: 'Perform unlimited searches',
+                    description: 'Find your perfect match faster'
+                  }
+                ].map((benefit, index) => (
+                  <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                    <Box sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      backgroundColor: `${benefit.color}20`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <Typography sx={{ fontSize: '1.2rem' }}>{benefit.icon}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#333', mb: 0.5 }}>
+                        {benefit.title}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#666' }}>
+                        {benefit.description}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
 
-        <Button
-          variant="contained"
-          fullWidth
-          endIcon={<ArrowForwardIcon />}
-          sx={{
-            backgroundColor: '#e91e63',
-            '&:hover': {
-              backgroundColor: '#c2185b'
-            },
-            textTransform: 'none',
-            fontWeight: 600,
-            py: 1.5
-          }}
-        >
-          Upgrade now
-        </Button>
-      </Box>
-    </Box>
+              {/* Promotional Banner */}
+              <Box sx={{
+                backgroundColor: '#fff3e0',
+                border: '1px solid #ff9800',
+                borderRadius: 2,
+                p: 2,
+                mb: 3,
+                textAlign: 'center'
+              }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: '#ff9800' }}>
+                  Flat 54% OFF till 17 Oct
+                </Typography>
+              </Box>
+
+              {/* Upgrade Button */}
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{
+                  backgroundColor: '#51365F',
+                  py: 1.5,
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  '&:hover': {
+                    backgroundColor: '#c2185b'
+                  }
+                }}
+              >
+                Upgrade now →
+              </Button>
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 

@@ -260,7 +260,7 @@ const AdminPanel = () => {
                 <Card>
                     <CardContent>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Avatar sx={{ bgcolor: '#e91e63', mr: 2 }}>
+                            <Avatar sx={{ bgcolor: '#51365F', mr: 2 }}>
                                 <StarIcon />
                             </Avatar>
                             <Box>

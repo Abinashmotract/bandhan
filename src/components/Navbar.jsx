@@ -74,7 +74,7 @@ const Navbar = () => {
     const publicNavItems = [
         { text: 'Home', href: '/' },
         // { text: 'About', href: 'about' },
-        { text: 'Search', href: 'search-match' },
+        // { text: 'Search', href: '/matches' },
         // { text: 'Blog', href: 'blog' },
     ];
 
@@ -399,4 +399,4 @@ const Navbar = () => {
     );
 };
 
-export default Navbar;
+export default Navbar; 

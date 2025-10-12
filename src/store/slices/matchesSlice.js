@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_BASE_URL } from '../../utils/api';
 import Cookies from 'js-cookie';
+import { searchAPI } from '../../services/apiService';
 
 // Async thunks
 export const fetchMatches = createAsyncThunk(
@@ -9,7 +10,7 @@ export const fetchMatches = createAsyncThunk(
   async (filters = {}, { rejectWithValue }) => {
     try {
       const token = Cookies.get('accessToken');
-      const response = await axios.get(`${API_BASE_URL}/matches`, {
+      const response = await axios.get(`${API_BASE_URL}/profiles/matches`, {
         headers: { Authorization: `Bearer ${token}` },
         params: {
           page: filters.page || 1,
@@ -40,7 +41,7 @@ export const showInterest = createAsyncThunk(
     try {
       const token = Cookies.get('accessToken');
       const response = await axios.post(
-        `${API_BASE_URL}/matches/interest`,
+        `${API_BASE_URL}/profiles/interest`,
         { profileId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -57,7 +58,7 @@ export const showSuperInterest = createAsyncThunk(
     try {
       const token = Cookies.get('accessToken');
       const response = await axios.post(
-        `${API_BASE_URL}/matches/super-interest`,
+        `${API_BASE_URL}/profiles/super-interest`,
         { profileId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -73,7 +74,7 @@ export const getInterestLimits = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = Cookies.get('accessToken');
-      const response = await axios.get(`${API_BASE_URL}/matches/limits`, {
+      const response = await axios.get(`${API_BASE_URL}/profiles/limits`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
@@ -88,7 +89,7 @@ export const searchMatches = createAsyncThunk(
   async (searchParams, { rejectWithValue }) => {
     try {
       const token = Cookies.get('accessToken');
-      const response = await axios.get(`${API_BASE_URL}/matches/search`, {
+      const response = await axios.get(`${API_BASE_URL}/profiles/search`, {
         headers: { Authorization: `Bearer ${token}` },
         params: searchParams
       });
@@ -99,9 +100,56 @@ export const searchMatches = createAsyncThunk(
   }
 );
 
+// Search profiles with advanced criteria
+export const searchProfilesByCriteria = createAsyncThunk(
+  'matches/searchProfilesByCriteria',
+  async (searchCriteria, { rejectWithValue }) => {
+    try {
+      const response = await searchAPI.searchProfiles(searchCriteria);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to search profiles');
+    }
+  }
+);
+
+// Save search preferences
+export const saveSearchPreferences = createAsyncThunk(
+  'matches/saveSearchPreferences',
+  async (preferences, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get('accessToken');
+      const response = await axios.post(`${API_BASE_URL}/search/preferences`, preferences, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to save search preferences');
+    }
+  }
+);
+
+// Get search preferences
+export const getSearchPreferences = createAsyncThunk(
+  'matches/getSearchPreferences',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get('accessToken');
+      const response = await axios.get(`${API_BASE_URL}/search/preferences`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to get search preferences');
+    }
+  }
+);
+
 const initialState = {
   matches: [],
   filteredMatches: [],
+  searchResults: [],
+  searchPreferences: null,
   loading: false,
   error: null,
   interestLimits: {
@@ -121,6 +169,19 @@ const initialState = {
     education: '',
     height: '',
     location: ''
+  },
+  searchCriteria: {
+    gender: 'female',
+    ageMin: 21,
+    ageMax: 35,
+    heightMin: 122,
+    heightMax: 213,
+    religion: '',
+    caste: '',
+    education: '',
+    location: '',
+    occupation: '',
+    annualIncome: ''
   },
   searchTerm: '',
   sortBy: 'recentlyJoined',
@@ -144,9 +205,18 @@ const matchesSlice = createSlice({
     setSortBy: (state, action) => {
       state.sortBy = action.payload;
     },
+    setSearchCriteria: (state, action) => {
+      state.searchCriteria = { ...state.searchCriteria, ...action.payload };
+    },
     clearFilters: (state) => {
       state.filters = initialState.filters;
       state.searchTerm = '';
+    },
+    clearSearchResults: (state) => {
+      state.searchResults = [];
+    },
+    clearSearchCriteria: (state) => {
+      state.searchCriteria = initialState.searchCriteria;
     },
     applyFilters: (state) => {
       let filtered = [...state.matches];
@@ -236,6 +306,7 @@ const matchesSlice = createSlice({
       .addCase(fetchMatches.fulfilled, (state, action) => {
         state.loading = false;
         state.matches = action.payload.data || action.payload;
+        state.filteredMatches = action.payload.data || action.payload;
         state.pagination = action.payload.pagination || state.pagination;
       })
       .addCase(fetchMatches.rejected, (state, action) => {
@@ -296,6 +367,52 @@ const matchesSlice = createSlice({
       .addCase(searchMatches.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Search profiles by criteria
+      .addCase(searchProfilesByCriteria.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(searchProfilesByCriteria.fulfilled, (state, action) => {
+        state.loading = false;
+        state.searchResults = action.payload.data || [];
+        state.pagination = action.payload.pagination || null;
+      })
+      .addCase(searchProfilesByCriteria.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Save search preferences
+      .addCase(saveSearchPreferences.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveSearchPreferences.fulfilled, (state, action) => {
+        state.loading = false;
+        state.searchPreferences = action.payload.data;
+      })
+      .addCase(saveSearchPreferences.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Get search preferences
+      .addCase(getSearchPreferences.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getSearchPreferences.fulfilled, (state, action) => {
+        state.loading = false;
+        state.searchPreferences = action.payload.data;
+        if (action.payload.data) {
+          state.searchCriteria = { ...state.searchCriteria, ...action.payload.data };
+        }
+      })
+      .addCase(getSearchPreferences.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   }
 });
@@ -304,7 +421,10 @@ export const {
   setFilters,
   setSearchTerm,
   setSortBy,
+  setSearchCriteria,
   clearFilters,
+  clearSearchResults,
+  clearSearchCriteria,
   applyFilters,
   updateMatchInterest,
   updateInterestLimits

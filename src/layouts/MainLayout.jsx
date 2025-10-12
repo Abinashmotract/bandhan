@@ -5,7 +5,7 @@ import Footer from "../components/Footer"
 
 export default function MainLayout() {
   const location = useLocation()
-  const noFooterPaths = ["/login", "/register", "/forgot-password", "/reset-password"]
+  const noFooterPaths = ["/login", "/register", "/forgot-password", "/reset-password", "/matches"]
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
