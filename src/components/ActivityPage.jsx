@@ -176,36 +176,36 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
       <Typography variant="h5" sx={{ fontWeight: 700, color: '#333', mb: 3 }}>
         Your Activity Summary
       </Typography>
-      
+
       <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1 }}>
         {[
-          { 
-            title: 'Accepted Interests', 
-            count: activityData.summary.acceptedInterests, 
+          {
+            title: 'Accepted Interests',
+            count: activityData.summary.acceptedInterests,
             icon: <CheckCircle sx={{ color: '#4caf50' }} />,
             color: '#4caf50'
           },
-          { 
-            title: 'Interests Received', 
-            count: activityData.summary.interestsReceived, 
+          {
+            title: 'Interests Received',
+            count: activityData.summary.interestsReceived,
             icon: <Send sx={{ color: '#2196f3' }} />,
             color: '#2196f3'
           },
-          { 
-            title: 'Interests Sent', 
-            count: activityData.summary.interestsSent, 
+          {
+            title: 'Interests Sent',
+            count: activityData.summary.interestsSent,
             icon: <Send sx={{ color: '#ff9800' }} />,
             color: '#ff9800'
           },
-          { 
-            title: 'Shortlisted Profiles', 
-            count: activityData.summary.shortlistedProfiles, 
+          {
+            title: 'Shortlisted Profiles',
+            count: activityData.summary.shortlistedProfiles,
             icon: <Star sx={{ color: '#e91e63' }} />,
             color: '#e91e63'
           },
-          { 
-            title: 'Declined Interests', 
-            count: activityData.summary.declinedInterests, 
+          {
+            title: 'Declined Interests',
+            count: activityData.summary.declinedInterests,
             icon: <Cancel sx={{ color: '#f44336' }} />,
             color: '#f44336'
           }
@@ -231,14 +231,14 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                 <Box sx={{ mb: 2 }}>
                   {item.icon}
                 </Box>
-                <Typography variant="h4" sx={{ 
-                  fontWeight: 700, 
+                <Typography variant="h4" sx={{
+                  fontWeight: 700,
                   color: item.color,
-                  mb: 1 
+                  mb: 1
                 }}>
                   {item.count}
                 </Typography>
-                <Typography variant="body2" sx={{ 
+                <Typography variant="body2" sx={{
                   color: '#666',
                   fontSize: '0.9rem',
                   fontWeight: 500
@@ -287,7 +287,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                 }}
                 onClick={() => handleViewProfile(interest)}
               />
-              
+
               {/* Status Badge */}
               <Chip
                 label={interest.status.toUpperCase()}
@@ -296,8 +296,8 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                   position: 'absolute',
                   top: 12,
                   right: 12,
-                  backgroundColor: interest.status === 'accepted' ? '#4caf50' : 
-                                 interest.status === 'declined' ? '#f44336' : '#ff9800',
+                  backgroundColor: interest.status === 'accepted' ? '#4caf50' :
+                    interest.status === 'declined' ? '#f44336' : '#ff9800',
                   color: 'white',
                   fontWeight: 600,
                   fontSize: '0.75rem'
@@ -325,8 +325,8 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
             <Box sx={{ flex: 1, p: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                 <Box>
-                  <Typography variant="h6" sx={{ 
-                    fontWeight: 700, 
+                  <Typography variant="h6" sx={{
+                    fontWeight: 700,
                     color: '#1976d2',
                     mb: 0.5
                   }}>
@@ -339,7 +339,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                     {isReceived ? 'Received on' : 'Sent on'} {isReceived ? interest.receivedDate : interest.sentDate}
                   </Typography>
                 </Box>
-                
+
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   {(interest.isEmailVerified || interest.isPhoneVerified || interest.isIdVerified || interest.isPhotoVerified) && (
                     <Chip
@@ -390,7 +390,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                       sx={{
                         borderColor: '#f44336',
                         color: '#f44336',
-                        '&:hover': { 
+                        '&:hover': {
                           borderColor: '#d32f2f',
                           backgroundColor: 'rgba(244, 67, 54, 0.04)'
                         },
@@ -402,7 +402,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                     </Button>
                   </>
                 )}
-                
+
                 <Button
                   variant="outlined"
                   startIcon={<Person />}
@@ -410,7 +410,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                   sx={{
                     borderColor: '#1976d2',
                     color: '#1976d2',
-                    '&:hover': { 
+                    '&:hover': {
                       borderColor: '#1565c0',
                       backgroundColor: 'rgba(25, 118, 210, 0.04)'
                     },
@@ -441,7 +441,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                       sx={{
                         borderColor: '#4caf50',
                         color: '#4caf50',
-                        '&:hover': { 
+                        '&:hover': {
                           borderColor: '#45a049',
                           backgroundColor: 'rgba(76, 175, 80, 0.04)'
                         },
@@ -489,7 +489,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
               objectFit: 'cover'
             }}
           />
-          
+
           <Box sx={{
             position: 'absolute',
             bottom: 0,
@@ -599,7 +599,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
               sx={{
                 borderColor: '#1976d2',
                 color: '#1976d2',
-                '&:hover': { 
+                '&:hover': {
                   borderColor: '#1565c0',
                   backgroundColor: 'rgba(25, 118, 210, 0.04)'
                 },
@@ -614,7 +614,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
               sx={{
                 borderColor: '#4caf50',
                 color: '#4caf50',
-                '&:hover': { 
+                '&:hover': {
                   borderColor: '#45a049',
                   backgroundColor: 'rgba(76, 175, 80, 0.04)'
                 },
@@ -629,7 +629,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
               sx={{
                 borderColor: '#f44336',
                 color: '#f44336',
-                '&:hover': { 
+                '&:hover': {
                   borderColor: '#d32f2f',
                   backgroundColor: 'rgba(244, 67, 54, 0.04)'
                 },
@@ -650,38 +650,26 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
 
   return (
     <Box>
-      {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={onBackToMatches}
-          sx={{ mr: 2, textTransform: 'none' }}
-        >
+        <Button startIcon={<ArrowBack />} onClick={onBackToMatches} sx={{ mr: 2, textTransform: 'none' }}>
           Back to Matches
         </Button>
         <Typography variant="h4" sx={{ fontWeight: 700, color: '#333' }}>
           Activity
         </Typography>
       </Box>
-
-      {/* Activity Summary */}
       {renderActivitySummary()}
 
-      {/* Interest Tabs */}
       <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs 
-            value={activeTab} 
-            onChange={handleTabChange}
-            sx={{ px: 2 }}
-          >
-            <Tab 
-              label={`Received (${activityData.receivedInterests.length})`} 
+          <Tabs value={activeTab} onChange={handleTabChange} sx={{ px: 2 }}>
+            <Tab
+              label={`Received (${activityData.receivedInterests.length})`}
               value="received"
               sx={{ textTransform: 'none', fontWeight: 600 }}
             />
-            <Tab 
-              label={`Sent (${activityData.sentInterests.length})`} 
+            <Tab
+              label={`Sent (${activityData.sentInterests.length})`}
               value="sent"
               sx={{ textTransform: 'none', fontWeight: 600 }}
             />
@@ -692,7 +680,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
           {activeTab === 'received' && (
             <Box>
               {activityData.receivedInterests.length > 0 ? (
-                activityData.receivedInterests.map(interest => 
+                activityData.receivedInterests.map(interest =>
                   renderInterestCard(interest, true)
                 )
               ) : (
@@ -711,7 +699,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
           {activeTab === 'sent' && (
             <Box>
               {activityData.sentInterests.length > 0 ? (
-                activityData.sentInterests.map(interest => 
+                activityData.sentInterests.map(interest =>
                   renderInterestCard(interest, false)
                 )
               ) : (

@@ -1,6 +1,3 @@
-// Comprehensive options for dependent dropdowns
-
-// Religion-Caste-Subcaste mappings
 export const RELIGION_CASTE_MAPPING = {
   hindu: {
     castes: [
@@ -530,6 +527,96 @@ export const AGE_OPTIONS = [
 // Height Range Options for Partner Preferences (same as personal height options)
 export const PARTNER_HEIGHT_OPTIONS = HEIGHT_OPTIONS;
 
+// Marital Status Options
+export const MARITAL_STATUS_OPTIONS = [
+  'Never Married',
+  'Awaiting Divorce',
+  'Divorced',
+  'Widowed',
+  'Annulled',
+  'Married'
+];
+
+// Religion Options
+export const RELIGION_OPTIONS = [
+  'Hindu',
+  'Muslim',
+  'Sikh',
+  'Christian',
+  'Buddhist',
+  'Jain',
+  'Parsi',
+  'Jewish',
+  'Bahai'
+];
+
+// Mother Tongue Options
+export const MOTHER_TONGUE_OPTIONS = [
+  'Hindi',
+  'English',
+  'Bengali',
+  'Telugu',
+  'Marathi',
+  'Tamil',
+  'Urdu',
+  'Gujarati',
+  'Kannada',
+  'Odia',
+  'Punjabi',
+  'Malayalam',
+  'Assamese',
+  'Maithili',
+  'Santali',
+  'Kashmiri',
+  'Nepali',
+  'Sindhi',
+  'Konkani',
+  'Dogri',
+  'Manipuri',
+  'Bodo',
+  'Sanskrit',
+  'French',
+  'Spanish',
+  'German',
+  'Chinese',
+  'Japanese',
+  'Arabic',
+  'Russian',
+  'Portuguese',
+  'Italian'
+];
+
+// Education Options
+export const EDUCATION_OPTIONS = [
+  'High School',
+  'Diploma',
+  'Graduate',
+  'Post Graduate',
+  'Doctorate',
+  'Other'
+];
+
+// Country Options
+export const COUNTRY_OPTIONS = [
+  'India',
+  'United States',
+  'United Kingdom',
+  'Canada',
+  'Australia',
+  'United Arab Emirates',
+  'Singapore',
+  'Germany',
+  'France',
+  'Japan',
+  'Other'
+];
+
+// State Options
+export const STATE_OPTIONS = Object.keys(STATE_CITY_MAPPING).map(state => ({
+  value: state,
+  label: state.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}));
+
 // Helper functions for dependent dropdowns
 export const getCasteOptions = (religion) => {
   return RELIGION_CASTE_MAPPING[religion]?.castes || [];
@@ -545,4 +632,31 @@ export const getFieldOfStudyOptions = (education) => {
 
 export const getCityOptions = (state) => {
   return STATE_CITY_MAPPING[state] || [];
+};
+
+// Export all options as default object
+export default {
+  RELIGION_CASTE_MAPPING,
+  EDUCATION_FIELD_MAPPING,
+  COMPREHENSIVE_INDUSTRY_OPTIONS,
+  STATE_CITY_MAPPING,
+  HEIGHT_OPTIONS,
+  BODY_TYPE_OPTIONS,
+  COMPLEXION_OPTIONS,
+  FITNESS_LEVEL_OPTIONS,
+  FATHER_OCCUPATION_OPTIONS,
+  MOTHER_OCCUPATION_OPTIONS,
+  FAMILY_INCOME_OPTIONS,
+  AGE_OPTIONS,
+  PARTNER_HEIGHT_OPTIONS,
+  MARITAL_STATUS_OPTIONS,
+  RELIGION_OPTIONS,
+  MOTHER_TONGUE_OPTIONS,
+  EDUCATION_OPTIONS,
+  COUNTRY_OPTIONS,
+  STATE_OPTIONS,
+  getCasteOptions,
+  getSubCasteOptions,
+  getFieldOfStudyOptions,
+  getCityOptions
 };
