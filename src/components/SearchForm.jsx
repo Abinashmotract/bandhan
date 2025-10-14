@@ -168,16 +168,15 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
           <Box sx={{ px: 3 }}>
             <Grid container spacing={4}>
               <Grid size={12}>
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 2, fontWeight: 600 }}>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ color: '#37474f', fontWeight: 600 }}>
                     Age
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                  <Box sx={{ display: 'flex', gap: 2 }}>
                     <FormControl fullWidth size="small">
-                      <InputLabel>Min Age</InputLabel>
                       <Select value={searchCriteria.ageMin || ''} label="Min Age" onChange={(e) => onCriteriaChange('ageMin', e.target.value)}>
                         <MenuItem value="">Doesn't Matter</MenuItem>
-                        {AGE_OPTIONS.map(age => (
+                        {AGE_OPTIONS?.map(age => (
                           <MenuItem key={age.value} value={age.value}>
                             {age.label} Years
                           </MenuItem>
@@ -185,7 +184,6 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
                       </Select>
                     </FormControl>
                     <FormControl fullWidth size="small">
-                      <InputLabel>Max Age</InputLabel>
                       <Select
                         value={searchCriteria.ageMax || ''}
                         label="Max Age"
@@ -204,7 +202,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
               </Grid>
               <Grid size={12}>
                 {/* Height Range */}
-                <Box sx={{ mb: 3 }}>
+                <Box>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                     <HeightIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                     Height
@@ -245,7 +243,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
               </Grid>
               <Grid size={12}>
                 {/* Marital Status - Multiple Select */}
-                <Box sx={{ mb: 3 }}>
+                <Box>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600 }}>
                     Marital Status
                   </Typography>
@@ -276,7 +274,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
                 </Box>
               </Grid>
               <Grid size={12}>
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                     <AccountBalanceIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                     Religion
@@ -299,7 +297,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
                 </Box>
               </Grid>
               <Grid size={12}>
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600 }}>
                     Caste
                   </Typography>
@@ -324,7 +322,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
 
               {/* Right Column */}
               <Grid size={12}>
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600 }}>
                     Country
                   </Typography>
@@ -346,7 +344,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
                 </Box>
 
                 {/* State */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600 }}>
                     State
                   </Typography>
@@ -368,7 +366,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
                 </Box>
 
                 {/* City */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                     <LocationIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                     City
@@ -392,7 +390,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
                 </Box>
 
                 {/* Mother Tongue - Multiple Select */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                     <LanguageIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                     Mother Tongue
@@ -424,7 +422,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
                 </Box>
 
                 {/* Education */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                     <SchoolIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                     Education
@@ -447,7 +445,7 @@ const SearchForm = ({ searchCriteria, onCriteriaChange, onSearch, onSavePreferen
                 </Box>
 
                 {/* Occupation - Multiple Select */}
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle1" sx={{ color: '#37474f', mb: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
                     <WorkIcon sx={{ mr: 1, fontSize: '1.2rem', color: '#51365F' }} />
                     Occupation

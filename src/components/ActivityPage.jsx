@@ -281,7 +281,7 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
                 alt={interest.name}
                 sx={{
                   width: '100%',
-                  height: '100%',
+                  height: '260px',
                   objectFit: 'cover',
                   cursor: 'pointer'
                 }}
@@ -468,37 +468,15 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
       exit={{ opacity: 0, x: -20 }}
     >
       <Box sx={{ mb: 3 }}>
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={handleBackToInterests}
-          sx={{ mb: 2, textTransform: 'none' }}
-        >
+        <Button startIcon={<ArrowBack />} onClick={handleBackToInterests} sx={{ mb: 2, textTransform: 'none' }}>
           Back to Interests
         </Button>
       </Box>
 
       <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
         <Box sx={{ position: 'relative' }}>
-          <Box
-            component="img"
-            src={interest.profileImage}
-            alt={interest.name}
-            sx={{
-              width: '100%',
-              height: 300,
-              objectFit: 'cover'
-            }}
-          />
-
-          <Box sx={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-            p: 3,
-            color: 'white'
-          }}>
+          <Box component="img" src={interest.profileImage} alt={interest.name} sx={{ width: '100%', height: 300, objectFit: 'cover' }} />
+          <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', p: 3, color: 'white' }}>
             <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
               {interest.name}, {getAge(interest.age)}
             </Typography>
@@ -679,8 +657,8 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
         <CardContent sx={{ p: 3 }}>
           {activeTab === 'received' && (
             <Box>
-              {activityData.receivedInterests.length > 0 ? (
-                activityData.receivedInterests.map(interest =>
+              {activityData?.receivedInterests.length > 0 ? (
+                activityData?.receivedInterests.map(interest =>
                   renderInterestCard(interest, true)
                 )
               ) : (
@@ -698,8 +676,8 @@ const ActivityPage = ({ onBackToMatches, onViewProfile, getAge, getHeight }) => 
 
           {activeTab === 'sent' && (
             <Box>
-              {activityData.sentInterests.length > 0 ? (
-                activityData.sentInterests.map(interest =>
+              {activityData?.sentInterests.length > 0 ? (
+                activityData?.sentInterests.map(interest =>
                   renderInterestCard(interest, false)
                 )
               ) : (
