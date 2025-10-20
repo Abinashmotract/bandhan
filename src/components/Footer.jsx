@@ -21,7 +21,6 @@ const Footer = () => {
         { label: 'About Us', path: '/about' },
         { label: 'Success Stories', path: '/success-stories' },
         { label: 'Blog', path: '/blog' },
-        { label: 'Careers', path: '/careers' },
         { label: 'Contact Us', path: '/contact-us' },
         { label: 'Terms & Conditions', path: '/terms-condition' },
         { label: 'Privacy Policy', path: '/privacy-policy' },
@@ -69,7 +68,6 @@ const Footer = () => {
                         color: 'white',
                         pt: 8,
                         pb: 4,
-                        mt: 8,
                         position: 'relative',
                         overflow: 'hidden',
                         '&::before': {
@@ -362,57 +360,8 @@ const Footer = () => {
                                             borderRadius: '2px'
                                         }
                                     }}>
-                                        Stay Updated
+                                       Important Info
                                     </Typography>
-                                    <Typography variant="body2" sx={{
-                                        mb: 3,
-                                        color: '#e1bee7',
-                                        lineHeight: 1.6
-                                    }}>
-                                        Get the latest success stories and matrimony tips delivered to your inbox.
-                                    </Typography>
-
-                                    <Box sx={{ display: 'flex', mt: 2, mb: 4 }}>
-                                        <TextField
-                                            placeholder="Your email address"
-                                            variant="outlined"
-                                            size="small"
-                                            fullWidth
-                                            sx={{
-                                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                                borderRadius: '8px 0 0 8px',
-                                                '& .MuiOutlinedInput-root': {
-                                                    color: 'white',
-                                                    '& fieldset': {
-                                                        borderColor: 'rgba(255, 255, 255, 0.1)',
-                                                    },
-                                                    '&:hover fieldset': {
-                                                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                                                    },
-                                                    '&.Mui-focused fieldset': {
-                                                        borderColor: '#51365F',
-                                                    },
-                                                },
-                                            }}
-                                        />
-                                        <Button
-                                            variant="contained"
-                                            sx={{
-                                                borderRadius: '0 8px 8px 0',
-                                                background: 'linear-gradient(135deg, #51365F 0%, #3A2640 100%)',
-                                                minWidth: 'auto',
-                                                px: 3,
-                                                transition: 'all 0.3s ease',
-                                                '&:hover': {
-                                                    background: 'linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)',
-                                                    transform: 'translateY(-2px)',
-                                                    boxShadow: '0 5px 15px rgba(216, 27, 96, 0.4)'
-                                                }
-                                            }}
-                                        >
-                                            Subscribe
-                                        </Button>
-                                    </Box>
 
                                     {/* Contact Info */}
                                     <Box sx={{ mt: 3 }}>

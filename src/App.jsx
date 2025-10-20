@@ -8,6 +8,7 @@ import store from "./store/store";
 import AuthInitializer from "./components/AuthInitializer";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import { Toaster } from "react-hot-toast";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   const [loading, setLoading] = useState(true);

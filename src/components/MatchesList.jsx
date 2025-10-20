@@ -34,9 +34,9 @@ const MatchesList = ({
     <>
       <Box sx={{ mb: 4 }}>
         <Box sx={{  mb: 3 }}>
-          <Typography variant="h4" sx={{ color: '#51365F', fontWeight: 700 }}>
+          {/* <Typography variant="h4" sx={{ color: '#51365F', fontWeight: 700 }}>
             Matches for You
-          </Typography>
+          </Typography> */}
         </Box>
 
         {/* Filter Bar */}

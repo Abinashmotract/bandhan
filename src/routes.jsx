@@ -32,7 +32,8 @@ import EventsPage from "./pages/EventsPage";
 
 // Protected routes array - यहाँ सभी protected routes डालें
 const protectedRoutes = [
-  { path: "/profile", component: () => { window.location.href = '/matches'; return null; } },
+  // { path: "/profile", component: () => { window.location.href = '/matches'; return null; } },
+  { path: "/profile", component: Profile },
   { path: "/success-stories", component: SuccessStories },
   { path: "/membership", component: Membership },
   { path: "/payment-success", component: PaymentSuccessPage },
