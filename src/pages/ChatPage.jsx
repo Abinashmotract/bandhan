@@ -514,7 +514,7 @@ const ChatPage = () => {
     <Box sx={{ height: "calc(100vh - 64px)" }}>
       {/* <Chat /> */}
 
-      <Box sx={{ display: "flex", height: "100vh", bgcolor: "#f5f7fa" }}>
+      <Box sx={{ display: "flex", height: "100%", bgcolor: "#f5f7fa" }}>
         <Box
           sx={{
             width: 380,

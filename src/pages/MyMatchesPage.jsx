@@ -1058,7 +1058,6 @@ const MyMatchesPage = () => {
                       position: "relative",
                       zIndex: 2,
                       ml: -2,
-                      mt: 1,
                     }}
                   >
                     <Box sx={{ display: "flex", gap: 1 }}>
@@ -1107,7 +1106,6 @@ const MyMatchesPage = () => {
                       position: "relative",
                       zIndex: 1,
                       ml: -2,
-                      mt: 2,
                     }}
                   >
                     <Person sx={{ fontSize: 40, color: "#2196f3" }} />
@@ -1397,12 +1395,7 @@ const MyMatchesPage = () => {
                 { text: "Activity", view: "activity", icon: "📊" },
                 { text: "Search", view: "search", icon: "🔍" },
                 { text: "Messenger", view: "messenger", icon: "💬" },
-                {
-                  text: "Upgrade",
-                  view: "upgrade",
-                  icon: "⭐",
-                  badge: "54% Off",
-                },
+                ,
               ].map((item) => {
                 const isActive = middleSectionView === item.view;
                 return (
