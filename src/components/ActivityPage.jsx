@@ -735,7 +735,7 @@ const ActivityPage = ({
                     justifyContent: "space-around",
                   }}
                 >
-                  <Tooltip title="Interest">
+                  <Tooltip title="Interest" >
                     <IconButton>
                       <FavoriteBorder style={{ color: "white" }} />
                     </IconButton>

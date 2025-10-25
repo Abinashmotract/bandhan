@@ -215,45 +215,6 @@ const FeaturedProfiles = () => {
           Discover genuine profiles from our verified community members
         </Typography>
 
-        {/* Interest Limit Display */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 2,
-            background:
-              "linear-gradient(135deg, rgba(81, 54, 95, 0.1) 0%, rgba(58, 38, 64, 0.05) 100%)",
-            padding: "12px 24px",
-            borderRadius: "25px",
-            border: "1px solid rgba(81, 54, 95, 0.2)",
-            margin: "0 auto 50px",
-            maxWidth: "400px",
-          }}
-        >
-          <Typography
-            variant="body1"
-            sx={{ color: "#51365F", fontWeight: 600 }}
-          >
-            Interests Remaining:
-          </Typography>
-          <Chip
-            label={
-              getRemainingInterests() === -1
-                ? "Unlimited"
-                : `${getRemainingInterests()}/${getInterestLimit()}`
-            }
-            sx={{
-              background:
-                getRemainingInterests() === 0
-                  ? "#ffebee"
-                  : "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
-              color: getRemainingInterests() === 0 ? "#d32f2f" : "white",
-              fontWeight: "bold",
-              fontSize: "0.9rem",
-            }}
-          />
-        </Box>
       </AnimatedSection>
 
       {loading ? (

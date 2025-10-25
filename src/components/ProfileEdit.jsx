@@ -655,54 +655,6 @@ const ProfileEdit = () => {
           </p>
         </Section>
 
-        {/* Kundli and Astro */}
-        <Section
-          title="Kundli and Astro"
-          subtitle="These would give better chances of compatibility"
-        >
-          <InfoRow
-            icon={Star}
-            label="Horoscope Details"
-            value={profile.horoscope}
-            editable={true}
-            field="horoscope"
-            multiline={true}
-          />
-
-          <div
-            style={{
-              background: "#f9fafb",
-              borderRadius: "12px",
-              padding: "24px",
-              marginTop: "16px",
-              textAlign: "center",
-            }}
-          >
-            <p style={{ color: "#666", fontSize: "13px", marginBottom: "8px" }}>
-              Have is your Janampatri?
-            </p>
-            <p
-              style={{ color: "#666", fontSize: "13px", marginBottom: "16px" }}
-            >
-              Use AI for My Kundli to know it all
-            </p>
-            <div
-              style={{
-                background: "#e5e7eb",
-                borderRadius: "8px",
-                height: "192px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <p style={{ color: "#9ca3af", margin: 0 }}>
-                Kundli Chart Preview
-              </p>
-            </div>
-          </div>
-        </Section>
-
         {/* Lifestyle & Interests */}
         <Section
           title="My Lifestyle & Interests"

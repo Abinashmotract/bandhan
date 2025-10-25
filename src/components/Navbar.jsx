@@ -11,6 +11,11 @@ import {
   Box,
   Typography,
   Badge,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -47,7 +52,7 @@ const theme = createTheme({
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -56,33 +61,44 @@ const Navbar = () => {
     (state) => state.auth
   );
   const { unreadCount } = useSelector((state) => state.notification);
+  console.log("isInitialized", isInitialized, isAuthenticated);
 
   // Function to check if a route is active
-const isActiveRoute = (href) => {
-  const normalizedHref = href.startsWith("/") ? href : `/${href}`;
-  if (normalizedHref === "/") {
-    return location.pathname === "/";
-  }
-  return location.pathname.startsWith(normalizedHref);
-};
-
+  const isActiveRoute = (href) => {
+    const normalizedHref = href.startsWith("/") ? href : `/${href}`;
+    if (normalizedHref === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(normalizedHref);
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true);
+  };
+
+  const handleLogoutConfirm = async () => {
     try {
       const resultAction = await dispatch(logoutUser());
       if (logoutUser.fulfilled.match(resultAction)) {
         showSuccess(resultAction.payload);
+        setLogoutDialogOpen(false);
         navigate("/login");
       } else {
         showError(resultAction.payload || "Logout failed. Please try again.");
+        setLogoutDialogOpen(false);
       }
     } catch (error) {
       showError("An error occurred during logout.");
+      setLogoutDialogOpen(false);
     }
+  };
+
+  const handleLogoutCancel = () => {
+    setLogoutDialogOpen(false);
   };
 
   // Public navigation items (visible to all users)
@@ -204,16 +220,7 @@ const isActiveRoute = (href) => {
           />
         </ListItem>
 
-        {!isInitialized ? (
-          <ListItem
-            sx={{
-              color: "white",
-              justifyContent: "center",
-            }}
-          >
-            <ListItemText primary="Loading..." />
-          </ListItem>
-        ) : !isAuthenticated ? (
+        {!isAuthenticated ? (
           <ListItem
             component={Link}
             to="/login"
@@ -236,7 +243,7 @@ const isActiveRoute = (href) => {
                 backgroundColor: "rgba(255,255,255,0.1)",
               },
             }}
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
           >
             <ListItemText primary={loading ? "Logging out..." : "Logout"} />
           </ListItem>
@@ -314,6 +321,83 @@ const isActiveRoute = (href) => {
                 Upgrade
               </button>
             </Link>
+            {!isInitialized ? (
+              <div
+                style={{
+                  background:
+                    "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "25px",
+                  padding: "10px 25px",
+                  marginLeft: "15px",
+                  fontWeight: "500",
+                  textAlign: "center",
+                }}
+              >
+                Loading...
+              </div>
+            ) : !isAuthenticated ? (
+              <Link to="/login" style={{ textDecoration: "none" }}>
+                <button
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "25px",
+                    padding: "10px 25px",
+                    marginLeft: "15px",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    transition: "all 0.3s",
+                    boxShadow: "0 4px 8px rgba(106, 27, 154, 0.3)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.boxShadow =
+                      "0 6px 12px rgba(106, 27, 154, 0.4)";
+                    e.target.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.boxShadow =
+                      "0 4px 8px rgba(106, 27, 154, 0.3)";
+                    e.target.style.transform = "translateY(0)";
+                  }}
+                >
+                  Login / Sign Up
+                </button>
+              </Link>
+            ) : (
+              <button
+                style={{
+                  background:
+                    "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "25px",
+                  padding: "10px 25px",
+                  marginLeft: "15px",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  transition: "all 0.3s",
+                  boxShadow: "0 4px 8px rgba(106, 27, 154, 0.3)",
+                }}
+                onClick={handleLogoutClick}
+                disabled={loading}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow =
+                    "0 6px 12px rgba(106, 27, 154, 0.4)";
+                  e.target.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow =
+                    "0 4px 8px rgba(106, 27, 154, 0.3)";
+                  e.target.style.transform = "translateY(0)";
+                }}
+              >
+                {loading ? "Logging out..." : "Logout"}
+              </button>
+            )}
 
             {/* Auth Buttons — keep your existing logic here */}
           </Box>
@@ -344,6 +428,74 @@ const isActiveRoute = (href) => {
       >
         {drawer}
       </Drawer>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog
+        open={logoutDialogOpen}
+        onClose={handleLogoutCancel}
+        aria-labelledby="logout-dialog-title"
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            padding: "8px",
+            background: "linear-gradient(135deg, #F8F6F9 0%, #FFFFFF 100%)",
+          },
+        }}
+      >
+        <DialogTitle
+          id="logout-dialog-title"
+          sx={{ textAlign: "center", pb: 1 }}
+        >
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ fontWeight: 600, color: "#51365F" }}
+          >
+            Confirm Logout
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: "center", pb: 2 }}>
+          <Typography variant="body1" sx={{ color: "#51365F" }}>
+            Are you sure you want to logout?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", gap: 2, pb: 2 }}>
+          <Button
+            onClick={handleLogoutCancel}
+            variant="outlined"
+            sx={{
+              borderRadius: "25px",
+              padding: "8px 24px",
+              borderColor: "#51365F",
+              color: "#51365F",
+              fontWeight: "600",
+              "&:hover": {
+                borderColor: "#3A2640",
+                backgroundColor: "rgba(81, 54, 95, 0.04)",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleLogoutConfirm}
+            variant="contained"
+            disabled={loading}
+            sx={{
+              borderRadius: "25px",
+              padding: "8px 24px",
+              background: "linear-gradient(135deg, #51365F 0%, #3A2640 100%)",
+              fontWeight: "600",
+              "&:hover": {
+                background: "linear-gradient(135deg, #3A2640 0%, #51365F 100%)",
+                boxShadow: "0 4px 12px rgba(81, 54, 95, 0.4)",
+              },
+            }}
+          >
+            {loading ? "Logging out..." : "Yes, Logout"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <style>
         {`
