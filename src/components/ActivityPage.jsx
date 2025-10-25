@@ -15,6 +15,14 @@ import {
   Badge,
   CircularProgress,
   Alert,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Tooltip,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -34,6 +42,10 @@ import {
   ThumbDown,
   KeyboardArrowRight,
   KeyboardArrowLeft,
+  MoreHoriz,
+  ArrowForward,
+  CameraAlt,
+  Chat,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -53,6 +65,8 @@ const ActivityPage = ({
   const [activeTab, setActiveTab] = useState("received");
   const [selectedInterest, setSelectedInterest] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
 
   // Sample data for demonstration
   const activityData = {
@@ -192,20 +206,20 @@ const ActivityPage = ({
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#333", mb: 3 }}>
         Your Activity Summary
       </Typography>
-      <Box sx={{ position: "relative", px: 5 }}>
+      <Box sx={{ position: "relative", px: 2 }}>
         <Swiper
           modules={[Navigation, Pagination, Scrollbar, A11y]}
-          spaceBetween={20}
+          spaceBetween={10}
           navigation={{
             nextEl: ".swiper-button-next",
             prevEl: ".swiper-button-prev",
           }}
           pagination={{ clickable: true }}
           breakpoints={{
-            320: { slidesPerView: 1, spaceBetween: 10 },
-            600: { slidesPerView: 2, spaceBetween: 15 },
-            900: { slidesPerView: 3, spaceBetween: 20 },
-            1200: { slidesPerView: 4, spaceBetween: 20 },
+            320: { slidesPerView: 1 },
+            600: { slidesPerView: 2 },
+            900: { slidesPerView: 3 },
+            1200: { slidesPerView: 4 },
           }}
           style={{ paddingBottom: "40px" }}
         >
@@ -241,7 +255,7 @@ const ActivityPage = ({
               color: "#f44336",
             },
           ].map((item, index) => (
-            <SwiperSlide key={item.title}>
+            <SwiperSlide key={item.title} className="p-1">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -252,11 +266,7 @@ const ActivityPage = ({
                     height: "100%",
                     textAlign: "center",
                     borderRadius: 3,
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                    "&:hover": {
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-                      transform: "translateY(-2px)",
-                    },
+
                     transition: "all 0.3s ease",
                   }}
                 >
@@ -292,225 +302,630 @@ const ActivityPage = ({
     </Box>
   );
 
-  const renderInterestCard = (interest, isReceived = false) => (
-    <motion.div
-      key={interest.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card
-        sx={{
-          borderRadius: 3,
-          overflow: "hidden",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-          "&:hover": {
-            boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-            transform: "translateY(-2px)",
-          },
-          transition: "all 0.3s ease",
-        }}
+  const renderInterestCard = (interest, isReceived = false) => {
+    const handleMenuOpen = (event) => {
+      event.stopPropagation();
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
+
+    const handleDialogOpen = () => {
+      setDialogOpen(true);
+      handleMenuClose();
+    };
+
+    const handleDialogClose = () => {
+      setDialogOpen(false);
+    };
+
+    const handleChat = () => {
+      // Handle chat logic here
+      console.log("Chat with:", interest.id);
+      handleDialogClose();
+    };
+
+    const handleCancelRequest = () => {
+      // Handle cancel request logic here
+      console.log("Cancel request for:", interest.id);
+      handleDialogClose();
+    };
+
+    return (
+      <motion.div
+        key={interest.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
       >
-        <CardContent sx={{ p: 0 }} className="pb-0">
-          <Box sx={{ display: "flex" }}>
-            {/* Profile Image */}
-            <Box sx={{ position: "relative", width: "35%", minHeight: 200 }}>
-              <Box
-                component="img"
-                src={interest.profileImage}
-                alt={interest.name}
-                sx={{
-                  width: "100%",
-                  height: "260px",
-                  objectFit: "cover",
-                  cursor: "pointer",
-                }}
-                onClick={() => handleViewProfile(interest)}
-              />
-
-              {/* Status Badge */}
-              <Chip
-                label={interest.status.toUpperCase()}
-                size="small"
-                sx={{
-                  position: "absolute",
-                  top: 12,
-                  right: 12,
-                  backgroundColor:
-                    interest.status === "accepted"
-                      ? "#4caf50"
-                      : interest.status === "declined"
-                      ? "#f44336"
-                      : "#ff9800",
-                  color: "white",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                }}
-              />
-
-              {/* Match Percentage */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: 12,
-                  left: 12,
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  color: "white",
-                  px: 1.5,
-                  py: 0.5,
-                  borderRadius: 2,
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                }}
-              >
-                {interest.matchPercentage}% Match
-              </Box>
-            </Box>
-
-            {/* Profile Details */}
-            <Box sx={{ flex: 1, p: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  mb: 2,
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      color: "#1976d2",
-                      mb: 0.5,
-                    }}
-                  >
-                    {interest.name}, {getAge(interest.age)}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
-                    ID: {interest.profileId} • Last seen {interest.lastSeen}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: "#999" }}>
-                    {isReceived ? "Received on" : "Sent on"}{" "}
-                    {isReceived ? interest.receivedDate : interest.sentDate}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  {(interest.isEmailVerified ||
-                    interest.isPhoneVerified ||
-                    interest.isIdVerified ||
-                    interest.isPhotoVerified) && (
-                    <Chip
-                      icon={<CheckCircle sx={{ fontSize: 16 }} />}
-                      label="Verified"
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                    />
-                  )}
-                </Box>
-              </Box>
-
-              {/* Action Buttons */}
-              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                {isReceived && interest.status === "received" && (
-                  <>
-                    <Button
-                      variant="contained"
-                      startIcon={<CheckCircle />}
-                      onClick={() =>
-                        handleInterestAction(interest.id, "accept")
-                      }
-                      sx={{
-                        backgroundColor: "#4caf50",
-                        "&:hover": { backgroundColor: "#45a049" },
-                        textTransform: "none",
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      startIcon={<Cancel />}
-                      onClick={() =>
-                        handleInterestAction(interest.id, "decline")
-                      }
-                      sx={{
-                        borderColor: "#f44336",
-                        color: "#f44336",
-                        "&:hover": {
-                          borderColor: "#d32f2f",
-                          backgroundColor: "rgba(244, 67, 54, 0.04)",
-                        },
-                        textTransform: "none",
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      Decline
-                    </Button>
-                  </>
-                )}
-
-                <Button
-                  variant="outlined"
-                  startIcon={<Person />}
-                  onClick={() => handleViewProfile(interest)}
+        <Card
+          sx={{
+            borderRadius: 3,
+            overflow: "hidden",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+            "&:hover": {
+              boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+              transform: "translateY(-2px)",
+            },
+            transition: "all 0.3s ease",
+          }}
+        >
+          <CardContent sx={{ p: 0 }} className="pb-0">
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              {/* Profile Image */}
+              <Box sx={{ position: "relative", width: "120px" }}>
+                <Box
+                  component="img"
+                  src={interest.profileImage}
+                  alt={interest.name}
                   sx={{
-                    borderColor: "#1976d2",
-                    color: "#1976d2",
-                    "&:hover": {
-                      borderColor: "#1565c0",
-                      backgroundColor: "rgba(25, 118, 210, 0.04)",
-                    },
-                    textTransform: "none",
-                    fontSize: "0.85rem",
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                    cursor: "pointer",
+                    borderRadius: "50%",
+                    m: 1,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewProfile(interest);
+                  }}
+                />
+
+                {/* Status Badge */}
+              </Box>
+
+              {/* Profile Details */}
+              <Box sx={{ flex: 1, p: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
                   }}
                 >
-                  View Profile
-                </Button>
+                  <Box>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 700,
+                        color: "#1976d2",
+                        mb: 0.5,
+                      }}
+                    >
+                      {interest.name}, {getAge(interest.age)}{" "}
+                      {(interest.isEmailVerified ||
+                        interest.isPhoneVerified ||
+                        interest.isIdVerified ||
+                        interest.isPhotoVerified) && (
+                        <CheckCircle sx={{ fontSize: 16, color: "blue" }} />
+                      )}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                      ID: {interest.profileId} • Last seen {interest.lastSeen}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "#999" }}>
+                      {isReceived ? "Received on" : "Sent on"}{" "}
+                      {isReceived ? interest.receivedDate : interest.sentDate}
+                    </Typography>
+                  </Box>
 
-                {interest.status === "accepted" && (
-                  <>
-                    <Button
-                      variant="contained"
-                      startIcon={<Message />}
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    {/* Three-dot Menu Button */}
+                    <IconButton
+                      onClick={handleDialogOpen}
                       sx={{
-                        backgroundColor: "#e91e63",
-                        "&:hover": { backgroundColor: "#c2185b" },
-                        textTransform: "none",
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      Chat
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      startIcon={<Phone />}
-                      sx={{
-                        borderColor: "#4caf50",
-                        color: "#4caf50",
+                        color: "#666",
                         "&:hover": {
-                          borderColor: "#45a049",
-                          backgroundColor: "rgba(76, 175, 80, 0.04)",
+                          backgroundColor: "rgba(0,0,0,0.04)",
                         },
-                        textTransform: "none",
-                        fontSize: "0.85rem",
                       }}
                     >
-                      Call
-                    </Button>
-                  </>
-                )}
+                      <MoreVert />
+                    </IconButton>
+                  </Box>
+                </Box>
               </Box>
             </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
+          </CardContent>
+        </Card>
+
+        {/* Dialog */}
+        <Dialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary">
+              Choose an action for this connection
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ flexDirection: "column", gap: 1, p: 2 }}>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {isReceived && interest.status === "received" && (
+                <>
+                  <Button
+                    variant="contained"
+                    startIcon={<CheckCircle />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleInterestAction(interest.id, "accept");
+                    }}
+                    className="w-100"
+                    sx={{
+                      backgroundColor: "#4caf50",
+                      "&:hover": { backgroundColor: "#45a049" },
+                      textTransform: "none",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Cancel />}
+                    className="w-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleInterestAction(interest.id, "decline");
+                    }}
+                    sx={{
+                      borderColor: "#f44336",
+                      color: "#f44336",
+                      "&:hover": {
+                        borderColor: "#d32f2f",
+                        backgroundColor: "rgba(244, 67, 54, 0.04)",
+                      },
+                      textTransform: "none",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    Decline
+                  </Button>
+                </>
+              )}
+
+              {interest.status === "accepted" && (
+                <>
+                  <Button
+                    variant="contained"
+                    startIcon={<Message />}
+                    className="w-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Handle chat logic
+                    }}
+                    sx={{
+                      backgroundColor: "#e91e63",
+                      "&:hover": { backgroundColor: "#c2185b" },
+                      textTransform: "none",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    Chat
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Phone />}
+                    className="w-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Handle call logic
+                    }}
+                    sx={{
+                      borderColor: "#4caf50",
+                      color: "#4caf50",
+                      "&:hover": {
+                        borderColor: "#45a049",
+                        backgroundColor: "rgba(76, 175, 80, 0.04)",
+                      },
+                      textTransform: "none",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    Call
+                  </Button>
+                </>
+              )}
+            </Box>
+            <Button
+              fullWidth
+              variant="text"
+              onClick={handleDialogClose}
+              sx={{
+                textTransform: "none",
+              }}
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </motion.div>
+    );
+  };
+
+  const ProfileCard = () => {
+    const profileData = {
+      name: "Ritisha Singh",
+      age: 26,
+      height: "5ft 3in",
+      location: "Lucknow",
+      origin: "Rajput-Thakur",
+      profession: "Analyst",
+      salary: "Rs. 2 - 3 Lakh",
+      education: "M.Sc",
+      lastSeen: "6:57 AM",
+      photoCount: 14,
+      shortlistedDate: "23-Oct-25",
+      managedBy: "Self",
+      isNearby: true,
+    };
+
+    return (
+      <>
+        <div className="container pt-4">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h5
+                className="mb-1"
+                style={{ fontWeight: "600", color: "#2d3436" }}
+              >
+                Shortlisted Profiles{" "}
+                <span style={{ color: "#636e72", fontWeight: "400" }}>(1)</span>
+              </h5>
+              <p className="text-muted mb-0" style={{ fontSize: "14px" }}>
+                Move ahead with your decision by sending an interest!
+              </p>
+            </div>
+            <ArrowForward style={{ color: "#636e72", cursor: "pointer" }} />
+          </div>
+        </div>
+        <Swiper
+        className="pb-4"
+          modules={[Navigation, Pagination, Scrollbar, A11y]}
+          spaceBetween={20}
+          slidesPerView={1}
+          navigation={{
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          }}
+          pagination={{ el: ".swiper-pagination", clickable: true }}
+          scrollbar={{ el: ".swiper-scrollbar", draggable: true }}
+          breakpoints={{
+            320: { slidesPerView: 1 },
+            900: { slidesPerView: 1.5 },
+            1200: { slidesPerView: 2 },
+          }}
+        >
+          <SwiperSlide>
+            <Card
+              className="border-0 shadow-sm overflow-hidden"
+              style={{ borderRadius: "12px" }}
+            >
+              <div style={{ position: "relative", height: "450px" }}>
+                <img
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=450&fit=crop"
+                  alt={profileData.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+
+                {/* Gradient Overlay */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "60%",
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+                  }}
+                />
+
+                {/* Top Badges */}
+                <div
+                  style={{ position: "absolute", top: "12px", left: "12px" }}
+                >
+                  <Badge
+                    bg="dark"
+                    className="px-3 py-2"
+                    style={{ fontSize: "12px", fontWeight: "500" }}
+                  >
+                    Shortlisted
+                    <br />
+                    <span style={{ fontSize: "11px" }}>
+                      on {profileData.shortlistedDate}
+                    </span>
+                  </Badge>
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "12px",
+                    right: "12px",
+                    display: "flex",
+                    gap: "8px",
+                  }}
+                >
+                  <Badge
+                    bg="dark"
+                    className="d-flex align-items-center gap-1 px-2 py-2"
+                  >
+                    <CameraAlt style={{ fontSize: "14px" }} />
+                    <span>{profileData.photoCount}</span>
+                  </Badge>
+                  {profileData.isNearby && (
+                    <Badge
+                      bg="success"
+                      className="px-2 py-2"
+                      style={{ fontSize: "11px" }}
+                    >
+                      Nearby
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Profile Info */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "60px",
+                    left: "16px",
+                    right: "16px",
+                    color: "white",
+                  }}
+                >
+                  <p
+                    className="mb-1"
+                    style={{ fontSize: "12px", opacity: 0.9 }}
+                  >
+                    Last seen at {profileData.lastSeen}
+                  </p>
+                  <h3
+                    className="mb-2"
+                    style={{ fontWeight: "700", fontSize: "28px" }}
+                  >
+                    {profileData.name}, {profileData.age}
+                  </h3>
+                  <p
+                    className="mb-1"
+                    style={{ fontSize: "13px", lineHeight: "1.6" }}
+                  >
+                    {profileData.height} • {profileData.location} •{" "}
+                    {profileData.origin}
+                  </p>
+                  <p
+                    className="mb-1"
+                    style={{ fontSize: "13px", lineHeight: "1.6" }}
+                  >
+                    {profileData.profession} • {profileData.salary}
+                  </p>
+                  <p className="mb-2" style={{ fontSize: "13px" }}>
+                    {profileData.education}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      opacity: 0.8,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Profile managed by {profileData.managedBy}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                 <div
+                  style={{
+                    position: "absolute",
+                    bottom: "10px",
+                    left: "0",
+                    right: "0",
+                    display: "flex",
+                    background: "rgba(0,0,0,0.6)",
+                    backdropFilter: "blur(10px)",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Tooltip title="Interest">
+                    <IconButton>
+                      <FavoriteBorder style={{ color: "white" }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Super Interest">
+                    <IconButton>
+                      <Favorite style={{ color: "white" }} />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Shortlisted">
+                    <IconButton>
+                      <Star style={{ color: "white" }}/>
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Chat">
+                    <IconButton>
+                      <Chat style={{ color: "white" }} />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+              </div>
+            </Card>
+          </SwiperSlide>
+          <SwiperSlide>
+            <Card
+              className="border-0 shadow-sm overflow-hidden"
+              style={{ borderRadius: "12px" }}
+            >
+              <div style={{ position: "relative", height: "450px" }}>
+                <img
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=450&fit=crop"
+                  alt={profileData.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+
+                {/* Gradient Overlay */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "60%",
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+                  }}
+                />
+
+                {/* Top Badges */}
+                <div
+                  style={{ position: "absolute", top: "12px", left: "12px" }}
+                >
+                  <Badge
+                    bg="dark"
+                    className="px-3 py-2"
+                    style={{ fontSize: "12px", fontWeight: "500" }}
+                  >
+                    Shortlisted
+                    <br />
+                    <span style={{ fontSize: "11px" }}>
+                      on {profileData.shortlistedDate}
+                    </span>
+                  </Badge>
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "12px",
+                    right: "12px",
+                    display: "flex",
+                    gap: "8px",
+                  }}
+                >
+                  <Badge
+                    bg="dark"
+                    className="d-flex align-items-center gap-1 px-2 py-2"
+                  >
+                    <CameraAlt style={{ fontSize: "14px" }} />
+                    <span>{profileData.photoCount}</span>
+                  </Badge>
+                  {profileData.isNearby && (
+                    <Badge
+                      bg="success"
+                      className="px-2 py-2"
+                      style={{ fontSize: "11px" }}
+                    >
+                      Nearby
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Profile Info */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "60px",
+                    left: "16px",
+                    right: "16px",
+                    color: "white",
+                  }}
+                >
+                  <p
+                    className="mb-1"
+                    style={{ fontSize: "12px", opacity: 0.9 }}
+                  >
+                    Last seen at {profileData.lastSeen}
+                  </p>
+                  <h3
+                    className="mb-2"
+                    style={{ fontWeight: "700", fontSize: "28px" }}
+                  >
+                    {profileData.name}, {profileData.age}
+                  </h3>
+                  <p
+                    className="mb-1"
+                    style={{ fontSize: "13px", lineHeight: "1.6" }}
+                  >
+                    {profileData.height} • {profileData.location} •{" "}
+                    {profileData.origin}
+                  </p>
+                  <p
+                    className="mb-1"
+                    style={{ fontSize: "13px", lineHeight: "1.6" }}
+                  >
+                    {profileData.profession} • {profileData.salary}
+                  </p>
+                  <p className="mb-2" style={{ fontSize: "13px" }}>
+                    {profileData.education}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      opacity: 0.8,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Profile managed by {profileData.managedBy}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "10px",
+                    left: "0",
+                    right: "0",
+                    display: "flex",
+                    background: "rgba(0,0,0,0.6)",
+                    backdropFilter: "blur(10px)",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Tooltip title="Interest">
+                    <IconButton>
+                      <FavoriteBorder style={{ color: "white" }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Super Interest">
+                    <IconButton>
+                      <Favorite style={{ color: "white" }} />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Shortlisted">
+                    <IconButton>
+                      <Star style={{ color: "white" }}/>
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Chat">
+                    <IconButton>
+                      <Chat style={{ color: "white" }} />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+              </div>
+            </Card>
+          </SwiperSlide>
+        </Swiper>
+      </>
+    );
+  };
 
   const renderProfileDetail = (interest) => (
     <motion.div
@@ -715,6 +1130,7 @@ const ActivityPage = ({
   return (
     <Box>
       {renderActivitySummary()}
+      {ProfileCard()}
 
       <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
