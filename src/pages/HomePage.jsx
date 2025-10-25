@@ -657,9 +657,9 @@ const HomePage = () => {
             </Box>
           </AnimatedSection>
 
-          <Grid container spacing={2}>
+          <Grid container spacing={2} className="justify-content-center">
             {features?.map((feature, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
+              <Grid item xs={12} sm={6} md={3} key={index} >
                 <AnimatedSection variant={scaleIn} threshold={0.1}>
                   <Card
                     sx={{

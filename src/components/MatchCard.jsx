@@ -87,8 +87,10 @@ const MatchCard = ({
             sx={{
               cursor: "pointer",
               objectFit: "cover",
+              objectPosition:"top",
               height: "100%",
               width: "100%",
+              maxHeight:"260px",
               transition: "transform 0.3s ease",
             }}
             onClick={() => onViewProfile(match)}

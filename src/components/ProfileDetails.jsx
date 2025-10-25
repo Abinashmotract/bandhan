@@ -68,13 +68,14 @@ const ProfileDetails = ({
   const getMatchingCriteriaValue =
     getMatchingCriteria ||
     ((match) => {
+      const age = getAgeValue(match.dob);
       return {
         // Must-Haves - Critical criteria
         age: {
           label: "Age Range",
           userValue: "24-28 Years",
-          matchValue: `${getAgeValue(match.dob)} Years`,
-          match: getAgeValue(match.dob) >= 24 && getAgeValue(match.dob) <= 28,
+          matchValue: `${age} Years`,
+          match: age >= 24 && age <= 28,
           category: "MustHaves",
           icon: <CakeIcon />,
         },
@@ -181,7 +182,7 @@ const ProfileDetails = ({
       };
     });
 
-  // Merge selectedMatch with mock data for fallback
+  // Merge selectedMatch with mock data for fallback - FIXED: Use selectedMatch instead of match
   const selectedMatchData = {
     // Mock data as fallback
     name: "Nikita Roy",
@@ -207,119 +208,11 @@ const ProfileDetails = ({
       "Nuclear Family from Greater Noida, Uttar Pradesh. Father is a Private Employee & Mother is a Homemaker.",
     hasShownInterest: false,
     hasShownSuperInterest: false,
-    age: {
-      label: "Age Range",
-      userValue: "24-28 Years",
-      matchValue: `${getAgeValue(match.dob)} Years`,
-      match: getAgeValue(match.dob) >= 24 && getAgeValue(match.dob) <= 28,
-      category: "MustHaves",
-      icon: <CakeIcon />,
-    },
-    maritalStatus: {
-      label: "Marital Status",
-      userValue: "Never Married",
-      matchValue: match.maritalStatus || "Never Married",
-      match: (match.maritalStatus || "Never Married") === "Never Married",
-      category: "MustHaves",
-      icon: <FavoriteBorderIcon />,
-    },
-    religion: {
-      label: "Religion",
-      userValue: "Hindu",
-      matchValue: match.religion || "Hindu",
-      match: (match.religion || "Hindu") === "Hindu",
-      category: "MustHaves",
-      icon: <VerifiedIcon />,
-    },
-    caste: {
-      label: "Caste",
-      userValue: "Rajput/Kshatriya",
-      matchValue: match.caste || "Rajput",
-      match: ["Rajput", "Kshatriya"].includes(match.caste || "Rajput"),
-      category: "MustHaves",
-      icon: <VerifiedIcon />,
-    },
-    diet: {
-      label: "Diet Type",
-      userValue: "Vegetarian (Strict)",
-      matchValue: match.diet || "Vegetarian",
-      match: (match.diet || "Vegetarian") === "Vegetarian",
-      category: "MustHaves",
-      icon: <RestaurantIcon />,
-    },
-
-    // Good to Haves - Preferred but flexible criteria
-    height: {
-      label: "Height",
-      userValue: "5'5'' - 5'9''",
-      matchValue: match.height || "5'6''",
-      match: true, // 5'6" is within range
-      category: "GoodToHaves",
-      icon: <HeightIcon />,
-    },
-    education: {
-      label: "Education Level",
-      userValue: "B.Tech/MBA or equivalent",
-      matchValue: match.education || "B.Com.",
-      match: false, // B.Com. doesn't match B.Tech/MBA
-      category: "GoodToHaves",
-      icon: <SchoolIcon />,
-    },
-    occupation: {
-      label: "Occupation",
-      userValue: "IT/Marketing/Finance",
-      matchValue: match.occupation || "Accounting Professional",
-      match: true, // Accounting is related to Finance
-      category: "GoodToHaves",
-      icon: <WorkIcon />,
-    },
-    location: {
-      label: "Preferred City",
-      userValue: "Delhi/NCR only",
-      matchValue: `${match.city || "Greater Noida"}, ${
-        match.state || "Uttar Pradesh"
-      }`,
-      match: true, // Greater Noida is in NCR
-      category: "GoodToHaves",
-      icon: <LocationOnIcon />,
-    },
-    drinking: {
-      label: "Drinking Habits",
-      userValue: "Non-drinker / Social",
-      matchValue: match.drinking || "Non-drinker",
-      match: (match.drinking || "Non-drinker") === "Non-drinker",
-      category: "GoodToHaves",
-      icon: <MonitorIcon />,
-    },
-    smoking: {
-      label: "Smoking Habits",
-      userValue: "Non-smoker (Mandatory)",
-      matchValue: match.smoking || "Non-smoker",
-      match: (match.smoking || "Non-smoker") === "Non-smoker",
-      category: "GoodToHaves",
-      icon: <MonitorIcon />,
-    },
-    income: {
-      label: "Annual Income",
-      userValue: "₹10-20 Lakhs",
-      matchValue: "₹8 Lakhs",
-      match: false, // Below preferred range
-      category: "GoodToHaves",
-      icon: <WorkIcon />,
-    },
-    familyStatus: {
-      label: "Family Background",
-      userValue: "Nuclear Family Preferred",
-      matchValue: "Nuclear Family",
-      match: true, // Matches preference
-      category: "GoodToHaves",
-      icon: <FamilyRestroomIcon />,
-    },
     // Override with actual selectedMatch props
     ...selectedMatch,
   };
 
-  // Calculate matching criteria
+  // Calculate matching criteria - FIXED: Pass selectedMatchData instead of match
   const matchingCriteria = getMatchingCriteriaValue(selectedMatchData);
   const matchedCriteriaList = Object.values(matchingCriteria).filter(
     (c) => c.match
@@ -330,17 +223,11 @@ const ProfileDetails = ({
   const totalCriteria = allCriteriaList.length;
   const matchPercentage = Math.round((matchCount / totalCriteria) * 100);
 
-  // Filter criteria by category - FIXED: Proper filtering
+  // Filter criteria by category
   const mustHaves = allCriteriaList.filter((c) => c.category === "MustHaves");
   const goodToHaves = allCriteriaList.filter(
     (c) => c.category === "GoodToHaves"
   );
-
-  console.log("Must Haves:", mustHaves); // Debug log
-  console.log("Good To Haves:", goodToHaves); // Debug log
-
-  // Rest of your component remains exactly the same...
-  // [Keep all your existing ActionButtons, DetailItem, PreferenceItem, and JSX code]
 
   // Component to render the action buttons based on the selected option
   const ActionButtons = ({ option }) => {
@@ -444,71 +331,14 @@ const ProfileDetails = ({
           <Box display="flex" gap={2}>
             {superInterestButton}
             {chatButton}
-            <Button
-              variant="outlined"
-              size="large"
-              startIcon={<FavoriteBorderIcon />}
-              onClick={() => onShowInterest(selectedMatchData.customId)}
-              disabled={isInterestSent}
-              sx={{
-                color: PRIMARY_COLOR,
-                borderColor: PRIMARY_COLOR,
-                "&:hover": {
-                  backgroundColor: LIGHT_BACKGROUND,
-                  borderColor: PRIMARY_COLOR,
-                },
-                textTransform: "none",
-                fontWeight: 600,
-                flexGrow: 1,
-                py: 1.5,
-                borderRadius: 2,
-              }}
-            >
-              {isInterestSent ? "Interest Sent" : "Send Interest"}
-            </Button>
+            {interestButton}
           </Box>
         );
       case 3:
         return (
           <Box display="flex" gap={1} alignItems="stretch" height="56px">
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<FavoriteBorderIcon />}
-              onClick={() => onShowInterest(selectedMatchData.customId)}
-              disabled={isInterestSent}
-              sx={{
-                backgroundColor: PRIMARY_COLOR,
-                "&:hover": { backgroundColor: "#3d2847" },
-                textTransform: "none",
-                fontWeight: 600,
-                flexGrow: 1,
-                py: 1.5,
-                borderRadius: 2,
-              }}
-            >
-              {isInterestSent ? "Interest Sent" : "Send Interest"}
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              startIcon={<MessageIcon />}
-              sx={{
-                color: PRIMARY_COLOR,
-                borderColor: PRIMARY_COLOR,
-                "&:hover": {
-                  backgroundColor: LIGHT_BACKGROUND,
-                  borderColor: PRIMARY_COLOR,
-                },
-                textTransform: "none",
-                fontWeight: 600,
-                flexGrow: 1,
-                py: 1.5,
-                borderRadius: 2,
-              }}
-            >
-              Chat
-            </Button>
+            {interestButton}
+            {chatButton}
             <IconButton
               aria-label="Super Interest"
               size="large"
@@ -536,24 +366,7 @@ const ProfileDetails = ({
         return (
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth
-                startIcon={<FavoriteBorderIcon />}
-                onClick={() => onShowInterest(selectedMatchData.customId)}
-                disabled={isInterestSent}
-                sx={{
-                  backgroundColor: PRIMARY_COLOR,
-                  "&:hover": { backgroundColor: "#3d2847" },
-                  textTransform: "none",
-                  fontWeight: 700,
-                  py: 1.5,
-                  borderRadius: 2,
-                }}
-              >
-                {isInterestSent ? "Interest Sent" : "SEND INTEREST"}
-              </Button>
+              {interestButton}
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box display="flex" gap={2}>
@@ -577,22 +390,7 @@ const ProfileDetails = ({
                 >
                   Super Interest
                 </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  fullWidth
-                  startIcon={<MessageIcon />}
-                  sx={{
-                    color: PRIMARY_COLOR,
-                    borderColor: PRIMARY_COLOR,
-                    "&:hover": { backgroundColor: LIGHT_BACKGROUND },
-                    textTransform: "none",
-                    fontWeight: 600,
-                    borderRadius: 2,
-                  }}
-                >
-                  Chat
-                </Button>
+                {chatButton}
               </Box>
             </Grid>
           </Grid>
@@ -1062,7 +860,7 @@ const ProfileDetails = ({
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
-                  {/* Must-Haves Section - NOW WITH DATA */}
+                  {/* Must-Haves Section */}
                   <Typography
                     variant="h6"
                     sx={{
@@ -1106,7 +904,7 @@ const ProfileDetails = ({
 
                   <Divider sx={{ my: 3 }} />
 
-                  {/* Good-to-Haves Section - NOW WITH DATA */}
+                  {/* Good-to-Haves Section */}
                   <Typography
                     variant="h6"
                     sx={{
