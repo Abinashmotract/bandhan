@@ -42,8 +42,8 @@ const TermsAndConditions = () => {
 
   const contactInfo = {
     address: "502, 5th floor, Sethi Bhawan, Rajendra Place, New Delhi, Delhi - 110008",
-    email: "adm1.bandhnam@gmail.com",
-    website: "www.bandhnam.com"
+    email: "adm1.bandhanam@gmail.com",
+    website: "www.bandhanam.com"
   };
 
   return (
@@ -93,7 +93,7 @@ const TermsAndConditions = () => {
             background: 'linear-gradient(135deg, rgba(216, 27, 96, 0.05) 0%, rgba(136, 14, 79, 0.03) 100%)'
           }}>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              Please read these Terms & Conditions carefully before using Bandhnam services.
+              Please read these Terms & Conditions carefully before using Bandhanam services.
             </Typography>
           </Alert>
 
@@ -126,10 +126,10 @@ const TermsAndConditions = () => {
           {/* Introduction */}
           <Box sx={{ mb: 6 }}>
             <Typography variant="h4" sx={{ color: '#51365F', mb: 3, fontWeight: 700 }}>
-              Welcome to Bandhnam
+              Welcome to Bandhanam
             </Typography>
             <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, mb: 2, fontSize: '1.1rem' }}>
-              Welcome to <strong>Bandhnam (bandhnam.com)</strong>, a matrimonial service designed to help individuals and families connect for the purpose of marriage. By accessing, registering, or using Bandhnam (through our website, mobile app, or any other platform), you agree to be bound by the following Terms & Conditions ("Terms").
+              Welcome to <strong>Bandhanam (bandhanam.com)</strong>, a matrimonial service designed to help individuals and families connect for the purpose of marriage. By accessing, registering, or using Bandhanam (through our website, mobile app, or any other platform), you agree to be bound by the following Terms & Conditions ("Terms").
             </Typography>
             <Typography variant="body1" sx={{ color: 'black', lineHeight: 1.8, fontWeight: 600, fontSize: '1.1rem' }}>
               Please read them carefully before proceeding. If you do not agree, you should not use our services.
@@ -206,7 +206,7 @@ const TermsAndConditions = () => {
                   <Security sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="You are responsible for maintaining the confidentiality of your login credentials. Bandhnam is not liable for unauthorized use of your account."
+                  primary="You are responsible for maintaining the confidentiality of your login credentials. Bandhanam is not liable for unauthorized use of your account."
                   primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
                 />
               </ListItem>
@@ -235,7 +235,7 @@ const TermsAndConditions = () => {
                   <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Bandhnam provides both free and paid services."
+                  primary="Bandhanam provides both free and paid services."
                   primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
                 />
               </ListItem>
@@ -268,7 +268,7 @@ const TermsAndConditions = () => {
               4. User Obligations
             </Typography>
             <Typography variant="body1" sx={{ color: 'black', mb: 3, lineHeight: 1.7, fontSize: '1.1rem' }}>
-              By using Bandhnam, you agree to:
+              By using Bandhanam, you agree to:
             </Typography>
             <List>
               <ListItem sx={{ alignItems: 'flex-start' }}>
@@ -327,7 +327,7 @@ const TermsAndConditions = () => {
                   <CheckCircle sx={{ color: '#51365F', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Bandhnam values your privacy. All information collected is handled in accordance with our Privacy Policy."
+                  primary="Bandhanam values your privacy. All information collected is handled in accordance with our Privacy Policy."
                   primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
                 />
               </ListItem>
@@ -361,7 +361,7 @@ const TermsAndConditions = () => {
             </Typography>
             <Alert severity="info" sx={{ mb: 3 }}>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                Important: Bandhnam only provides a platform for matchmaking. We do not guarantee the accuracy, success, or outcome of any match.
+                Important: Bandhanam only provides a platform for matchmaking. We do not guarantee the accuracy, success, or outcome of any match.
               </Typography>
             </Alert>
             <List>
@@ -379,7 +379,7 @@ const TermsAndConditions = () => {
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Bandhnam is not responsible for misrepresentations by users, failed communications, rejections, disputes, or any damages incurred during interactions."
+                  primary="Bandhanam is not responsible for misrepresentations by users, failed communications, rejections, disputes, or any damages incurred during interactions."
                   primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontSize: '1.1rem' }}
                 />
               </ListItem>
@@ -420,7 +420,7 @@ const TermsAndConditions = () => {
                   <Warning sx={{ color: '#ff9800', fontSize: 20 }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Report any suspicious activity immediately to adm1.bandhnam@gmail.com"
+                  primary="Report any suspicious activity immediately to adm1.bandhanam@gmail.com"
                   primaryTypographyProps={{ color: 'black', lineHeight: 1.7, fontWeight: 600, fontSize: '1.1rem' }}
                 />
               </ListItem>
@@ -453,7 +453,7 @@ const TermsAndConditions = () => {
               borderRadius: '20px'
             }}>
               <Typography variant="h6" sx={{ color: '#51365F', mb: 2 }}>
-                Bandhnam
+                Bandhanam
               </Typography>
               <Typography variant="body1" sx={{ color: 'black', mb: 1, fontSize: '1.1rem' }}>
                 <strong>Address:</strong> {contactInfo.address}
@@ -473,7 +473,7 @@ const TermsAndConditions = () => {
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <Alert severity="success" sx={{ mb: 4 }}>
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                By registering on Bandhnam, you acknowledge that you have read, understood, and agreed to these Terms & Conditions.
+                By registering on Bandhanam, you acknowledge that you have read, understood, and agreed to these Terms & Conditions.
               </Typography>
             </Alert>
 
@@ -535,7 +535,7 @@ const TermsAndConditions = () => {
             </IconButton>
           </Box>
           <Typography variant="body2" sx={{ color: 'black' }}>
-            © 2023 Bandhnam. All rights reserved.
+            © 2023 Bandhanam. All rights reserved.
           </Typography>
         </Box>
       </Container>
