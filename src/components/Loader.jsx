@@ -63,7 +63,7 @@ const Loader = ({ onComplete }) => {
           transition={{ duration: 1, ease: "easeOut", delay: 0.6 }}
           style={{ fontSize: "3rem", fontWeight: "bold", color: "#6a1b9a" }}
         >
-          m
+          am
         </motion.div>
       </div>
 
