@@ -286,7 +286,6 @@ export const MessengerView = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            p: 2,
             borderRadius: 2,
             cursor: "pointer",
             transition: "all 0.2s",
@@ -348,7 +347,6 @@ export const MessengerView = ({
         sx={{
           display: "flex",
           alignItems: "center",
-          p: 2,
           borderRadius: 2,
           cursor: "pointer",
           transition: "all 0.2s",
@@ -441,7 +439,7 @@ export const MessengerView = ({
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto" }}>
       {/* Match Hour Card */}
       {matchHourData && (
         <Card

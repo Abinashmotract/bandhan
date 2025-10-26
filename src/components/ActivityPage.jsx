@@ -37,12 +37,6 @@ import {
   MoreVert,
   CheckCircle,
   Cancel,
-  Visibility,
-  ThumbUp,
-  ThumbDown,
-  KeyboardArrowRight,
-  KeyboardArrowLeft,
-  MoreHoriz,
   ArrowForward,
   CameraAlt,
   Chat,
@@ -206,7 +200,7 @@ const ActivityPage = ({
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#333", mb: 3 }}>
         Your Activity Summary
       </Typography>
-      <Box sx={{ position: "relative", px: 2 }}>
+      <Box sx={{ position: "relative" }}>
         <Swiper
           modules={[Navigation, Pagination, Scrollbar, A11y]}
           spaceBetween={10}
@@ -221,7 +215,6 @@ const ActivityPage = ({
             900: { slidesPerView: 3 },
             1200: { slidesPerView: 4 },
           }}
-          style={{ paddingBottom: "40px" }}
         >
           {[
             {
