@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -13,6 +13,7 @@ import {
   Search as SearchIcon
 } from '@mui/icons-material';
 import MatchCard from './MatchCard';
+import FilterDialog from './FilterDialog';
 
 
 const MatchesList = ({
@@ -32,6 +33,80 @@ const MatchesList = ({
   isLoadingMore,
   hasMoreMatches
 }) => {
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+
+  const handleFilterApply = (filterData) => {
+    // Map filter dialog data to filter state format
+    const updatedFilters = { 
+      ...filters,
+      // Keep existing verified, justJoined, nearby values (they can be set via buttons)
+    };
+    
+    // Map filter dialog data to filter state
+    if (filterData.ageRange) {
+      updatedFilters.ageRange = filterData.ageRange;
+    } else {
+      updatedFilters.ageRange = [18, 60]; // Default if not set
+    }
+    
+    if (filterData.heightRange) {
+      updatedFilters.heightRange = filterData.heightRange;
+    } else {
+      updatedFilters.heightRange = ["", ""];
+    }
+    
+    if (filterData.maritalStatus && Array.isArray(filterData.maritalStatus) && filterData.maritalStatus.length > 0) {
+      updatedFilters.maritalStatus = filterData.maritalStatus;
+    } else {
+      updatedFilters.maritalStatus = [];
+    }
+    
+    if (filterData.religion) {
+      updatedFilters.religion = filterData.religion;
+    } else {
+      updatedFilters.religion = "";
+    }
+    
+    if (filterData.caste) {
+      updatedFilters.caste = filterData.caste;
+    } else {
+      updatedFilters.caste = "";
+    }
+    
+    if (filterData.motherTongue && Array.isArray(filterData.motherTongue) && filterData.motherTongue.length > 0) {
+      updatedFilters.motherTongue = filterData.motherTongue;
+    } else {
+      updatedFilters.motherTongue = [];
+    }
+    
+    if (filterData.education) {
+      updatedFilters.education = filterData.education;
+    } else {
+      updatedFilters.education = "";
+    }
+    
+    if (filterData.occupation) {
+      updatedFilters.occupation = filterData.occupation;
+    } else {
+      updatedFilters.occupation = "";
+    }
+    
+    if (filterData.location) {
+      updatedFilters.location = filterData.location;
+    } else {
+      updatedFilters.location = "";
+    }
+    
+    if (filterData.annualIncome) {
+      updatedFilters.annualIncome = filterData.annualIncome;
+    } else {
+      updatedFilters.annualIncome = "";
+    }
+
+    // Apply all filters at once through a single filter change
+    // Use a special 'applyAllFilters' key to indicate batch update
+    onFilterChange('applyAllFilters', updatedFilters);
+  };
   return (
     <>
       <Box sx={{ mb: 4 }}>
@@ -46,7 +121,7 @@ const MatchesList = ({
           <Button
             variant="contained"
             startIcon={<FilterIcon />}
-            onClick={() => {/* Handle filter dialog */ }}
+            onClick={() => setFilterDialogOpen(true)}
             sx={{
               backgroundColor: '#51365F',
               '&:hover': {
@@ -56,7 +131,7 @@ const MatchesList = ({
               fontWeight: 600
             }}
           >
-            Filters
+            Refine Matches
           </Button>
           <Button
             variant={filters?.verified ? "contained" : "outlined"}
@@ -203,6 +278,13 @@ const MatchesList = ({
           )}
         </Box>
       )}
+
+      <FilterDialog
+        open={filterDialogOpen}
+        onClose={() => setFilterDialogOpen(false)}
+        onApply={handleFilterApply}
+        filters={filters}
+      />
     </>
   );
 };

@@ -10,23 +10,48 @@ export const fetchMatches = createAsyncThunk(
   async (filters = {}, { rejectWithValue }) => {
     try {
       const token = Cookies.get("accessToken");
-      const response = await axios.get(`${API_BASE_URL}/profiles/matches`, {
+      const params = {
+        page: filters.page || 1,
+        limit: filters.limit || 20,
+        search: filters.search || "",
+        verified: filters.verified === true ? 'true' : 'false',
+        nearby: filters.nearby === true ? 'true' : 'false',
+        justJoined: filters.justJoined === true ? 'true' : 'false',
+        ageMin: filters.ageRange && Array.isArray(filters.ageRange) ? filters.ageRange[0] : 18,
+        ageMax: filters.ageRange && Array.isArray(filters.ageRange) ? filters.ageRange[1] : 60,
+        religion: filters.religion || "",
+        caste: filters.caste || "",
+        occupation: filters.occupation || "",
+        location: filters.location || "",
+        sortBy: filters.sortBy || "recentlyJoined",
+      };
+
+      // Add optional filters
+      if (filters.heightRange && Array.isArray(filters.heightRange)) {
+        if (filters.heightRange[0]) params.heightMin = filters.heightRange[0];
+        if (filters.heightRange[1]) params.heightMax = filters.heightRange[1];
+      }
+
+      if (filters.maritalStatus && Array.isArray(filters.maritalStatus) && filters.maritalStatus.length > 0) {
+        params.maritalStatus = filters.maritalStatus.join(',');
+      }
+
+      if (filters.motherTongue && Array.isArray(filters.motherTongue) && filters.motherTongue.length > 0) {
+        params.motherTongue = filters.motherTongue.join(',');
+      }
+
+      if (filters.education) {
+        params.education = filters.education;
+      }
+
+      if (filters.annualIncome) {
+        params.annualIncome = filters.annualIncome;
+      }
+
+      // Use /api/matches endpoint which has better filter support
+      const response = await axios.get(`${API_BASE_URL}/matches`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          page: filters.page || 1,
-          limit: filters.limit || 20,
-          search: filters.search || "",
-          verified: filters.verified || false,
-          nearby: filters.nearby || false,
-          justJoined: filters.justJoined || false,
-          ageMin: filters.ageRange ? filters.ageRange[0] : 18,
-          ageMax: filters.ageRange ? filters.ageRange[1] : 60,
-          religion: filters.religion || "",
-          caste: filters.caste || "",
-          occupation: filters.occupation || "",
-          location: filters.location || "",
-          sortBy: filters.sortBy || "recentlyJoined",
-        },
+        params,
       });
       return response.data;
     } catch (error) {

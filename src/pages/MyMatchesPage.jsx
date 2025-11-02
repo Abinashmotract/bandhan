@@ -514,15 +514,25 @@ const MyMatchesPage = () => {
     // Create new filters object
     const newFilters = { ...filters };
 
-    // If enabling a filter, disable other mutually exclusive filters
-    if (value && ["verified", "justJoined", "nearby"].includes(filterName)) {
-      // Disable other mutually exclusive filters
-      newFilters.verified = filterName === "verified" ? value : false;
-      newFilters.justJoined = filterName === "justJoined" ? value : false;
-      newFilters.nearby = filterName === "nearby" ? value : false;
+    // Handle batch filter update from FilterDialog
+    if (filterName === 'applyAllFilters' && typeof value === 'object') {
+      // Replace all filters with the provided filter object
+      // Keep verified, justJoined, nearby values if they're already set
+      Object.keys(value).forEach((key) => {
+        newFilters[key] = value[key];
+      });
     } else {
-      // Just update the specific filter
-      newFilters[filterName] = value;
+      // Handle single filter change
+      // If enabling a filter, disable other mutually exclusive filters (for verified, justJoined, nearby)
+      if (value && ["verified", "justJoined", "nearby"].includes(filterName)) {
+        // These filters are mutually exclusive - enable only the clicked one
+        newFilters.verified = filterName === "verified" ? value : false;
+        newFilters.justJoined = filterName === "justJoined" ? value : false;
+        newFilters.nearby = filterName === "nearby" ? value : false;
+      } else {
+        // Update the specific filter
+        newFilters[filterName] = value;
+      }
     }
 
     dispatch(setFilters(newFilters));

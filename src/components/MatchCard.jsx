@@ -86,10 +86,16 @@ const MatchCard = ({
               match.profileImage?.startsWith("http")
                 ? match.profileImage
                 : match.profileImage
-                ? `http://localhost:3000/uploads/${match.profileImage}`
+                ? (match.profileImage.startsWith("/uploads/") || match.profileImage.startsWith("uploads/")
+                    ? `http://localhost:3000/${match.profileImage.startsWith("/") ? match.profileImage.slice(1) : match.profileImage}`
+                    : `http://localhost:3000/uploads/${match.profileImage}`)
                 : "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
             }
             alt={match.name}
+            onError={(e) => {
+              // Fallback to default image if loading fails
+              e.target.src = "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80";
+            }}
             sx={{
               cursor: "pointer",
               objectFit: "cover",
