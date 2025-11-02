@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Camera,
   X,
@@ -6,6 +6,7 @@ import {
   Edit2,
   Check,
   ChevronLeft,
+  ChevronRight,
   MapPin,
   Briefcase,
   GraduationCap,
@@ -15,44 +16,135 @@ import {
   Heart,
   Star,
   Save,
+  Trash2,
 } from "lucide-react";
+import { API_BASE_URL } from "../utils/api";
 
-const ProfileEdit = () => {
-  const [profile, setProfile] = useState({
-    name: "Abinash Kumar",
-    id: "TXX84877",
-    profileImage: null,
-    gender: "Male",
-    religion: "Hindu",
-    caste: "Rajput",
-    motherTongue: "English",
-    dob: "1998-03-01",
-    age: 27,
-    height: "5' 4\" (1.63 mts)",
-    maritalStatus: "Never Married",
-    city: "Lucknow",
-    state: "Uttar Pradesh",
-    country: "India",
-    disability: "Thalassemia, HIV+",
-    about:
-      "I am Abinash Kumar, a 27-year-old Software Professional working in the Defense sector. I hold a Master's degree in Computer Applications (MCA) and have a deep passion for technology and innovation. I am a family-oriented person from here, looking for a compatible partner to share my life with.",
-    education: "MCA - Post Graduation Degree",
-    school: "US College, US Degree, PG College",
-    occupation: "Software Engineer",
-    organization: "Indian Army, Thoughts on settling abroad",
-    familyType: "Joint family",
-    familyLocation: "None India",
-    familyValues:
-      "Family Status, Family Type, Family Value, Fathers Occupation, Mothers Occupation, Number of Brothers, Number of Sisters, Living with parents",
-    email: "abinash90@gmail.com",
-    phoneNumber: "+91 9142678968",
-    address: "Alternate Elivila, Alternate Podde Na",
-    horoscope:
-      "Rashi's Solar Strength Vimshran 12 hour 1996-2 Others (3893ob) 2+3: 54m 5 Jesha, Jeeha",
-    hobbies: ["Add Cooking Habits", "Add Dietary Habits", "Add Smoking Habits"],
-    favorites: ["Politician", "Destination", "Cuisines(5)", "Cosplay", "Music"],
-  });
+// Extract base URL from API_BASE_URL (remove /api)
+const getBaseUrl = () => {
+  const baseUrl = API_BASE_URL.replace('/api', '');
+  return baseUrl || 'http://localhost:3000';
+};
 
+const ProfileEdit = ({
+  editingProfile = {},
+  onBackToMatches,
+  onSaveProfile,
+  onCancelEdit,
+  onProfileFieldChange,
+  onProfileImageChange,
+  onRemoveProfileImage,
+  onPhotosUpload,
+}) => {
+  const photosInputRef = useRef(null);
+  const [activeTab, setActiveTab] = useState("about");
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  
+  // Helper function to get image URL - handles both full URLs and filenames
+  const getImageUrl = (image) => {
+    if (!image) return null;
+    if (typeof image === 'string') {
+      // If already a full URL (from API response)
+      if (image.startsWith('http://') || image.startsWith('https://')) {
+        // Check if it already has the correct format
+        // Backend returns: http://host/uploads/filename or http://host/uploads/filename
+        return image;
+      }
+      // If it's a relative path starting with /uploads or uploads/
+      if (image.startsWith('/uploads/') || image.startsWith('uploads/')) {
+        const baseUrl = getBaseUrl();
+        return `${baseUrl}/${image.startsWith('/') ? image.slice(1) : image}`;
+      }
+      // If it doesn't start with /uploads, assume it's just a filename
+      const baseUrl = getBaseUrl();
+      return `${baseUrl}/uploads/${image}`;
+    }
+    return null;
+  };
+
+  // Helper function to calculate age from dob
+  const calculateAge = (dob) => {
+    if (!dob) return "";
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  };
+
+  // Helper function to format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    try {
+      return new Date(dateString).toISOString().split("T")[0];
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Map user data to profile format for display
+  const mapUserDataToProfile = (userData) => {
+    if (!userData) return {};
+    
+    // Get proper image URL - handle both full URLs and relative paths
+    let profileImageUrl = null;
+    if (userData.profileImage) {
+      // Backend may return full URL or just filename
+      if (typeof userData.profileImage === 'string') {
+        if (userData.profileImage.startsWith('http')) {
+          profileImageUrl = userData.profileImage;
+        } else {
+          profileImageUrl = getImageUrl(userData.profileImage);
+        }
+      }
+    }
+    
+    return {
+      name: userData.name || "",
+      id: userData.customId || "Loading...", // Only use backend customId
+      profileImage: profileImageUrl,
+      gender: userData.gender ? userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1) : "",
+      religion: userData.religion || "",
+      caste: userData.caste || "",
+      motherTongue: Array.isArray(userData.motherTongue) 
+        ? userData.motherTongue.join(", ") 
+        : (userData.motherTongue || ""),
+      dob: formatDate(userData.dob),
+      age: calculateAge(userData.dob),
+      height: userData.height || "",
+      maritalStatus: userData.maritalStatus 
+        ? userData.maritalStatus.split("_").map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(" ")
+        : "",
+      city: userData.city || "",
+      state: userData.state || "",
+      country: userData.country || "India",
+      location: userData.location || "",
+      about: userData.about || "",
+      education: userData.education || userData.highestQualification || "",
+      school: userData.fieldOfStudy || "",
+      occupation: userData.occupation || "",
+      organization: userData.industry || "",
+      familyType: userData.familyType || "",
+      familyLocation: userData.nativePlace || "",
+      familyValues: `Family Type: ${userData.familyType || "N/A"}, Family Income: ${userData.familyIncome || "N/A"}, Father's Occupation: ${userData.fatherOccupation || "N/A"}, Mother's Occupation: ${userData.motherOccupation || "N/A"}, Brothers: ${userData.brothers || 0}, Sisters: ${userData.sisters || 0}`,
+      email: userData.email || "",
+      phoneNumber: userData.phoneNumber || "",
+      address: userData.location || "",
+      hobbies: userData.hobbies || [],
+      interests: userData.interests || [],
+      favorites: userData.interests || [],
+    };
+  };
+
+  const [profile, setProfile] = useState(() => mapUserDataToProfile(editingProfile));
   const [editPopover, setEditPopover] = useState({
     open: false,
     anchorEl: null,
@@ -64,29 +156,107 @@ const ProfileEdit = () => {
 
   const [imagePreview, setImagePreview] = useState(null);
 
+  // Update profile when editingProfile prop changes
+  useEffect(() => {
+    const mappedProfile = mapUserDataToProfile(editingProfile);
+    setProfile(mappedProfile);
+    
+    // If editingProfile has a new image URL (starts with http), clear the preview
+    // This allows preview to show during upload, then switch to URL when API responds
+    if (editingProfile?.profileImage && 
+        typeof editingProfile.profileImage === 'string' && 
+        editingProfile.profileImage.startsWith('http')) {
+      setImagePreview(null); // Clear preview in favor of server URL
+    }
+    
+    // Reset photo index if photos array changes
+    if (editingProfile?.photos) {
+      const photoCount = editingProfile.photos.length;
+      if (currentPhotoIndex >= photoCount && photoCount > 0) {
+        setCurrentPhotoIndex(0);
+      }
+    }
+  }, [editingProfile]);
+
   const handleFieldChange = (field, value) => {
-    setProfile((prev) => ({ ...prev, [field]: value }));
+    const updatedProfile = { ...profile, [field]: value };
+    setProfile(updatedProfile);
+    // Notify parent component of the change
+    if (onProfileFieldChange) {
+      // Handle preferences fields specially
+      if (field === "ageRange") {
+        // Parse age range from "min - max" format
+        const parts = value.split("-").map(s => s.trim());
+        const min = parseInt(parts[0]) || null;
+        const max = parseInt(parts[1]) || null;
+        if (onProfileFieldChange) {
+          onProfileFieldChange("preferences", {
+            ...editingProfile?.preferences,
+            ageRange: { min, max }
+          });
+        }
+        return;
+      }
+      
+      // Handle other preference fields
+      if (["locationPref", "religion", "educationPref", "profession", "maritalStatusPref"].includes(field)) {
+        if (onProfileFieldChange) {
+          onProfileFieldChange("preferences", {
+            ...editingProfile?.preferences,
+            [field]: value
+          });
+        }
+        return;
+      }
+      
+      // Map field back to user data format if needed
+      let apiField = field;
+      let apiValue = value;
+      
+      // For motherTongue, keep it as string (will be converted to array on save)
+      // This allows users to edit it as comma-separated string
+      if (field === "motherTongue") {
+        apiField = "motherTongue";
+        apiValue = value; // Keep as string, will be parsed on save
+      } else if (field === "school") {
+        apiField = "fieldOfStudy";
+      } else if (field === "organization") {
+        apiField = "industry";
+      } else if (field === "familyLocation") {
+        apiField = "nativePlace";
+      }
+      
+      onProfileFieldChange(apiField, apiValue);
+    }
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (file && onProfileImageChange) {
+      // Show preview immediately
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
-        handleFieldChange("profileImage", reader.result);
       };
       reader.readAsDataURL(file);
+      // Call parent handler to upload image
+      onProfileImageChange(e);
     }
   };
 
   const openEditPopover = (e, field, label, value, multiline = false) => {
+    // For ageRange, format the value for display/editing
+    let displayValue = value;
+    if (field === "ageRange" && editingProfile?.preferences?.ageRange) {
+      displayValue = `${editingProfile.preferences.ageRange.min || ''} - ${editingProfile.preferences.ageRange.max || ''}`;
+    }
+    
     setEditPopover({
       open: true,
       anchorEl: e.currentTarget,
       field,
       label,
-      value,
+      value: displayValue,
       multiline,
     });
   };
@@ -235,6 +405,7 @@ const ProfileEdit = () => {
           }}
         >
           <button
+            onClick={onBackToMatches || onCancelEdit}
             style={{
               background: "white",
               border: "none",
@@ -281,7 +452,7 @@ const ProfileEdit = () => {
               right: "24px",
             }}
           >
-            <button
+            <label
               style={{
                 background: "rgba(255,255,255,0.15)",
                 backdropFilter: "blur(10px)",
@@ -293,6 +464,7 @@ const ProfileEdit = () => {
                 fontWeight: "500",
                 cursor: "pointer",
                 transition: "all 0.2s",
+                display: "inline-block",
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.background = "rgba(255,255,255,0.25)";
@@ -301,8 +473,20 @@ const ProfileEdit = () => {
                 e.currentTarget.style.background = "rgba(255,255,255,0.15)";
               }}
             >
+              <input
+                ref={photosInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  if (onPhotosUpload && e.target.files.length > 0) {
+                    onPhotosUpload(e);
+                  }
+                }}
+                style={{ display: "none" }}
+              />
               Add Photos
-            </button>
+            </label>
           </div>
 
           <div style={{ display: "flex", alignItems: "flex-start" }}>
@@ -320,18 +504,26 @@ const ProfileEdit = () => {
                   border: "4px solid rgba(255,255,255,0.1)",
                 }}
               >
-                {imagePreview || profile.profileImage ? (
+                {(imagePreview || profile.profileImage || getImageUrl(editingProfile?.profileImage)) ? (
                   <img
-                    src={imagePreview || profile.profileImage}
+                    src={imagePreview || profile.profileImage || getImageUrl(editingProfile?.profileImage)}
                     alt="Profile"
+                    onError={(e) => {
+                      // Fallback if image fails to load
+                      console.error("Image failed to load:", e.target.src);
+                      e.target.style.display = 'none';
+                      const fallback = e.target.nextSibling;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
                     style={{
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
                     }}
                   />
-                ) : (
-                  <div style={{ fontSize: "48px", color: "#718096" }}>👤</div>
+                ) : null}
+                {!imagePreview && !profile.profileImage && !getImageUrl(editingProfile?.profileImage) && (
+                  <div style={{ fontSize: "48px", color: "#718096", display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>👤</div>
                 )}
               </div>
               <label
@@ -389,27 +581,31 @@ const ProfileEdit = () => {
             }}
           >
             <button
+              onClick={() => setActiveTab("about")}
               style={{
-                color: "#fbbf24",
+                color: activeTab === "about" ? "#fbbf24" : "rgba(255,255,255,0.6)",
                 border: "none",
                 background: "transparent",
                 padding: 0,
                 fontWeight: "600",
                 cursor: "pointer",
                 fontSize: "15px",
+                transition: "color 0.2s",
               }}
             >
               About Me
             </button>
             <button
+              onClick={() => setActiveTab("looking")}
               style={{
-                color: "rgba(255,255,255,0.6)",
+                color: activeTab === "looking" ? "#fbbf24" : "rgba(255,255,255,0.6)",
                 border: "none",
                 background: "transparent",
                 padding: 0,
                 fontWeight: "600",
                 cursor: "pointer",
                 fontSize: "15px",
+                transition: "color 0.2s",
               }}
             >
               Looking For
@@ -453,6 +649,238 @@ const ProfileEdit = () => {
           </div>
         </div>
 
+        {/* Photos Carousel */}
+        {editingProfile?.photos && editingProfile.photos.length > 0 && (
+          <div
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              padding: "24px",
+              marginBottom: "16px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+              }}
+            >
+              <h5
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  color: "#1a1a1a",
+                  margin: 0,
+                }}
+              >
+                Your Photos ({editingProfile.photos.length})
+              </h5>
+            </div>
+            
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                borderRadius: "12px",
+                overflow: "hidden",
+                background: "#f5f5f5",
+                minHeight: "400px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {/* Previous Button */}
+              {editingProfile.photos.length > 1 && (
+                <button
+                  onClick={() => {
+                    setCurrentPhotoIndex((prev) =>
+                      prev === 0 ? editingProfile.photos.length - 1 : prev - 1
+                    );
+                  }}
+                  style={{
+                    position: "absolute",
+                    left: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "rgba(0,0,0,0.6)",
+                    backdropFilter: "blur(10px)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    zIndex: 2,
+                    transition: "all 0.2s",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = "rgba(0,0,0,0.8)";
+                    e.currentTarget.style.transform = "translateY(-50%) scale(1.1)";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = "rgba(0,0,0,0.6)";
+                    e.currentTarget.style.transform = "translateY(-50%) scale(1)";
+                  }}
+                >
+                  <ChevronLeft size={24} color="white" />
+                </button>
+              )}
+
+              {/* Current Photo */}
+              {editingProfile.photos[currentPhotoIndex] && (
+                <img
+                  src={getImageUrl(editingProfile.photos[currentPhotoIndex])}
+                  alt={`Photo ${currentPhotoIndex + 1}`}
+                  style={{
+                    width: "100%",
+                    height: "400px",
+                    objectFit: "contain",
+                    display: "block",
+                  }}
+                  onError={(e) => {
+                    console.error("Image failed to load:", e.target.src);
+                    e.target.style.display = "none";
+                  }}
+                />
+              )}
+
+              {/* Next Button */}
+              {editingProfile.photos.length > 1 && (
+                <button
+                  onClick={() => {
+                    setCurrentPhotoIndex((prev) =>
+                      prev === editingProfile.photos.length - 1 ? 0 : prev + 1
+                    );
+                  }}
+                  style={{
+                    position: "absolute",
+                    right: "16px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "rgba(0,0,0,0.6)",
+                    backdropFilter: "blur(10px)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    zIndex: 2,
+                    transition: "all 0.2s",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = "rgba(0,0,0,0.8)";
+                    e.currentTarget.style.transform = "translateY(-50%) scale(1.1)";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = "rgba(0,0,0,0.6)";
+                    e.currentTarget.style.transform = "translateY(-50%) scale(1)";
+                  }}
+                >
+                  <ChevronRight size={24} color="white" />
+                </button>
+              )}
+            </div>
+
+            {/* Photo Thumbnails & Dots */}
+            {editingProfile.photos.length > 1 && (
+              <div style={{ marginTop: "16px" }}>
+                {/* Thumbnail Strip */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    overflowX: "auto",
+                    paddingBottom: "8px",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#ccc transparent",
+                  }}
+                >
+                  {editingProfile.photos.map((photo, index) => (
+                    <div
+                      key={index}
+                      onClick={() => setCurrentPhotoIndex(index)}
+                      style={{
+                        minWidth: "80px",
+                        height: "80px",
+                        borderRadius: "8px",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                        border:
+                          currentPhotoIndex === index
+                            ? "3px solid #ec4899"
+                            : "3px solid transparent",
+                        transition: "all 0.2s",
+                        opacity: currentPhotoIndex === index ? 1 : 0.7,
+                      }}
+                      onMouseOver={(e) => {
+                        if (currentPhotoIndex !== index) {
+                          e.currentTarget.style.opacity = "1";
+                          e.currentTarget.style.transform = "scale(1.05)";
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (currentPhotoIndex !== index) {
+                          e.currentTarget.style.opacity = "0.7";
+                          e.currentTarget.style.transform = "scale(1)";
+                        }
+                      }}
+                    >
+                      <img
+                        src={getImageUrl(photo)}
+                        alt={`Thumbnail ${index + 1}`}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Dot Indicators */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: "8px",
+                    marginTop: "12px",
+                  }}
+                >
+                  {editingProfile.photos.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPhotoIndex(index)}
+                      style={{
+                        width: currentPhotoIndex === index ? "24px" : "8px",
+                        height: "8px",
+                        borderRadius: "4px",
+                        border: "none",
+                        background:
+                          currentPhotoIndex === index ? "#ec4899" : "#d1d5db",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Profile Completion */}
         <div
           style={{
@@ -480,7 +908,7 @@ const ProfileEdit = () => {
                   marginBottom: "8px",
                 }}
               >
-                50%
+                {editingProfile?.profileCompletion ?? 0}%
               </div>
               <p
                 style={{
@@ -489,7 +917,9 @@ const ProfileEdit = () => {
                   color: "#1a1a1a",
                 }}
               >
-                Add a few more details to make your profile rich!
+                {editingProfile?.profileCompletion >= 100
+                  ? "Your profile is complete!"
+                  : "Add a few more details to make your profile rich!"}
               </p>
               <p style={{ color: "#666", fontSize: "13px", margin: 0 }}>
                 Complete your profile
@@ -524,11 +954,11 @@ const ProfileEdit = () => {
           />
           <InfoRow
             icon={Heart}
-            value={`Born: ${new Date(profile.dob).toLocaleDateString("en-US", {
+            value={profile.dob ? `Born: ${new Date(profile.dob).toLocaleDateString("en-US", {
               day: "numeric",
               month: "long",
               year: "numeric",
-            })}`}
+            })}` : "Date of birth not set"}
           />
           <InfoRow icon={Heart} value={profile.maritalStatus} />
 
@@ -569,18 +999,21 @@ const ProfileEdit = () => {
           )}
         </Section>
 
-        {/* About Me */}
-        <Section title="About Me" subtitle="Describe yourself in a few words">
-          <InfoRow
-            icon={Heart}
-            value={profile.about}
-            editable={true}
-            field="about"
-            multiline={true}
-          />
-        </Section>
+        {/* Tab Content */}
+        {activeTab === "about" && (
+          <>
+            {/* About Me */}
+            <Section title="About Me" subtitle="Describe yourself in a few words">
+              <InfoRow
+                icon={Heart}
+                value={profile.about || "Tell others about yourself..."}
+                editable={true}
+                field="about"
+                multiline={true}
+              />
+            </Section>
 
-        {/* Education */}
+            {/* Education */}
         <Section
           title="Education"
           subtitle="Showcase your educational qualification"
@@ -655,11 +1088,11 @@ const ProfileEdit = () => {
           </p>
         </Section>
 
-        {/* Lifestyle & Interests */}
-        <Section
-          title="My Lifestyle & Interests"
-          subtitle="Help your matches get an idea of your lifestyle activities"
-        >
+            {/* Lifestyle & Interests */}
+            <Section
+              title="My Lifestyle & Interests"
+              subtitle="Help your matches get an idea of your lifestyle activities"
+            >
           <div style={{ marginBottom: "20px" }}>
             <p
               style={{
@@ -731,6 +1164,61 @@ const ProfileEdit = () => {
             </div>
           </div>
         </Section>
+          </>
+        )}
+
+        {activeTab === "looking" && (
+          <Section 
+            title="Looking For" 
+            subtitle="Describe your ideal partner preferences"
+          >
+            <InfoRow
+              icon={Heart}
+              label="Age Range (Min - Max)"
+              value={editingProfile?.preferences?.ageRange 
+                ? `${editingProfile.preferences.ageRange.min || 'N/A'} - ${editingProfile.preferences.ageRange.max || 'N/A'}`
+                : "Not set"}
+              editable={true}
+              field="ageRange"
+              multiline={false}
+            />
+            <InfoRow
+              icon={MapPin}
+              label="Location Preference"
+              value={editingProfile?.preferences?.locationPref || editingProfile?.preferences?.location || "Not set"}
+              editable={true}
+              field="locationPref"
+            />
+            <InfoRow
+              icon={Users}
+              label="Religion Preference"
+              value={editingProfile?.preferences?.religion || "Not set"}
+              editable={true}
+              field="religion"
+            />
+            <InfoRow
+              icon={GraduationCap}
+              label="Education Preference"
+              value={editingProfile?.preferences?.educationPref || editingProfile?.preferences?.education || "Not set"}
+              editable={true}
+              field="educationPref"
+            />
+            <InfoRow
+              icon={Briefcase}
+              label="Profession Preference"
+              value={editingProfile?.preferences?.profession || (editingProfile?.preferences?.occupationPref ? editingProfile.preferences.occupationPref.join(", ") : "Not set")}
+              editable={true}
+              field="profession"
+            />
+            <InfoRow
+              icon={Heart}
+              label="Marital Status Preference"
+              value={editingProfile?.preferences?.maritalStatusPref || editingProfile?.preferences?.maritalStatus || "Not set"}
+              editable={true}
+              field="maritalStatusPref"
+            />
+          </Section>
+        )}
 
         {/* Save Button */}
         <div
@@ -743,6 +1231,7 @@ const ProfileEdit = () => {
           }}
         >
           <button
+            onClick={onSaveProfile}
             style={{
               background: "linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)",
               border: "none",

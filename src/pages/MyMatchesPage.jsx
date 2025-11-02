@@ -13,7 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { showSuccess, showError } from "../utils/toast";
 import { authAPI } from "../services/apiService";
-import { setUser } from "../store/slices/authSlice";
+import { setUser, fetchUserDetails } from "../store/slices/authSlice";
 import {
   fetchMatches,
   showInterest,
@@ -78,32 +78,21 @@ const MyMatchesPage = () => {
     searchCriteria,
     searchTerm,
     sortBy,
-    shortlistedProfiles,
-    shortlistLoading,
-    shortlistError,
   } = useSelector((state) => state.matches);
 
   const [selectedMatch, setSelectedMatch] = useState(null);
-  const [showProfileDialog, setShowProfileDialog] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState("grid");
-  const [expandedFilters, setExpandedFilters] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [editingProfile, setEditingProfile] = useState({});
 
   // Dynamic middle section view states
-  const [middleSectionView, setMiddleSectionView] = useState("matches"); // 'matches', 'profile-edit', 'profile-details', 'activity', 'search', 'messenger'
-  const [searchActiveTab, setSearchActiveTab] = useState("criteria");
-  const [profileId, setProfileId] = useState("");
+  const [middleSectionView, setMiddleSectionView] = useState("matches");
   const [activeMessengerTab, setActiveMessengerTab] = useState("acceptances");
-  const [showMessagesOnly, setShowMessagesOnly] = useState(false);
-  const [showSearchDialog, setShowSearchDialog] = useState(false);
   const [showSearchPreferences, setShowSearchPreferences] = useState(false);
 
   // Dynamic data states
   const [conversations, setConversations] = useState([]);
+  const [onlineMatches, setOnlineMatches] = useState([]);
   const [upMatchHour, setUpMatchHour] = useState(null);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
@@ -114,14 +103,11 @@ const MyMatchesPage = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [displayedMatches, setDisplayedMatches] = useState([]);
 
-  // Generate unique user ID like Jeevansathi (e.g., TYXX0117)
-  const generateUserId = (user) => {
-    if (user?.customId) return user.customId;
-
-    // Generate a Jeevansathi-style ID
-    const prefix = "TYXX";
-    const randomNum = Math.floor(Math.random() * 9000) + 1000;
-    return `${prefix}${randomNum}`;
+  // Get user ID from backend customId ONLY - no frontend generation
+  // The backend middleware generates customId automatically
+  const getUserDisplayId = (user) => {
+    // Only use backend-provided customId - never generate on frontend
+    return user?.customId || "Loading...";
   };
 
   // Utility functions
@@ -149,26 +135,90 @@ const MyMatchesPage = () => {
   useEffect(() => {
     loadMatches();
     loadInterestLimits();
-    loadUserProfile();
     loadSearchCriteria();
+    
+    // Always ensure user data is loaded
+    loadUserProfile();
+    
+    // Also fetch via Redux if user not available
+    if (!user) {
+      dispatch(fetchUserDetails());
+    }
   }, []);
+
+  // Update local state when Redux user changes
+  useEffect(() => {
+    if (user) {
+      setProfileData(user);
+      setEditingProfile(user);
+    }
+  }, [user]);
 
   // Load data when switching views
   useEffect(() => {
     if (middleSectionView === "messenger") {
       loadConversations(activeMessengerTab);
       loadUpMatchHour();
+      loadOnlineMatches();
+    } else if (middleSectionView === "profile-edit") {
+      // Load fresh user data when entering edit mode
+      loadUserProfileForEdit();
     }
   }, [middleSectionView, activeMessengerTab]);
 
   const loadUserProfile = async () => {
     try {
+      // If user exists in Redux, use it
       if (user) {
+        setProfileData(user);
+        setEditingProfile(user);
+      } else {
+        // If user not in Redux, fetch from API
+        try {
+          const response = await authAPI.getCurrentUser();
+          if (response.data.success) {
+            const userData = response.data.data;
+            // Update Redux store
+            dispatch(setUser(userData));
+            // Update local state
+            setProfileData(userData);
+            setEditingProfile(userData);
+          }
+        } catch (error) {
+          console.error("Error fetching user details:", error);
+          // Try fetching via Redux thunk as fallback
+          try {
+            await dispatch(fetchUserDetails()).unwrap();
+          } catch (fetchError) {
+            console.error("Error fetching user via Redux:", fetchError);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error);
+    }
+  };
+
+  const loadUserProfileForEdit = async () => {
+    try {
+      // Fetch fresh user data from API
+      const response = await authAPI.getCurrentUser();
+      if (response.data.success) {
+        const userData = response.data.data;
+        setProfileData(userData);
+        setEditingProfile(userData);
+      } else if (user) {
+        // Fallback to Redux user data
         setProfileData(user);
         setEditingProfile(user);
       }
     } catch (error) {
-      console.error("Error loading user profile:", error);
+      console.error("Error loading user profile for edit:", error);
+      // Fallback to Redux user data
+      if (user) {
+        setProfileData(user);
+        setEditingProfile(user);
+      }
     }
   };
 
@@ -248,7 +298,6 @@ const MyMatchesPage = () => {
           result.payload?.includes("404")
         ) {
           console.log("Backend not running, using sample data for testing");
-          // Use sample data for testing when backend is not available
           const sampleMatches = [
             {
               _id: "1",
@@ -337,6 +386,19 @@ const MyMatchesPage = () => {
       console.error("Failed to load conversations:", error);
     } finally {
       setLoadingConversations(false);
+    }
+  };
+
+  // Load online matches
+  const loadOnlineMatches = async () => {
+    try {
+      const response = await conversationAPI.getOnlineMatches();
+      if (response.data.success) {
+        setOnlineMatches(response.data.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to load online matches:", error);
+      setOnlineMatches([]); // Set empty array on error
     }
   };
 
@@ -498,22 +560,88 @@ const MyMatchesPage = () => {
 
   const handleSaveProfile = async () => {
     try {
+      // Helper to handle motherTongue - convert string to array if needed
+      const formatMotherTongue = (mt) => {
+        if (!mt) return [];
+        if (Array.isArray(mt)) return mt;
+        if (typeof mt === 'string') {
+          // Split by comma and trim
+          return mt.split(',').map(item => item.trim()).filter(item => item);
+        }
+        return [];
+      };
+
+      // Map editingProfile fields to API format
+      // Backend accepts: name, email, phoneNumber, dob, occupation, location, education, motherTongue, religion, caste, about, interests, preferences
+      const profileUpdateData = {};
+      
+      // Always include these fields if they exist in editingProfile (even if empty)
+      if (editingProfile.name !== undefined) profileUpdateData.name = editingProfile.name || "";
+      if (editingProfile.email !== undefined) profileUpdateData.email = editingProfile.email || "";
+      if (editingProfile.phoneNumber !== undefined) profileUpdateData.phoneNumber = editingProfile.phoneNumber || "";
+      if (editingProfile.dob !== undefined) profileUpdateData.dob = editingProfile.dob || "";
+      if (editingProfile.occupation !== undefined) profileUpdateData.occupation = editingProfile.occupation || "";
+      if (editingProfile.location !== undefined || editingProfile.city !== undefined) {
+        profileUpdateData.location = editingProfile.location || editingProfile.city || "";
+      }
+      if (editingProfile.education !== undefined || editingProfile.highestQualification !== undefined) {
+        profileUpdateData.education = editingProfile.education || editingProfile.highestQualification || "";
+      }
+      // Always include motherTongue if it exists in editingProfile
+      // It can be a string (from UI) or array (from API), we'll format it
+      // Backend expects an array, so we always send it as an array (even if empty)
+      if (editingProfile.motherTongue !== undefined && editingProfile.motherTongue !== null) {
+        const formattedMotherTongue = formatMotherTongue(editingProfile.motherTongue);
+        // Always send motherTongue as array - empty array is valid (means clearing the field)
+        // Backend uses: motherTongue || user.motherTongue, so we must send even empty arrays
+        profileUpdateData.motherTongue = formattedMotherTongue;
+      }
+      if (editingProfile.religion !== undefined) profileUpdateData.religion = editingProfile.religion || "";
+      if (editingProfile.caste !== undefined) profileUpdateData.caste = editingProfile.caste || "";
+      // About can be empty string, so check for !== undefined
+      if (editingProfile.about !== undefined) profileUpdateData.about = editingProfile.about || "";
+      // Interests should be an array
+      if (editingProfile.interests !== undefined) {
+        profileUpdateData.interests = Array.isArray(editingProfile.interests) 
+          ? editingProfile.interests 
+          : (editingProfile.interests ? [editingProfile.interests] : []);
+      }
+      
+      // Include preferences if they were updated
+      if (editingProfile.preferences && Object.keys(editingProfile.preferences).length > 0) {
+        // Backend expects preferences as JSON string or object
+        profileUpdateData.preferences = JSON.stringify(editingProfile.preferences);
+      }
+
+      console.log("Saving profile with data:", profileUpdateData);
+      console.log("Editing profile state:", editingProfile);
+
       // Call the API to update the profile
-      const response = await authAPI.updateProfile(editingProfile);
+      const response = await authAPI.updateProfile(profileUpdateData);
 
       if (response.data.success) {
-        setProfileData(editingProfile);
+        // Fetch updated user data from API
+        const updatedUserResponse = await authAPI.getCurrentUser();
+        if (updatedUserResponse.data.success) {
+          const updatedUserData = updatedUserResponse.data.data;
+          setProfileData(updatedUserData);
+          setEditingProfile(updatedUserData);
+          
+          // Update user data in Redux store
+          dispatch(setUser(updatedUserData));
+        } else {
+          // Fallback: use editingProfile
+          setProfileData(editingProfile);
+          dispatch(
+            setUser({
+              ...user,
+              ...editingProfile,
+            })
+          );
+        }
+
         setIsEditingProfile(false);
         setMiddleSectionView("matches");
-
-        // Update user data in Redux store with new profile image
-        dispatch(
-          setUser({
-            ...user,
-            ...editingProfile,
-            profileImage: editingProfile.profileImage,
-          })
-        );
 
         showSuccess("Profile updated successfully!");
 
@@ -535,10 +663,22 @@ const MyMatchesPage = () => {
   };
 
   const handleProfileFieldChange = (field, value) => {
-    setEditingProfile((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    if (field === "preferences") {
+      // Handle preferences update
+      setEditingProfile((prev) => ({
+        ...prev,
+        preferences: {
+          ...prev.preferences,
+          ...value,
+        },
+      }));
+    } else {
+      // Handle regular field update
+      setEditingProfile((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
   };
 
   // Handle profile image upload
@@ -601,6 +741,53 @@ const MyMatchesPage = () => {
     } catch (error) {
       console.error("Error removing profile image:", error);
       showError(error.response?.data?.message || "Failed to remove image");
+    }
+  };
+
+  // Handle multiple photos upload
+  const handlePhotosUpload = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    // Validate files
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    for (const file of files) {
+      if (file.size > maxSize) {
+        showError(`File ${file.name} is too large. Maximum size is 5MB`);
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        showError(`File ${file.name} is not a valid image`);
+        return;
+      }
+    }
+
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("photos", file);
+      });
+
+      // Upload photos using the update profile endpoint
+      // The API expects FormData with 'photos' field
+      const response = await authAPI.updateProfile(formData);
+
+      if (response.data.success) {
+        showSuccess(`Successfully uploaded ${files.length} photo(s)!`);
+        // Refresh user profile to get updated photos
+        const updatedUserResponse = await authAPI.getCurrentUser();
+        if (updatedUserResponse.data.success) {
+          const updatedUserData = updatedUserResponse.data.data;
+          setEditingProfile(updatedUserData);
+          setProfileData(updatedUserData);
+        }
+      } else {
+        showError(response.data.message || "Failed to upload photos");
+      }
+    } catch (error) {
+      console.error("Error uploading photos:", error);
+      showError(error.response?.data?.message || "Failed to upload photos");
     }
   };
 
@@ -796,7 +983,7 @@ const MyMatchesPage = () => {
                     variant="body2"
                     sx={{ color: "#666", textAlign: "start" }}
                   >
-                    {user?.profileId || "TXXR4877"}
+                    {getUserDisplayId(user)}
                   </Typography>
                 </div>
                 <Button
@@ -939,6 +1126,7 @@ const MyMatchesPage = () => {
                 onProfileFieldChange={handleProfileFieldChange}
                 onProfileImageChange={handleProfileImageChange}
                 onRemoveProfileImage={handleRemoveProfileImage}
+                onPhotosUpload={handlePhotosUpload}
               />
             )}
             {middleSectionView === "profile-details" && (

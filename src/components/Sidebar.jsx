@@ -29,9 +29,13 @@ const Sidebar = ({
   editingProfile, 
   middleSectionView, 
   onViewChange, 
-  onEditProfile,
-  generateUserId 
+  onEditProfile
 }) => {
+  // Get user ID from backend customId ONLY - no frontend generation
+  const getUserDisplayId = () => {
+    // Only use backend-provided customId - never generate on frontend
+    return user?.customId || editingProfile?.customId || "Loading...";
+  };
   return (
     <Box sx={{ 
       width: 280, 
@@ -85,7 +89,7 @@ const Sidebar = ({
           Hi {user?.name || editingProfile?.name || 'User'}!
         </Typography>
         <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
-          {user?.customId || editingProfile?.customId || generateUserId(user)}
+          {getUserDisplayId()}
         </Typography>
         <Button
           size="small"
