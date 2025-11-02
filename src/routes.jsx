@@ -29,6 +29,7 @@ import HoroscopePage from "./pages/HoroscopePage";
 import VideoCallPage from "./pages/VideoCallPage";
 import EventsPage from "./pages/EventsPage";
 import InterestsTabView from "./components/InterestsTabView"
+import MatchesList from "./components/MatchesList";
 // import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Protected routes array - यहाँ सभी protected routes डालें
@@ -47,7 +48,7 @@ const protectedRoutes = [
   { path: "/video-call/:userId", component: VideoCallPage },
   { path: "/events", component: EventsPage },
   { path: "/admin", component: AdminPanel },
-  {path:"/shortlisted",component:InterestsTabView}
+  {path:"/shortlisted",component:InterestsTabView},
 ];
 
 // Public routes array

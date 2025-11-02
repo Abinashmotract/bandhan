@@ -59,16 +59,16 @@ const MatchesList = ({
             Filters
           </Button>
           <Button
-            variant={filters.verified ? "contained" : "outlined"}
-            onClick={() => onFilterChange('verified', !filters.verified)}
+            variant={filters?.verified ? "contained" : "outlined"}
+            onClick={() => onFilterChange('verified', !filters?.verified)}
             sx={{
-              borderColor: filters.verified ? '#51365F' : '#e0e0e0',
-              backgroundColor: filters.verified ? '#51365F' : 'transparent',
-              color: filters.verified ? 'white' : '#666',
+              borderColor: filters?.verified ? '#51365F' : '#e0e0e0',
+              backgroundColor: filters?.verified ? '#51365F' : 'transparent',
+              color: filters?.verified ? 'white' : '#666',
               textTransform: 'none',
               fontWeight: 600,
               '&:hover': {
-                backgroundColor: filters.verified ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
+                backgroundColor: filters?.verified ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
                 borderColor: '#51365F'
               }
             }}
@@ -76,16 +76,16 @@ const MatchesList = ({
             Verified
           </Button>
           <Button
-            variant={filters.justJoined ? "contained" : "outlined"}
-            onClick={() => onFilterChange('justJoined', !filters.justJoined)}
+            variant={filters?.justJoined ? "contained" : "outlined"}
+            onClick={() => onFilterChange('justJoined', !filters?.justJoined)}
             sx={{
-              borderColor: filters.justJoined ? '#51365F' : '#e0e0e0',
-              backgroundColor: filters.justJoined ? '#51365F' : 'transparent',
-              color: filters.justJoined ? 'white' : '#666',
+              borderColor: filters?.justJoined ? '#51365F' : '#e0e0e0',
+              backgroundColor: filters?.justJoined ? '#51365F' : 'transparent',
+              color: filters?.justJoined ? 'white' : '#666',
               textTransform: 'none',
               fontWeight: 600,
               '&:hover': {
-                backgroundColor: filters.justJoined ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
+                backgroundColor: filters?.justJoined ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
                 borderColor: '#51365F'
               }
             }}
@@ -93,16 +93,16 @@ const MatchesList = ({
             Just Joined
           </Button>
           <Button
-            variant={filters.nearby ? "contained" : "outlined"}
-            onClick={() => onFilterChange('nearby', !filters.nearby)}
+            variant={filters?.nearby ? "contained" : "outlined"}
+            onClick={() => onFilterChange('nearby', !filters?.nearby)}
             sx={{
-              borderColor: filters.nearby ? '#51365F' : '#e0e0e0',
-              backgroundColor: filters.nearby ? '#51365F' : 'transparent',
-              color: filters.nearby ? 'white' : '#666',
+              borderColor: filters?.nearby ? '#51365F' : '#e0e0e0',
+              backgroundColor: filters?.nearby ? '#51365F' : 'transparent',
+              color: filters?.nearby ? 'white' : '#666',
               textTransform: 'none',
               fontWeight: 600,
               '&:hover': {
-                backgroundColor: filters.nearby ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
+                backgroundColor: filters?.nearby ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
                 borderColor: '#51365F'
               }
             }}
