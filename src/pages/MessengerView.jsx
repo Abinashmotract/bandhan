@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -20,6 +20,66 @@ import {
   CheckCircle,
   Message,
 } from "@mui/icons-material";
+import MessengerChatRoom from "../components/MessengerChatRoom";
+
+// Helper function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInMs = now - date;
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  
+  if (diffInDays === 0) return "Today";
+  if (diffInDays === 1) return "Yesterday";
+  if (diffInDays < 7) return `${diffInDays} days ago`;
+  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+  return `${Math.floor(diffInDays / 30)} months ago`;
+};
+
+// Helper function to get image URL
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  if (imagePath.startsWith('http')) return imagePath;
+  
+  // Backend already returns full URLs, so if it includes the domain, return as is
+  // Otherwise, construct from the base URL provided by backend
+  if (imagePath.includes('uploads/') || imagePath.startsWith('/uploads/')) {
+    // If it's already a full URL from backend, return as is
+    if (imagePath.startsWith('http')) return imagePath;
+    // Otherwise, assume backend provided relative path which is already correct
+    return imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  }
+  
+  // Fallback: construct URL (shouldn't happen if backend returns proper URLs)
+  return imagePath;
+};
+
+// Helper function to format height
+const formatHeight = (height) => {
+  if (!height) return "N/A";
+  if (typeof height === 'string' && height.includes("ft")) return height;
+  if (typeof height === 'string' && height.includes("_")) {
+    return height.replace("_", "'").replace("in", '"');
+  }
+  return height;
+};
+
+// Helper function to calculate age from DOB
+const calculateAge = (dob) => {
+  if (!dob) return null;
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+  return age;
+};
 
 // Main Messenger Component
 export const MessengerView = ({
@@ -30,11 +90,52 @@ export const MessengerView = ({
   onRegisterClick = () => {},
   onViewAllOnline = () => {},
   onConversationClick = () => {},
+  onTabChange = () => {},
+  initialTab = "acceptances",
+  onInterestSent = () => {},
 }) => {
-  const [activeTab, setActiveTab] = useState("interests");
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [showMessagesOnly, setShowMessagesOnly] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
 
-  // Fake data for different tabs
+  // Sync with parent's tab state
+  useEffect(() => {
+    if (initialTab && initialTab !== activeTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  // Transform API conversations data to component format
+  const transformedConversations = useMemo(() => {
+    if (!conversations || !Array.isArray(conversations)) return [];
+
+    return conversations.map((conv) => {
+      const user = conv.user || {};
+      const hasMessage = !!conv.message || !!conv.lastMessage;
+      const lastMessageText = conv.lastMessage?.content || conv.message || null;
+
+      return {
+        id: conv.id || conv._id,
+        name: user.name || "Unknown",
+        age: user.age || null,
+        height: formatHeight(user.height),
+        caste: user.caste || "N/A",
+        location: user.location || "N/A",
+        avatar: getImageUrl(user.profileImage),
+        date: formatDate(conv.createdAt || conv.lastMessage?.createdAt),
+        hasMessages: hasMessage,
+        lastMessage: lastMessageText,
+        isOnline: user.isOnline || false,
+        mutualInterests: conv.mutualInterests || 0,
+        interestType: conv.type === 'super_interest' || conv.status === 'super_interest' ? 'super' : 'regular',
+        status: conv.status,
+        userId: user.id || user._id,
+        customId: user.customId,
+      };
+    });
+  }, [conversations]);
+
+  // Fake data for different tabs (kept for calls tab which isn't implemented yet)
   const fakeAcceptances = [
     {
       id: 1,
@@ -194,28 +295,34 @@ export const MessengerView = ({
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    if (onTabChange) {
+      onTabChange(tab);
+    }
   };
 
   const handleToggleMessagesOnly = () => {
     setShowMessagesOnly(!showMessagesOnly);
   };
 
-  const getFilteredInterests = () => {
-    let interests = [...fakeInterests];
-    if (showMessagesOnly) {
-      interests = interests.filter((interest) => interest.hasMessages);
-    }
-    return interests;
-  };
 
   const getCurrentData = () => {
     switch (activeTab) {
       case "acceptances":
-        return fakeAcceptances;
+        // Filter for acceptances (status === 'accepted' or type === 'acceptance')
+        return transformedConversations.filter(
+          (conv) => conv.status === 'accepted' || conv.type === 'acceptance'
+        );
       case "interests":
-        return getFilteredInterests();
+        // Filter for interests sent by user (type === 'interest' or status !== 'accepted')
+        // The backend returns interests where type === 'interest' for interests tab
+        let interests = transformedConversations;
+        if (showMessagesOnly) {
+          interests = interests.filter((interest) => interest.hasMessages);
+        }
+        return interests;
       case "calls":
-        return fakeCalls;
+        // Calls tab - return empty array for now as it's not implemented
+        return [];
       default:
         return [];
     }
@@ -277,12 +384,81 @@ export const MessengerView = ({
     );
   };
 
+  const handleProfileClick = async (item) => {
+    const profileData = {
+      id: item.userId || item.id,
+      _id: item.userId || item.id,
+      name: item.name,
+      age: item.age,
+      height: item.height,
+      caste: item.caste,
+      location: item.location,
+      profileImage: item.avatar,
+      avatar: item.avatar,
+      occupation: item.occupation || "N/A",
+      annualIncome: item.annualIncome || "N/A",
+      maritalStatus: item.maritalStatus || "N/A",
+      isOnline: item.isOnline || false,
+      dob: item.dob,
+      customId: item.customId,
+    };
+    
+    // If profile doesn't have full details, try to fetch them
+    if ((!item.occupation || item.occupation === "N/A") && item.customId && item.customId !== "N/A") {
+      try {
+        const { searchAPI } = await import("../services/apiService");
+        const response = await searchAPI.searchByProfileId(item.customId);
+        if (response.data.success && response.data.data) {
+          const fullProfile = response.data.data;
+          profileData.occupation = fullProfile.occupation || "N/A";
+          profileData.annualIncome = fullProfile.annualIncome || "N/A";
+          profileData.maritalStatus = fullProfile.maritalStatus || "N/A";
+          profileData.age = fullProfile.age || calculateAge(fullProfile.dob);
+          profileData.height = formatHeight(fullProfile.height);
+          profileData.caste = fullProfile.caste || profileData.caste;
+          profileData.location = fullProfile.location || fullProfile.city || profileData.location;
+          profileData.profileImage = getImageUrl(fullProfile.profileImage);
+          profileData.avatar = profileData.profileImage;
+        }
+      } catch (error) {
+        console.error("Error fetching profile details:", error);
+        // Use the data we have if fetch fails
+      }
+    }
+    
+    setSelectedProfile(profileData);
+    if (onConversationClick) {
+      onConversationClick(item);
+    }
+  };
+
+  const handleBackFromChat = () => {
+    setSelectedProfile(null);
+  };
+
+  const handleInterestSent = (userId) => {
+    setSelectedProfile((prev) => {
+      if (prev && (prev.id === userId || prev._id === userId)) {
+        return { ...prev, interestSent: true };
+      }
+      return prev;
+    });
+    if (onInterestSent) {
+      onInterestSent();
+    }
+    // Reload conversations to show in interests tab
+    if (onTabChange) {
+      onTabChange("interests");
+      setActiveTab("interests");
+    }
+  };
+
   const renderConversationItem = (item, index) => {
     if (activeTab === "calls") {
       return (
         <Box
           key={item.id}
-          onClick={() => onConversationClick && onConversationClick(item)}
+          onClick={() => handleProfileClick(item)}
           sx={{
             display: "flex",
             alignItems: "center",
@@ -343,7 +519,7 @@ export const MessengerView = ({
     return (
       <Box
         key={item.id}
-        onClick={() => onConversationClick && onConversationClick(item)}
+        onClick={() => handleProfileClick(item)}
         sx={{
           display: "flex",
           alignItems: "center",
@@ -394,6 +570,7 @@ export const MessengerView = ({
               {item.name}, {item.age}
             </Typography>
             {activeTab === "interests" &&
+              item.interestType === "super" &&
               renderInterestBadge(item.interestType)}
             {activeTab === "acceptances" && item.mutualInterests > 0 && (
               <Chip
@@ -438,166 +615,62 @@ export const MessengerView = ({
     );
   };
 
+  // If a profile is selected, show chat room
+  if (selectedProfile) {
+    return (
+      <Box sx={{ maxWidth: 800, mx: "auto", height: "calc(100vh - 200px)" }}>
+        <MessengerChatRoom
+          profile={selectedProfile}
+          onBack={handleBackFromChat}
+          onInterestSent={handleInterestSent}
+        />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ maxWidth: 800, mx: "auto" }}>
-      {/* Match Hour Card */}
-      {matchHourData && (
-        <Card
-          sx={{
-            mb: 3,
-            borderRadius: 3,
-            border: "1px solid",
-            borderColor: "grey.200",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            transition: "transform 0.2s",
-            "&:hover": {
-              transform: "translateY(-2px)",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-            },
-          }}
-        >
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
-                {matchHourData.avatars?.slice(0, 3).map((avatar, idx) => (
-                  <Avatar
-                    key={idx}
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      border: "2px solid white",
-                      ml: idx > 0 ? -1.5 : 0,
-                      bgcolor: avatar.color || "#51365F",
-                      fontSize: "0.9rem",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {avatar.letter}
-                  </Avatar>
-                ))}
-              </Box>
-              <Chip
-                label={`${matchHourData.registered}+ registered`}
-                size="small"
-                sx={{
-                  bgcolor: "grey.100",
-                  color: "text.secondary",
-                  fontWeight: 500,
-                  fontSize: "0.75rem",
-                }}
-              />
-            </Box>
-
+      {/* Online Matches */}
+      <Card
+        sx={{
+          mb: 3,
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "grey.200",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        }}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 1,
+              cursor: onlineMatches && onlineMatches.length > 0 ? "pointer" : "default",
+            }}
+            onClick={onlineMatches && onlineMatches.length > 0 ? onViewAllOnline : undefined}
+          >
             <Typography
               variant="h6"
-              sx={{ fontWeight: 700, mb: 2, color: "grey.900" }}
+              sx={{ fontWeight: 700, color: "grey.900" }}
             >
-              {matchHourData.title}
+              Online Matches ({onlineMatches?.length || 0})
             </Typography>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 3 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "#51365F",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <CalendarToday sx={{ fontSize: 16, color: "white" }} />
-                </Box>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "text.secondary", fontWeight: 500 }}
-                >
-                  {matchHourData.date}
-                </Typography>
-              </Box>
-
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "#51365F",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <AccessTime sx={{ fontSize: 16, color: "white" }} />
-                </Box>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "text.secondary", fontWeight: 500 }}
-                >
-                  {matchHourData.time}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Button
-              variant="contained"
-              onClick={onRegisterClick}
-              sx={{
-                bgcolor: "#51365F",
-                px: 4,
-                py: 1.5,
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.95rem",
-                "&:hover": {
-                  bgcolor: "#3d2849",
-                },
-              }}
-            >
-              Register Now
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Online Matches */}
-      {onlineMatches && onlineMatches.length > 0 && (
-        <Card
-          sx={{
-            mb: 3,
-            borderRadius: 3,
-            border: "1px solid",
-            borderColor: "grey.200",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <CardContent sx={{ p: 3 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 1,
-                cursor: "pointer",
-              }}
-              onClick={onViewAllOnline}
-            >
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 700, color: "grey.900" }}
-              >
-                Online Matches ({onlineMatches.length})
-              </Typography>
+            {onlineMatches && onlineMatches.length > 0 && (
               <KeyboardArrowRight sx={{ color: "text.secondary" }} />
+            )}
+          </Box>
+
+          <Typography variant="body2" sx={{ color: "text.secondary", mb: 3 }}>
+            Chat with users who are currently online to get faster responses
+          </Typography>
+
+          {loading && (!onlineMatches || onlineMatches.length === 0) ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <CircularProgress sx={{ color: "#51365F" }} />
             </Box>
-
-            <Typography variant="body2" sx={{ color: "text.secondary", mb: 3 }}>
-              Chat with users who are currently online to get faster responses
-            </Typography>
-
+          ) : onlineMatches && onlineMatches.length > 0 ? (
             <Box
               sx={{
                 display: "flex",
@@ -616,7 +689,42 @@ export const MessengerView = ({
             >
               {onlineMatches.slice(0, 6).map((match, index) => (
                 <Box
-                  key={index}
+                  key={match.id || match._id || index}
+                  onClick={async () => {
+                    const profileData = {
+                      id: match.id || match._id,
+                      _id: match.id || match._id,
+                      name: match.name,
+                      profileImage: getImageUrl(match.profileImage || match.avatar),
+                      avatar: getImageUrl(match.profileImage || match.avatar),
+                      isOnline: match.isOnline || true,
+                      customId: match.customId,
+                    };
+                    
+                    // Fetch full profile details if customId is available
+                    if (match.customId && match.customId !== "N/A") {
+                      try {
+                        const { searchAPI } = await import("../services/apiService");
+                        const response = await searchAPI.searchByProfileId(match.customId);
+                        if (response.data.success && response.data.data) {
+                          const fullProfile = response.data.data;
+                          profileData.occupation = fullProfile.occupation || "N/A";
+                          profileData.annualIncome = fullProfile.annualIncome || "N/A";
+                          profileData.maritalStatus = fullProfile.maritalStatus || "N/A";
+                          profileData.age = fullProfile.age || calculateAge(fullProfile.dob);
+                          profileData.height = formatHeight(fullProfile.height);
+                          profileData.caste = fullProfile.caste || "N/A";
+                          profileData.location = fullProfile.location || fullProfile.city || "N/A";
+                          profileData.profileImage = getImageUrl(fullProfile.profileImage);
+                          profileData.avatar = profileData.profileImage;
+                        }
+                      } catch (error) {
+                        console.error("Error fetching profile details:", error);
+                      }
+                    }
+                    
+                    setSelectedProfile(profileData);
+                  }}
                   sx={{
                     textAlign: "center",
                     minWidth: 70,
@@ -643,7 +751,7 @@ export const MessengerView = ({
                     }
                   >
                     <Avatar
-                      src={match.avatar || match.profileImage}
+                      src={getImageUrl(match.profileImage || match.avatar)}
                       sx={{
                         width: 56,
                         height: 56,
@@ -715,9 +823,15 @@ export const MessengerView = ({
                 </Box>
               )}
             </Box>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                No online matches at the moment. Check back soon!
+              </Typography>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
 
       {/* My Conversations */}
       <Card

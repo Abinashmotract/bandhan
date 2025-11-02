@@ -1183,15 +1183,30 @@ const MyMatchesPage = () => {
                 getHeight={getHeight}
               />
             )}
-            {middleSectionView === "messenger" &&     <MessengerView
-                  matchHourData={matchHourData}
-                  onlineMatches={onlineMatches}
-                  conversations={conversations}
-                  loading={false}
-                  onRegisterClick={() => console.log('Register clicked')}
-                  onViewAllOnline={() => console.log('View all online clicked')}
-                  onConversationClick={(conv) => console.log('Conversation clicked:', conv)}
-                />}
+            {middleSectionView === "messenger" && (
+              <MessengerView
+                matchHourData={matchHourData}
+                onlineMatches={onlineMatches}
+                conversations={conversations}
+                loading={loadingConversations}
+                initialTab={activeMessengerTab}
+                onRegisterClick={() => console.log('Register clicked')}
+                onViewAllOnline={() => console.log('View all online clicked')}
+                onConversationClick={(conv) => {
+                  console.log('Conversation clicked:', conv);
+                }}
+                onTabChange={(tab) => {
+                  setActiveMessengerTab(tab);
+                  loadConversations(tab);
+                }}
+                onInterestSent={() => {
+                  // Reload conversations to show the new interest
+                  // Switch to interests tab and reload
+                  setActiveMessengerTab("interests");
+                  loadConversations("interests");
+                }}
+              />
+            )}
           </Card>
         </Grid>
 
