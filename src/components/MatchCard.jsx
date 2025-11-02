@@ -168,7 +168,7 @@ const MatchCard = ({
                   lineHeight: 1.2,
                 }}
               >
-                {match.name}, {getAge(match.dob) || "N/A"}
+                {match?.name}, {getAge(match?.dob) || "N/A"}
               </Typography>
               {(match.isEmailVerified ||
                 match.isPhoneVerified ||
