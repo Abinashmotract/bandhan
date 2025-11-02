@@ -111,7 +111,8 @@ export const MessengerView = ({
 
     return conversations.map((conv) => {
       const user = conv.user || {};
-      const hasMessage = !!conv.message || !!conv.lastMessage;
+      // Interest has a message if: interest.message exists, or there's a lastMessage between users
+      const hasMessage = !!(conv.message || conv.lastMessage);
       const lastMessageText = conv.lastMessage?.content || conv.message || null;
 
       return {
@@ -436,21 +437,27 @@ export const MessengerView = ({
     setSelectedProfile(null);
   };
 
-  const handleInterestSent = (userId) => {
+  const handleInterestSent = async (userId) => {
     setSelectedProfile((prev) => {
       if (prev && (prev.id === userId || prev._id === userId)) {
         return { ...prev, interestSent: true };
       }
       return prev;
     });
-    if (onInterestSent) {
-      onInterestSent();
-    }
+    
     // Reload conversations to show in interests tab
+    // First switch to interests tab
     if (onTabChange) {
       onTabChange("interests");
       setActiveTab("interests");
     }
+    
+    // Wait a moment for backend to save, then reload
+    setTimeout(() => {
+      if (onInterestSent) {
+        onInterestSent();
+      }
+    }, 500);
   };
 
   const renderConversationItem = (item, index) => {
@@ -951,7 +958,9 @@ export const MessengerView = ({
                     ? "You can initiate a conversation with your acceptances here through our chatting & calling services!"
                     : activeTab === "calls"
                     ? "Get to know your interests in the quickest way by calling them on Jeevansathi!"
-                    : "No interests found with messages. Try adjusting your filters."
+                    : showMessagesOnly
+                    ? "No interests found with messages. Try adjusting your filters."
+                    : "No interests sent yet. Send interest to profiles to see them here."
                 }
               />
             )}

@@ -1199,11 +1199,13 @@ const MyMatchesPage = () => {
                   setActiveMessengerTab(tab);
                   loadConversations(tab);
                 }}
-                onInterestSent={() => {
-                  // Reload conversations to show the new interest
-                  // Switch to interests tab and reload
+                onInterestSent={async () => {
+                  // Switch to interests tab first
                   setActiveMessengerTab("interests");
-                  loadConversations("interests");
+                  // Wait a moment for backend to save, then reload conversations
+                  setTimeout(() => {
+                    loadConversations("interests");
+                  }, 300);
                 }}
               />
             )}
