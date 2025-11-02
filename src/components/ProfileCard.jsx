@@ -38,7 +38,7 @@ import {
   Lock as LockIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useSubscription } from "../contexts/SubscriptionContext";
+import { useSubscription } from '../hooks/useSubscription';
 import ProfileAccessRestriction from "./ProfileAccessRestriction";
 import InterestButton from "./InterestButton";
 import { useDispatch, useSelector } from "react-redux";

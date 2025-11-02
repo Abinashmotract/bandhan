@@ -1,146 +1,254 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { API_BASE_URL } from '../../utils/api';
-import Cookies from 'js-cookie';
-import { searchAPI } from '../../services/apiService';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { API_BASE_URL } from "../../utils/api";
+import Cookies from "js-cookie";
+import { searchAPI } from "../../services/apiService";
 
 // Async thunks
 export const fetchMatches = createAsyncThunk(
-  'matches/fetchMatches',
+  "matches/fetchMatches",
   async (filters = {}, { rejectWithValue }) => {
     try {
-      const token = Cookies.get('accessToken');
+      const token = Cookies.get("accessToken");
       const response = await axios.get(`${API_BASE_URL}/profiles/matches`, {
         headers: { Authorization: `Bearer ${token}` },
         params: {
           page: filters.page || 1,
           limit: filters.limit || 20,
-          search: filters.search || '',
+          search: filters.search || "",
           verified: filters.verified || false,
           nearby: filters.nearby || false,
           justJoined: filters.justJoined || false,
           ageMin: filters.ageRange ? filters.ageRange[0] : 18,
           ageMax: filters.ageRange ? filters.ageRange[1] : 60,
-          religion: filters.religion || '',
-          caste: filters.caste || '',
-          occupation: filters.occupation || '',
-          location: filters.location || '',
-          sortBy: filters.sortBy || 'recentlyJoined'
-        }
+          religion: filters.religion || "",
+          caste: filters.caste || "",
+          occupation: filters.occupation || "",
+          location: filters.location || "",
+          sortBy: filters.sortBy || "recentlyJoined",
+        },
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch matches');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch matches"
+      );
     }
   }
 );
 
 export const showInterest = createAsyncThunk(
-  'matches/showInterest',
+  "matches/showInterest",
   async (profileId, { rejectWithValue }) => {
     try {
-      const token = Cookies.get('accessToken');
+      const token = Cookies.get("accessToken");
       const response = await axios.post(
-        `${API_BASE_URL}/profiles/interest`,
+        `${API_BASE_URL}/matches/interest`,
         { profileId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to show interest');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to show interest"
+      );
     }
   }
 );
 
 export const showSuperInterest = createAsyncThunk(
-  'matches/showSuperInterest',
+  "matches/showSuperInterest",
   async (profileId, { rejectWithValue }) => {
     try {
-      const token = Cookies.get('accessToken');
+      const token = Cookies.get("accessToken");
       const response = await axios.post(
-        `${API_BASE_URL}/profiles/super-interest`,
+        `${API_BASE_URL}/matches/super-interest`,
         { profileId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to show super interest');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to show super interest"
+      );
     }
   }
 );
 
 export const getInterestLimits = createAsyncThunk(
-  'matches/getInterestLimits',
+  "matches/getInterestLimits",
   async (_, { rejectWithValue }) => {
     try {
-      const token = Cookies.get('accessToken');
+      const token = Cookies.get("accessToken");
       const response = await axios.get(`${API_BASE_URL}/profiles/limits`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch interest limits');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch interest limits"
+      );
     }
   }
 );
 
 export const searchMatches = createAsyncThunk(
-  'matches/searchMatches',
+  "matches/searchMatches",
   async (searchParams, { rejectWithValue }) => {
     try {
-      const token = Cookies.get('accessToken');
+      const token = Cookies.get("accessToken");
       const response = await axios.get(`${API_BASE_URL}/profiles/search`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: searchParams
+        params: searchParams,
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to search matches');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to search matches"
+      );
+    }
+  }
+);
+
+// Add profile to shortlist
+export const addToShortlist = createAsyncThunk(
+  "matches/addToShortlist",
+  async (profileId, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get("accessToken");
+      const response = await axios.post(
+        `${API_BASE_URL}/matches/shortlist`,
+        { profileId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response) {
+        const checkShortlist = await axios.get(
+          `${API_BASE_URL}/matches/shortlist/status/${profileId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (checkShortlist.data.isShortlisted) {
+          return { profileId, isShortlisted: true };
+        }
+      }
+      return { profileId, ...response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to add to shortlist"
+      );
+    }
+  }
+);
+
+// Remove profile from shortlist
+export const removeFromShortlist = createAsyncThunk(
+  "matches/removeFromShortlist",
+  async (profileId, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get("accessToken");
+      const response = await axios.delete(`${API_BASE_URL}/matches/shortlist`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { profileId },
+      });
+      return { profileId, ...response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to remove from shortlist"
+      );
+    }
+  }
+);
+
+// Get shortlisted profiles
+export const getShortlistedProfiles = createAsyncThunk(
+  "matches/getShortlistedProfiles",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get("accessToken");
+      const response = await axios.get(`${API_BASE_URL}/matches/shortlist`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch shortlisted profiles"
+      );
+    }
+  }
+);
+
+// Check shortlist status for a profile
+export const checkShortlistStatus = createAsyncThunk(
+  "matches/checkShortlistStatus",
+  async (profileId, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get("accessToken");
+      const response = await axios.get(
+        `${API_BASE_URL}/matches/shortlist/status`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { profileId },
+        }
+      );
+      return { profileId, isShortlisted: response.data.isShortlisted };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to check shortlist status"
+      );
     }
   }
 );
 
 // Search profiles with advanced criteria
 export const searchProfilesByCriteria = createAsyncThunk(
-  'matches/searchProfilesByCriteria',
+  "matches/searchProfilesByCriteria",
   async (searchCriteria, { rejectWithValue }) => {
     try {
       const response = await searchAPI.searchProfiles(searchCriteria);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to search profiles');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to search profiles"
+      );
     }
   }
 );
 
 // Save search preferences
 export const saveSearchPreferences = createAsyncThunk(
-  'matches/saveSearchPreferences',
+  "matches/saveSearchPreferences",
   async (preferences, { rejectWithValue }) => {
     try {
-      const token = Cookies.get('accessToken');
-      const response = await axios.post(`${API_BASE_URL}/search/preferences`, preferences, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const token = Cookies.get("accessToken");
+      const response = await axios.post(
+        `${API_BASE_URL}/search/preferences`,
+        preferences,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to save search preferences');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to save search preferences"
+      );
     }
   }
 );
 
 // Get search preferences
 export const getSearchPreferences = createAsyncThunk(
-  'matches/getSearchPreferences',
+  "matches/getSearchPreferences",
   async (_, { rejectWithValue }) => {
     try {
-      const token = Cookies.get('accessToken');
+      const token = Cookies.get("accessToken");
       const response = await axios.get(`${API_BASE_URL}/search/preferences`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to get search preferences');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to get search preferences"
+      );
     }
   }
 );
@@ -152,48 +260,51 @@ const initialState = {
   searchPreferences: null,
   loading: false,
   error: null,
+  shortlistedProfiles: [],
+  shortlistLoading: false,
+  shortlistError: null,
   interestLimits: {
     freeInterests: 5,
     freeSuperInterests: 1,
     usedInterests: 0,
-    usedSuperInterests: 0
+    usedSuperInterests: 0,
   },
   filters: {
     verified: false,
     nearby: false,
     justJoined: false,
     ageRange: [18, 45],
-    religion: '',
-    caste: '',
-    occupation: '',
-    education: '',
-    height: '',
-    location: ''
+    religion: "",
+    caste: "",
+    occupation: "",
+    education: "",
+    height: "",
+    location: "",
   },
   searchCriteria: {
-    gender: 'female',
+    gender: "female",
     ageMin: 21,
     ageMax: 35,
     heightMin: 122,
     heightMax: 213,
-    religion: '',
-    caste: '',
-    education: '',
-    location: '',
-    occupation: '',
-    annualIncome: ''
+    religion: "",
+    caste: "",
+    education: "",
+    location: "",
+    occupation: "",
+    annualIncome: "",
   },
-  searchTerm: '',
-  sortBy: 'recentlyJoined',
+  searchTerm: "",
+  sortBy: "recentlyJoined",
   pagination: {
     currentPage: 1,
     totalPages: 1,
-    totalMatches: 0
-  }
+    totalMatches: 0,
+  },
 };
 
 const matchesSlice = createSlice({
-  name: 'matches',
+  name: "matches",
   initialState,
   reducers: {
     setFilters: (state, action) => {
@@ -201,6 +312,13 @@ const matchesSlice = createSlice({
     },
     setSearchTerm: (state, action) => {
       state.searchTerm = action.payload;
+    },
+    updateShortlistStatus: (state, action) => {
+      const { profileId, isShortlisted } = action.payload;
+      const match = state.matches.find((m) => m._id === profileId);
+      if (match) {
+        match.isShortlisted = isShortlisted;
+      }
     },
     setSortBy: (state, action) => {
       state.sortBy = action.payload;
@@ -210,7 +328,7 @@ const matchesSlice = createSlice({
     },
     clearFilters: (state) => {
       state.filters = initialState.filters;
-      state.searchTerm = '';
+      state.searchTerm = "";
     },
     clearSearchResults: (state) => {
       state.searchResults = [];
@@ -223,55 +341,72 @@ const matchesSlice = createSlice({
 
       // Search filter
       if (state.searchTerm) {
-        filtered = filtered.filter(match =>
-          match.name.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
-          match.profession.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
-          match.location.toLowerCase().includes(state.searchTerm.toLowerCase())
+        filtered = filtered.filter(
+          (match) =>
+            match.name.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
+            match.profession
+              .toLowerCase()
+              .includes(state.searchTerm.toLowerCase()) ||
+            match.location
+              .toLowerCase()
+              .includes(state.searchTerm.toLowerCase())
         );
       }
 
       // Other filters
       if (state.filters.verified) {
-        filtered = filtered.filter(match => match.isVerified);
+        filtered = filtered.filter((match) => match.isVerified);
       }
       if (state.filters.nearby) {
-        filtered = filtered.filter(match => match.isNearby);
+        filtered = filtered.filter((match) => match.isNearby);
       }
       if (state.filters.justJoined) {
-        filtered = filtered.filter(match => match.isJustJoined);
+        filtered = filtered.filter((match) => match.isJustJoined);
       }
       if (state.filters.religion) {
-        filtered = filtered.filter(match => match.religion === state.filters.religion);
+        filtered = filtered.filter(
+          (match) => match.religion === state.filters.religion
+        );
       }
       if (state.filters.caste) {
-        filtered = filtered.filter(match => match.caste === state.filters.caste);
+        filtered = filtered.filter(
+          (match) => match.caste === state.filters.caste
+        );
       }
       if (state.filters.occupation) {
-        filtered = filtered.filter(match => match.profession === state.filters.occupation);
+        filtered = filtered.filter(
+          (match) => match.profession === state.filters.occupation
+        );
       }
       if (state.filters.location) {
-        filtered = filtered.filter(match => 
-          match.location.toLowerCase().includes(state.filters.location.toLowerCase())
+        filtered = filtered.filter((match) =>
+          match.location
+            .toLowerCase()
+            .includes(state.filters.location.toLowerCase())
         );
       }
 
       // Age filter
-      filtered = filtered.filter(match => 
-        match.age >= state.filters.ageRange[0] && match.age <= state.filters.ageRange[1]
+      filtered = filtered.filter(
+        (match) =>
+          match.age >= state.filters.ageRange[0] &&
+          match.age <= state.filters.ageRange[1]
       );
 
       // Sort
       switch (state.sortBy) {
-        case 'name':
+        case "name":
           filtered.sort((a, b) => a.name.localeCompare(b.name));
           break;
-        case 'recentlyJoined':
-          filtered.sort((a, b) => new Date(b.joinedDate) - new Date(a.joinedDate));
+        case "recentlyJoined":
+          filtered.sort(
+            (a, b) => new Date(b.joinedDate) - new Date(a.joinedDate)
+          );
           break;
-        case 'verified':
+        case "verified":
           filtered.sort((a, b) => b.isVerified - a.isVerified);
           break;
-        case 'matchScore':
+        case "matchScore":
           filtered.sort((a, b) => b.matchScore - a.matchScore);
           break;
         default:
@@ -281,8 +416,9 @@ const matchesSlice = createSlice({
       state.filteredMatches = filtered;
     },
     updateMatchInterest: (state, action) => {
-      const { matchId, hasShownInterest, hasShownSuperInterest } = action.payload;
-      const match = state.matches.find(m => m.id === matchId);
+      const { matchId, hasShownInterest, hasShownSuperInterest } =
+        action.payload;
+      const match = state.matches.find((m) => m.id === matchId);
       if (match) {
         if (hasShownInterest !== undefined) {
           match.hasShownInterest = hasShownInterest;
@@ -294,7 +430,7 @@ const matchesSlice = createSlice({
     },
     updateInterestLimits: (state, action) => {
       state.interestLimits = { ...state.interestLimits, ...action.payload };
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -313,7 +449,7 @@ const matchesSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
+
       // Show interest
       .addCase(showInterest.pending, (state) => {
         state.loading = true;
@@ -321,7 +457,7 @@ const matchesSlice = createSlice({
       .addCase(showInterest.fulfilled, (state, action) => {
         state.loading = false;
         const { profileId } = action.payload;
-        const match = state.matches.find(m => m.id === profileId);
+        const match = state.matches.find((m) => m.id === profileId);
         if (match) {
           match.hasShownInterest = true;
         }
@@ -331,7 +467,7 @@ const matchesSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
+
       // Show super interest
       .addCase(showSuperInterest.pending, (state) => {
         state.loading = true;
@@ -339,7 +475,7 @@ const matchesSlice = createSlice({
       .addCase(showSuperInterest.fulfilled, (state, action) => {
         state.loading = false;
         const { profileId } = action.payload;
-        const match = state.matches.find(m => m.id === profileId);
+        const match = state.matches.find((m) => m.id === profileId);
         if (match) {
           match.hasShownSuperInterest = true;
         }
@@ -349,12 +485,12 @@ const matchesSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
+
       // Get interest limits
       .addCase(getInterestLimits.fulfilled, (state, action) => {
         state.interestLimits = action.payload;
       })
-      
+
       // Search matches
       .addCase(searchMatches.pending, (state) => {
         state.loading = true;
@@ -407,14 +543,17 @@ const matchesSlice = createSlice({
         state.loading = false;
         state.searchPreferences = action.payload.data;
         if (action.payload.data) {
-          state.searchCriteria = { ...state.searchCriteria, ...action.payload.data };
+          state.searchCriteria = {
+            ...state.searchCriteria,
+            ...action.payload.data,
+          };
         }
       })
       .addCase(getSearchPreferences.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
-  }
+  },
 });
 
 export const {
@@ -427,7 +566,8 @@ export const {
   clearSearchCriteria,
   applyFilters,
   updateMatchInterest,
-  updateInterestLimits
+  updateInterestLimits,
+  updateShortlistStatus,
 } = matchesSlice.actions;
 
 export default matchesSlice.reducer;

@@ -1,14 +1,15 @@
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
-import profileReducer from './slices/profileSlice';
-import searchReducer from './slices/searchSlice';
-import interactionReducer from './slices/interactionSlice';
-import messagingReducer from './slices/messagingSlice';
-import subscriptionReducer from './slices/subscriptionSlice';
-import verificationReducer from './slices/verificationSlice';
-import notificationReducer from './slices/notificationSlice';
-import adminReducer from './slices/adminSlice';
-import matchesReducer from './slices/matchesSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./slices/authSlice";
+import profileReducer from "./slices/profileSlice";
+import searchReducer from "./slices/searchSlice";
+import interactionReducer from "./slices/interactionSlice";
+import messagingReducer from "./slices/messagingSlice";
+import subscriptionReducer from "./slices/subscriptionSlice";
+import verificationReducer from "./slices/verificationSlice";
+import notificationReducer from "./slices/notificationSlice";
+import adminReducer from "./slices/adminSlice";
+import matchesReducer from "./slices/matchesSlice";
+import activityReducer from "./slices/activitySlice";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     notification: notificationReducer,
     admin: adminReducer,
     matches: matchesReducer,
+    activity: activityReducer,
   },
 });
 

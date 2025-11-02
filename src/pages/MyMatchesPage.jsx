@@ -30,6 +30,10 @@ import {
   searchProfilesByCriteria,
   saveSearchPreferences,
   getSearchPreferences,
+  addToShortlist,
+  removeFromShortlist,
+  updateMatchInterest,
+  updateInterestLimits,
 } from "../store/slices/matchesSlice";
 import {
   activityAPI,
@@ -74,6 +78,9 @@ const MyMatchesPage = () => {
     searchCriteria,
     searchTerm,
     sortBy,
+    shortlistedProfiles,
+    shortlistLoading,
+    shortlistError,
   } = useSelector((state) => state.matches);
 
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -96,11 +103,8 @@ const MyMatchesPage = () => {
   const [showSearchPreferences, setShowSearchPreferences] = useState(false);
 
   // Dynamic data states
-  const [activityData, setActivityData] = useState(null);
-  const [onlineMatches, setOnlineMatches] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [upMatchHour, setUpMatchHour] = useState(null);
-  const [loadingActivity, setLoadingActivity] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
 
@@ -151,13 +155,9 @@ const MyMatchesPage = () => {
 
   // Load data when switching views
   useEffect(() => {
-    if (middleSectionView === "activity") {
-      loadActivityData();
-      loadOnlineMatches();
-    } else if (middleSectionView === "messenger") {
+    if (middleSectionView === "messenger") {
       loadConversations(activeMessengerTab);
       loadUpMatchHour();
-      loadOnlineMatches();
     }
   }, [middleSectionView, activeMessengerTab]);
 
@@ -323,32 +323,7 @@ const MyMatchesPage = () => {
     }
   };
 
-  // Load activity data
-  const loadActivityData = async () => {
-    try {
-      setLoadingActivity(true);
-      const response = await activityAPI.getDashboard();
-      if (response.data.success) {
-        setActivityData(response.data.data);
-      }
-    } catch (error) {
-      console.error("Failed to load activity data:", error);
-    } finally {
-      setLoadingActivity(false);
-    }
-  };
 
-  // Load online matches
-  const loadOnlineMatches = async () => {
-    try {
-      const response = await activityAPI.getOnlineMatches();
-      if (response.data.success) {
-        setOnlineMatches(response.data.data);
-      }
-    } catch (error) {
-      console.error("Failed to load online matches:", error);
-    }
-  };
 
   // Load conversations
   const loadConversations = async (tab = "acceptances") => {
@@ -445,6 +420,31 @@ const MyMatchesPage = () => {
       }
     } catch (error) {
       showError("Failed to send super interest");
+    }
+  };
+
+  const handleToggleShortlist = async (profileId) => {
+    const matchToUpdate = matches.find(m => m._id === profileId);
+    if (matchToUpdate) {
+      try {
+        if (matchToUpdate.isShortlisted) {
+          const result = await dispatch(removeFromShortlist(profileId));
+          if (removeFromShortlist.fulfilled.match(result)) {
+            showSuccess("Profile removed from shortlist");
+          } else {
+            showError(result.payload || "Failed to remove from shortlist");
+          }
+        } else {
+          const result = await dispatch(addToShortlist(profileId));
+          if (addToShortlist.fulfilled.match(result)) {
+            showSuccess("Profile added to shortlist");
+          } else {
+            showError(result.payload || "Failed to add to shortlist");
+          }
+        }
+      } catch (error) {
+        showError("Failed to update shortlist");
+      }
     }
   };
 
@@ -923,6 +923,7 @@ const MyMatchesPage = () => {
                 onShowInterest={handleShowInterest}
                 onShowSuperInterest={handleShowSuperInterest}
                 onViewProfile={handleViewProfile}
+                onToggleShortlist={handleToggleShortlist}
                 getAge={getAge}
                 getHeight={getHeight}
                 isLoadingMore={isLoadingMore}
@@ -946,6 +947,7 @@ const MyMatchesPage = () => {
                 onBackToMatches={handleBackToMatches}
                 onShowInterest={handleShowInterest}
                 onShowSuperInterest={handleShowSuperInterest}
+                onToggleShortlist={handleToggleShortlist}
                 getAge={getAge}
                 getMatchingCriteria={getMatchingCriteria}
               />

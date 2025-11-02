@@ -33,6 +33,7 @@ import {
   Language as LanguageIcon,
   Person as PersonIcon,
 } from "@mui/icons-material";
+import axiosInstance from "../utils/axiosInterceptor";
 
 // Mock data based on the original imports
 const MARITAL_STATUS_OPTIONS = [
@@ -235,12 +236,15 @@ const SearchForm = () => {
     onCriteriaChange(field, value);
   };
 
-  const onSearch = () => {
+  const onSearch = async() => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const response = await axiosInstance.post("/search/by-criteria" , searchCriteria);
       setLoading(false);
-      console.log("Search criteria:", searchCriteria);
-    }, 1000);
+      
+    } catch (error) {
+      
+    }
   };
 
   const onResetCriteria = () => {

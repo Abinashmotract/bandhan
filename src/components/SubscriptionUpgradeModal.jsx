@@ -28,7 +28,7 @@ import {
 } from '@mui/icons-material';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { stripePromise, STRIPE_CONFIG } from '../utils/stripe';
-import { useSubscription } from '../contexts/SubscriptionContext';
+import { useSubscription } from '../hooks/useSubscription';
 import { useDispatch } from 'react-redux';
 import { createPaymentIntent, confirmPayment } from '../store/slices/subscriptionSlice';
 import toast from 'react-hot-toast';

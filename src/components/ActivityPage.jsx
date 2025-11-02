@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
   Card,
@@ -24,6 +25,7 @@ import {
   DialogActions,
   Tooltip,
 } from "@mui/material";
+import InterestsTabView from "./InterestsTabView";
 import {
   ArrowBack,
   Favorite,
@@ -44,7 +46,17 @@ import {
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
-
+import { useNavigate } from "react-router-dom";
+import {
+  getOnlineMatches,
+  getShortlistedProfiles,
+  getInterestsReceived,
+  getInterestsSent,
+  updateActivitySummary,
+  acceptInterest,
+  declineInterest,
+} from "../store/slices/activitySlice";
+import { showSuccess , showError } from "../utils/toast";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
@@ -56,13 +68,62 @@ const ActivityPage = ({
   getAge,
   getHeight,
 }) => {
+  const dispatch = useDispatch();
+  const {
+    onlineMatches,
+    shortlistedProfiles,
+    interestsReceived,
+    interestsSent,
+    summary,
+    loading: {
+      onlineMatches: loadingOnline,
+      shortlisted: loadingShortlisted,
+      received: loadingReceived,
+      sent: loadingSent,
+    },
+    error: activityErrors,
+  } = useSelector((state) => state.activity);
+const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("received");
   const [selectedInterest, setSelectedInterest] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
-  // Sample data for demonstration
+  useEffect(() => {
+    const loadActivityData = async () => {
+      try {
+        // Load all activity data in parallel
+        await Promise.all([
+          dispatch(getOnlineMatches()),
+          dispatch(getShortlistedProfiles()),
+          dispatch(getInterestsReceived()),
+          dispatch(getInterestsSent()),
+        ]);
+        dispatch(updateActivitySummary());
+      } catch (error) {
+        console.error("Error loading activity data:", error);
+      }
+    };
+
+    loadActivityData();
+  }, [dispatch]);
+
+  const handleInterestAction = async (interestId, action) => {
+    try {
+      if (action === "accept") {
+        await dispatch(acceptInterest(interestId)).unwrap();
+        showSuccess("Interest accepted successfully");
+      } else if (action === "decline") {
+        await dispatch(declineInterest(interestId)).unwrap();
+        showSuccess("Interest declined");
+      }
+      dispatch(updateActivitySummary());
+    } catch (error) {
+      showError(error || "Failed to process interest");
+    }
+  };
+
+  // Use real data instead of sample data
   const activityData = {
     summary: {
       acceptedInterests: 3,
@@ -180,11 +241,6 @@ const ActivityPage = ({
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
     setSelectedInterest(null);
-  };
-
-  const handleInterestAction = (interestId, action) => {
-    console.log(`Action ${action} on interest ${interestId}`);
-    // Handle interest actions (accept, decline, etc.)
   };
 
   const handleViewProfile = (interest) => {
@@ -573,11 +629,11 @@ const ActivityPage = ({
                 Move ahead with your decision by sending an interest!
               </p>
             </div>
-            <ArrowForward style={{ color: "#636e72", cursor: "pointer" }} />
+            <ArrowForward style={{ color: "#636e72", cursor: "pointer" }} onClick={() => navigate("/shortlisted")}/>
           </div>
         </div>
         <Swiper
-        className="pb-4"
+          className="pb-4"
           modules={[Navigation, Pagination, Scrollbar, A11y]}
           spaceBetween={20}
           slidesPerView={1}
@@ -593,167 +649,6 @@ const ActivityPage = ({
             1200: { slidesPerView: 2 },
           }}
         >
-          <SwiperSlide>
-            <Card
-              className="border-0 shadow-sm overflow-hidden"
-              style={{ borderRadius: "12px" }}
-            >
-              <div style={{ position: "relative", height: "450px" }}>
-                <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=450&fit=crop"
-                  alt={profileData.name}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-
-                {/* Gradient Overlay */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: "60%",
-                    background:
-                      "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
-                  }}
-                />
-
-                {/* Top Badges */}
-                <div
-                  style={{ position: "absolute", top: "12px", left: "12px" }}
-                >
-                  <Badge
-                    bg="dark"
-                    className="px-3 py-2"
-                    style={{ fontSize: "12px", fontWeight: "500" }}
-                  >
-                    Shortlisted
-                    <br />
-                    <span style={{ fontSize: "11px" }}>
-                      on {profileData.shortlistedDate}
-                    </span>
-                  </Badge>
-                </div>
-
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "12px",
-                    right: "12px",
-                    display: "flex",
-                    gap: "8px",
-                  }}
-                >
-                  <Badge
-                    bg="dark"
-                    className="d-flex align-items-center gap-1 px-2 py-2"
-                  >
-                    <CameraAlt style={{ fontSize: "14px" }} />
-                    <span>{profileData.photoCount}</span>
-                  </Badge>
-                  {profileData.isNearby && (
-                    <Badge
-                      bg="success"
-                      className="px-2 py-2"
-                      style={{ fontSize: "11px" }}
-                    >
-                      Nearby
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Profile Info */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "60px",
-                    left: "16px",
-                    right: "16px",
-                    color: "white",
-                  }}
-                >
-                  <p
-                    className="mb-1"
-                    style={{ fontSize: "12px", opacity: 0.9 }}
-                  >
-                    Last seen at {profileData.lastSeen}
-                  </p>
-                  <h3
-                    className="mb-2"
-                    style={{ fontWeight: "700", fontSize: "28px" }}
-                  >
-                    {profileData.name}, {profileData.age}
-                  </h3>
-                  <p
-                    className="mb-1"
-                    style={{ fontSize: "13px", lineHeight: "1.6" }}
-                  >
-                    {profileData.height} • {profileData.location} •{" "}
-                    {profileData.origin}
-                  </p>
-                  <p
-                    className="mb-1"
-                    style={{ fontSize: "13px", lineHeight: "1.6" }}
-                  >
-                    {profileData.profession} • {profileData.salary}
-                  </p>
-                  <p className="mb-2" style={{ fontSize: "13px" }}>
-                    {profileData.education}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "11px",
-                      opacity: 0.8,
-                      fontStyle: "italic",
-                    }}
-                  >
-                    Profile managed by {profileData.managedBy}
-                  </p>
-                </div>
-
-                {/* Action Buttons */}
-                 <div
-                  style={{
-                    position: "absolute",
-                    bottom: "10px",
-                    left: "0",
-                    right: "0",
-                    display: "flex",
-                    background: "rgba(0,0,0,0.6)",
-                    backdropFilter: "blur(10px)",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Tooltip title="Interest" >
-                    <IconButton>
-                      <FavoriteBorder style={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Super Interest">
-                    <IconButton>
-                      <Favorite style={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Shortlisted">
-                    <IconButton>
-                      <Star style={{ color: "white" }}/>
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Chat">
-                    <IconButton>
-                      <Chat style={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
-                </div>
-              </div>
-            </Card>
-          </SwiperSlide>
           <SwiperSlide>
             <Card
               className="border-0 shadow-sm overflow-hidden"
@@ -902,7 +797,7 @@ const ActivityPage = ({
 
                   <Tooltip title="Shortlisted">
                     <IconButton>
-                      <Star style={{ color: "white" }}/>
+                      <Star style={{ color: "white" }} />
                     </IconButton>
                   </Tooltip>
 
@@ -915,6 +810,7 @@ const ActivityPage = ({
               </div>
             </Card>
           </SwiperSlide>
+       
         </Swiper>
       </>
     );

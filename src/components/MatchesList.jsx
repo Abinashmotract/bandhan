@@ -14,6 +14,7 @@ import {
 } from '@mui/icons-material';
 import MatchCard from './MatchCard';
 
+
 const MatchesList = ({
   filteredMatches,
   loading,
@@ -25,6 +26,7 @@ const MatchesList = ({
   onShowInterest,
   onShowSuperInterest,
   onViewProfile,
+  onToggleShortlist,
   getAge,
   getHeight,
   isLoadingMore,
@@ -165,6 +167,7 @@ const MatchesList = ({
               onShowInterest={onShowInterest}
               onShowSuperInterest={onShowSuperInterest}
               onViewProfile={onViewProfile}
+              onToggleShortlist={onToggleShortlist}
               getAge={getAge}
               getHeight={getHeight}
             />

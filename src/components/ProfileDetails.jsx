@@ -47,6 +47,7 @@ const ProfileDetails = ({
   onShowInterest,
   onShowSuperInterest,
   getAge,
+  onToggleShortlist,
   getMatchingCriteria,
   actionButtonOption = 1,
 }) => {
@@ -202,8 +203,8 @@ const ProfileDetails = ({
     caste: "Rajput",
     city: "Greater Noida",
     state: "Uttar Pradesh",
-    about:
-      "I'm a compassionate and optimistic individual who believes in living life with kindness and positivity. I enjoy exploring new ideas, learning continuously, and meeting people from different walks of life. I'm looking for a partner who is caring, mature, and shares similar core values.",
+    // about:
+    //   "I'm a compassionate and optimistic individual who believes in living life with kindness and positivity. I enjoy exploring new ideas, learning continuously, and meeting people from different walks of life. I'm looking for a partner who is caring, mature, and shares similar core values.",
     familyDetails:
       "Nuclear Family from Greater Noida, Uttar Pradesh. Father is a Private Employee & Mother is a Homemaker.",
     hasShownInterest: false,
@@ -237,9 +238,9 @@ const ProfileDetails = ({
     const interestButton = (
       <Button
         variant={option === 2 || option === 4 ? "outlined" : "contained"}
-        size="medium"
+        size="small"
         startIcon={<FavoriteBorderIcon />}
-        onClick={() => onShowInterest(selectedMatchData.customId)}
+        onClick={() => onShowInterest(selectedMatchData?._id)}
         disabled={isInterestSent}
         sx={{
           backgroundColor:
@@ -258,16 +259,16 @@ const ProfileDetails = ({
           borderRadius: 2,
         }}
       >
-        {isInterestSent ? "Interest Sent" : "Send Interest"}
+        {isInterestSent ? "Interest Sent" : "Interest"}
       </Button>
     );
 
     const superInterestButton = (
       <Button
         variant="contained"
-        size="large"
+        size="small"
         startIcon={<StarIcon />}
-        onClick={() => onShowSuperInterest(selectedMatchData.customId)}
+        onClick={() => onShowSuperInterest(selectedMatchData?._id)}
         disabled={isSuperInterestSent}
         sx={{
           backgroundColor: ACCENT_COLOR,
@@ -291,10 +292,33 @@ const ProfileDetails = ({
       </Button>
     );
 
+    const shortlistButton = (
+      <Button
+        variant="contained"
+        size="small"
+        startIcon={<StarIcon />}
+        onClick={() => onToggleShortlist(selectedMatchData?._id)}
+        disabled={isSuperInterestSent}
+        sx={{
+          backgroundColor: "#9300f5d3",
+          color: "white",
+          "&:hover": { backgroundColor: "#9300f5ff" },
+          textTransform: "none",
+          fontWeight: 600,
+          flexGrow: option === 3 ? 0 : 1,
+          minWidth: option === 3 ? "auto" : "none",
+          py: 1.5,
+          borderRadius: 2,
+        }}
+      >
+        Shortlist
+      </Button>
+    );
+
     const chatButton = (
       <Button
         variant={option === 2 || option === 4 ? "contained" : "outlined"}
-        size="large"
+        size="small"
         startIcon={<MessageIcon />}
         sx={{
           backgroundColor:
@@ -313,7 +337,7 @@ const ProfileDetails = ({
           borderRadius: 2,
         }}
       >
-        Start Chat
+        Chat
       </Button>
     );
 
@@ -323,6 +347,7 @@ const ProfileDetails = ({
           <Box display="flex" gap={2}>
             {interestButton}
             {superInterestButton}
+            {shortlistButton}
             {chatButton}
           </Box>
         );
@@ -331,6 +356,7 @@ const ProfileDetails = ({
           <Box display="flex" gap={2}>
             {superInterestButton}
             {chatButton}
+            {shortlistButton}
             {interestButton}
           </Box>
         );

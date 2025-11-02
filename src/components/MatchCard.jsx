@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import {
   FavoriteBorder as FavoriteBorderIcon,
+  Favorite as FavoriteIcon,
   Star as StarIcon,
   StarBorder as StarBorderIcon,
   LocationOn as LocationIcon,
@@ -35,9 +36,15 @@ const MatchCard = ({
   onShowInterest,
   onShowSuperInterest,
   onViewProfile,
+  onToggleShortlist,
   getAge,
   getHeight,
 }) => {
+  const handleShortlistClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onToggleShortlist(match._id);
+  };
   return (
     <motion.div
       key={match._id}
@@ -48,7 +55,6 @@ const MatchCard = ({
     >
       <Card
         sx={{
-        
           width: "100%",
           maxWidth: "100%",
           display: "flex",
@@ -69,7 +75,7 @@ const MatchCard = ({
           sx={{
             position: "relative",
             width: "33%",
-          
+
             flexShrink: 0,
           }}
         >
@@ -87,10 +93,10 @@ const MatchCard = ({
             sx={{
               cursor: "pointer",
               objectFit: "cover",
-              objectPosition:"top",
+              objectPosition: "top",
               height: "100%",
               width: "100%",
-              maxHeight:"260px",
+              maxHeight: "260px",
               transition: "transform 0.3s ease",
             }}
             onClick={() => onViewProfile(match)}
@@ -302,13 +308,21 @@ const MatchCard = ({
                 minWidth: 0,
                 "&:hover": { opacity: 0.8 },
               }}
-              onClick={() => onShowSuperInterest(match._id)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onShowSuperInterest(match._id);
+              }}
             >
-              <FavoriteBorderIcon sx={{ fontSize: 18 }} />
+              {match.isShortlisted ? (
+                <FavoriteIcon sx={{ fontSize: 18, color: "#e91e63" }} />
+              ) : (
+                <FavoriteBorderIcon sx={{ fontSize: 18 }} />
+              )}
               <Typography
                 variant="body2"
                 sx={{
-                  color: "#51365F",
+                  color: match.isShortlisted ? "#e91e63" : "#51365F",
                   fontWeight: 600,
                   fontSize: "0.8rem",
                   whiteSpace: "nowrap",
@@ -328,6 +342,11 @@ const MatchCard = ({
                 flex: "1 1 auto",
                 minWidth: 0,
                 "&:hover": { opacity: 0.8 },
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleShortlist(match._id);
               }}
             >
               <StarIcon sx={{ fontSize: 18 }} />

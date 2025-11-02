@@ -39,7 +39,7 @@ import defaultImg from "../assets/default.jpeg";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMatchedProfiles } from "../store/slices/profileSlice";
 import { sendInterest } from "../store/slices/interactionSlice";
-import { useSubscription } from "../contexts/SubscriptionContext";
+import { useSubscription } from '../hooks/useSubscription';
 import { showSuccess, showError } from "../utils/toast";
 
 // Animation variants

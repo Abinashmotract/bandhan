@@ -18,7 +18,7 @@ import {
   Lock as LockIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useSubscription } from '../contexts/SubscriptionContext';
+import { useSubscription } from '../hooks/useSubscription';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { interactionAPI } from '../services/apiService';
