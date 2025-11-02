@@ -139,12 +139,16 @@ const activitySlice = createSlice({
     },
     updateActivitySummary: (state) => {
       state.summary = {
-        acceptedInterests: state.interestsReceived.filter(i => i.status === 'accepted').length,
-        interestsReceived: state.interestsReceived.length,
-        interestsSent: state.interestsSent.length,
-        shortlistedProfiles: state.shortlistedProfiles.length,
-        declinedInterests: state.interestsReceived.filter(i => i.status === 'declined').length,
-        onlineMatches: state.onlineMatches.length
+        acceptedInterests: Array.isArray(state.interestsReceived) 
+          ? state.interestsReceived.filter(i => i.status === 'accepted').length 
+          : 0,
+        interestsReceived: Array.isArray(state.interestsReceived) ? state.interestsReceived.length : 0,
+        interestsSent: Array.isArray(state.interestsSent) ? state.interestsSent.length : 0,
+        shortlistedProfiles: Array.isArray(state.shortlistedProfiles) ? state.shortlistedProfiles.length : 0,
+        declinedInterests: Array.isArray(state.interestsReceived) 
+          ? state.interestsReceived.filter(i => i.status === 'declined').length 
+          : 0,
+        onlineMatches: Array.isArray(state.onlineMatches) ? state.onlineMatches.length : 0
       };
     }
   },
@@ -172,7 +176,8 @@ const activitySlice = createSlice({
       })
       .addCase(getShortlistedProfiles.fulfilled, (state, action) => {
         state.loading.shortlisted = false;
-        state.shortlistedProfiles = action.payload;
+        // Extract profiles array from API response
+        state.shortlistedProfiles = action.payload?.data || action.payload || [];
         state.error.shortlisted = null;
       })
       .addCase(getShortlistedProfiles.rejected, (state, action) => {
@@ -187,7 +192,8 @@ const activitySlice = createSlice({
       })
       .addCase(getInterestsReceived.fulfilled, (state, action) => {
         state.loading.received = false;
-        state.interestsReceived = action.payload;
+        // Extract interests array from API response
+        state.interestsReceived = action.payload?.data?.interests || action.payload?.interests || action.payload || [];
         state.error.received = null;
       })
       .addCase(getInterestsReceived.rejected, (state, action) => {
@@ -202,7 +208,8 @@ const activitySlice = createSlice({
       })
       .addCase(getInterestsSent.fulfilled, (state, action) => {
         state.loading.sent = false;
-        state.interestsSent = action.payload;
+        // Extract interests array from API response
+        state.interestsSent = action.payload?.data?.interests || action.payload?.interests || action.payload || [];
         state.error.sent = null;
       })
       .addCase(getInterestsSent.rejected, (state, action) => {

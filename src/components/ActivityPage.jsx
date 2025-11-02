@@ -88,6 +88,8 @@ const navigate = useNavigate();
   const [selectedInterest, setSelectedInterest] = useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [selectedCard, setSelectedCard] = useState(null); // Track which summary card is clicked
+  const [activeProfileTab, setActiveProfileTab] = useState("about"); // Track active tab in profile detail view
 
   useEffect(() => {
     const loadActivityData = async () => {
@@ -117,13 +119,138 @@ const navigate = useNavigate();
         await dispatch(declineInterest(interestId)).unwrap();
         showSuccess("Interest declined");
       }
+      // Reload data after action
+      await Promise.all([
+        dispatch(getInterestsReceived()),
+        dispatch(getInterestsSent()),
+      ]);
       dispatch(updateActivitySummary());
     } catch (error) {
       showError(error || "Failed to process interest");
     }
   };
 
-  // Use real data instead of sample data
+  // Helper function to format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Helper function to format last seen
+  const formatLastSeen = (lastSeen) => {
+    if (!lastSeen) return "N/A";
+    try {
+      const date = new Date(lastSeen);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 1) return "Just now";
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+      if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+      return formatDate(lastSeen);
+    } catch {
+      return lastSeen;
+    }
+  };
+
+  // Helper function to map API interest data to component format
+  const mapInterestToComponentFormat = (interest, isReceived = true) => {
+    const user = isReceived ? interest.fromUser : interest.targetUser;
+    return {
+      id: interest.id || interest._id,
+      name: user?.name || "Unknown",
+      age: user?.age || (user?.dob ? getAge(user.dob) : null),
+      profileId: user?.customId || "N/A",
+      lastSeen: formatLastSeen(user?.lastSeen),
+      profileImage: user?.profileImage || "",
+      height: user?.height || "N/A",
+      city: user?.city || user?.location || "N/A",
+      state: user?.state || "N/A",
+      occupation: user?.occupation || "N/A",
+      education: user?.education || user?.highestQualification || "N/A",
+      maritalStatus: user?.maritalStatus || "N/A",
+      religion: user?.religion || "N/A",
+      caste: user?.caste || "N/A",
+      motherTongue: Array.isArray(user?.motherTongue) 
+        ? user.motherTongue.join(", ") 
+        : (user?.motherTongue || "N/A"),
+      annualIncome: user?.annualIncome || "N/A",
+      about: user?.about || "",
+      dob: user?.dob,
+      location: user?.location || user?.city || "N/A",
+      // Family information
+      fatherOccupation: user?.fatherOccupation || "N/A",
+      motherOccupation: user?.motherOccupation || "N/A",
+      brothers: user?.brothers || 0,
+      brothersMarried: user?.brothersMarried || false,
+      sisters: user?.sisters || 0,
+      sistersMarried: user?.sistersMarried || false,
+      familyType: user?.familyType || "N/A",
+      familyIncome: user?.familyIncome || "N/A",
+      nativePlace: user?.nativePlace || "N/A",
+      familyStatus: user?.familyStatus || "N/A",
+      // Preferences (Looking For)
+      preferences: user?.preferences || {},
+      status: interest.status || (isReceived ? "received" : "sent"),
+      receivedDate: isReceived ? formatDate(interest.createdAt) : null,
+      sentDate: !isReceived ? formatDate(interest.createdAt) : null,
+      createdAt: interest.createdAt,
+      // Keep reference to original interest for API calls
+      originalInterest: interest,
+    };
+  };
+
+  // Map received interests from API
+  const receivedInterests = Array.isArray(interestsReceived)
+    ? interestsReceived.map((interest) => mapInterestToComponentFormat(interest, true))
+    : [];
+
+  // Map sent interests from API
+  const sentInterests = Array.isArray(interestsSent)
+    ? interestsSent.map((interest) => mapInterestToComponentFormat(interest, false))
+    : [];
+
+  // Handle card click to show/hide data
+  const handleCardClick = (cardType) => {
+    if (selectedCard === cardType) {
+      setSelectedCard(null); // Toggle off if same card clicked
+    } else {
+      setSelectedCard(cardType); // Show data for clicked card
+    }
+  };
+
+  // Get data for selected card
+  const getCardData = (cardType) => {
+    switch (cardType) {
+      case "accepted":
+        return receivedInterests.filter(i => i.status === "accepted");
+      case "received":
+        return receivedInterests;
+      case "sent":
+        return sentInterests;
+      case "shortlisted":
+        return shortlistedProfiles;
+      case "declined":
+        return receivedInterests.filter(i => i.status === "declined");
+      default:
+        return [];
+    }
+  };
+
+  // Static data (to be removed after full migration)
   const activityData = {
     summary: {
       acceptedInterests: 3,
@@ -245,111 +372,165 @@ const navigate = useNavigate();
 
   const handleViewProfile = (interest) => {
     setSelectedInterest(interest);
+    setActiveProfileTab("about"); // Reset to About Me tab when viewing a new profile
   };
 
   const handleBackToInterests = () => {
     setSelectedInterest(null);
+    setActiveProfileTab("about"); // Reset to About Me tab when going back
   };
 
-  const renderActivitySummary = () => (
-    <Box sx={{ mb: 4 }}>
-      <Typography variant="h5" sx={{ fontWeight: 700, color: "#333", mb: 3 }}>
-        Your Activity Summary
-      </Typography>
-      <Box sx={{ position: "relative" }}>
-        <Swiper
-          modules={[Navigation, Pagination, Scrollbar, A11y]}
-          spaceBetween={10}
-          navigation={{
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
-          }}
-          pagination={{ clickable: true }}
-          breakpoints={{
-            320: { slidesPerView: 1 },
-            600: { slidesPerView: 2 },
-            900: { slidesPerView: 3 },
-            1200: { slidesPerView: 4 },
-          }}
-        >
-          {[
-            {
-              title: "Accepted Interests",
-              count: activityData.summary.acceptedInterests,
-              icon: <CheckCircle sx={{ color: "#4caf50" }} />,
-              color: "#4caf50",
-            },
-            {
-              title: "Interests Received",
-              count: activityData.summary.interestsReceived,
-              icon: <Send sx={{ color: "#2196f3" }} />,
-              color: "#2196f3",
-            },
-            {
-              title: "Interests Sent",
-              count: activityData.summary.interestsSent,
-              icon: <Send sx={{ color: "#ff9800" }} />,
-              color: "#ff9800",
-            },
-            {
-              title: "Shortlisted Profiles",
-              count: activityData.summary.shortlistedProfiles,
-              icon: <Star sx={{ color: "#e91e63" }} />,
-              color: "#e91e63",
-            },
-            {
-              title: "Declined Interests",
-              count: activityData.summary.declinedInterests,
-              icon: <Cancel sx={{ color: "#f44336" }} />,
-              color: "#f44336",
-            },
-          ].map((item, index) => (
-            <SwiperSlide key={item.title} className="p-1">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card
-                  sx={{
-                    height: "100%",
-                    textAlign: "center",
-                    borderRadius: 3,
+  const renderActivitySummary = () => {
+    const summaryCards = [
+      {
+        title: "Accepted Interests",
+        count: summary.acceptedInterests || 0,
+        icon: <CheckCircle sx={{ color: "#4caf50" }} />,
+        color: "#4caf50",
+        type: "accepted",
+      },
+      {
+        title: "Interests Received",
+        count: summary.interestsReceived || 0,
+        icon: <Send sx={{ color: "#2196f3" }} />,
+        color: "#2196f3",
+        type: "received",
+      },
+      {
+        title: "Interests Sent",
+        count: summary.interestsSent || 0,
+        icon: <Send sx={{ color: "#ff9800" }} />,
+        color: "#ff9800",
+        type: "sent",
+      },
+      {
+        title: "Shortlisted Profiles",
+        count: summary.shortlistedProfiles || 0,
+        icon: <Star sx={{ color: "#e91e63" }} />,
+        color: "#e91e63",
+        type: "shortlisted",
+      },
+      {
+        title: "Declined Interests",
+        count: summary.declinedInterests || 0,
+        icon: <Cancel sx={{ color: "#f44336" }} />,
+        color: "#f44336",
+        type: "declined",
+      },
+    ];
 
-                    transition: "all 0.3s ease",
-                  }}
+    return (
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: "#333", mb: 3 }}>
+          Your Activity Summary
+        </Typography>
+        <Box sx={{ position: "relative" }}>
+          <Swiper
+            modules={[Navigation, Pagination, Scrollbar, A11y]}
+            spaceBetween={10}
+            navigation={{
+              nextEl: ".swiper-button-next",
+              prevEl: ".swiper-button-prev",
+            }}
+            pagination={{ clickable: true }}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              600: { slidesPerView: 2 },
+              900: { slidesPerView: 3 },
+              1200: { slidesPerView: 4 },
+            }}
+          >
+            {summaryCards.map((item, index) => (
+              <SwiperSlide key={item.title} className="p-1">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ mb: 2 }}>{item.icon}</Box>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 700,
-                        color: item.color,
-                        mb: 1,
-                      }}
-                    >
-                      {item.count}
+                  <Card
+                    onClick={() => handleCardClick(item.type)}
+                    sx={{
+                      height: "100%",
+                      textAlign: "center",
+                      borderRadius: 3,
+                      cursor: "pointer",
+                      border: selectedCard === item.type ? `2px solid ${item.color}` : "2px solid transparent",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-4px)",
+                        boxShadow: `0 4px 12px rgba(0,0,0,0.15)`,
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Box sx={{ mb: 2 }}>{item.icon}</Box>
+                      <Typography
+                        variant="h4"
+                        sx={{
+                          fontWeight: 700,
+                          color: item.color,
+                          mb: 1,
+                        }}
+                      >
+                        {item.count}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#666",
+                          fontSize: "0.9rem",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Box>
+
+        {/* Display data below selected card */}
+        {selectedCard && (
+          <Box sx={{ mt: 3 }}>
+            <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {summaryCards.find(c => c.type === selectedCard)?.title}
+                  </Typography>
+                  <Button
+                    onClick={() => setSelectedCard(null)}
+                    size="small"
+                    sx={{ textTransform: "none" }}
+                  >
+                    Close
+                  </Button>
+                </Box>
+                {getCardData(selectedCard).length > 0 ? (
+                  <Box className="d-flex flex-column gap-3">
+                    {getCardData(selectedCard).map((item) =>
+                      selectedCard === "shortlisted"
+                        ? renderShortlistedCard(item)
+                        : renderInterestCard(item, selectedCard === "received" || selectedCard === "accepted" || selectedCard === "declined")
+                    )}
+                  </Box>
+                ) : (
+                  <Box sx={{ textAlign: "center", py: 4 }}>
+                    <Typography variant="body1" sx={{ color: "#666" }}>
+                      No data available for {summaryCards.find(c => c.type === selectedCard)?.title}
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "#666",
-                        fontSize: "0.9rem",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {item.title}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
+        )}
       </Box>
-    </Box>
-  );
+    );
+  };
 
   const renderInterestCard = (interest, isReceived = false) => {
     const handleMenuOpen = (event) => {
@@ -390,10 +571,12 @@ const navigate = useNavigate();
         transition={{ duration: 0.3 }}
       >
         <Card
+          onClick={() => handleViewProfile(interest)}
           sx={{
             borderRadius: 3,
             overflow: "hidden",
             boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+            cursor: "pointer",
             "&:hover": {
               boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
               transform: "translateY(-2px)",
@@ -413,13 +596,8 @@ const navigate = useNavigate();
                     width: "100px",
                     height: "100px",
                     objectFit: "cover",
-                    cursor: "pointer",
                     borderRadius: "50%",
                     m: 1,
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleViewProfile(interest);
                   }}
                 />
 
@@ -464,7 +642,10 @@ const navigate = useNavigate();
                   <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                     {/* Three-dot Menu Button */}
                     <IconButton
-                      onClick={handleDialogOpen}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent card click
+                        handleDialogOpen();
+                      }}
                       sx={{
                         color: "#666",
                         "&:hover": {
@@ -596,22 +777,73 @@ const navigate = useNavigate();
     );
   };
 
-  const ProfileCard = () => {
-    const profileData = {
-      name: "Ritisha Singh",
-      age: 26,
-      height: "5ft 3in",
-      location: "Lucknow",
-      origin: "Rajput-Thakur",
-      profession: "Analyst",
-      salary: "Rs. 2 - 3 Lakh",
-      education: "M.Sc",
-      lastSeen: "6:57 AM",
-      photoCount: 14,
-      shortlistedDate: "23-Oct-25",
-      managedBy: "Self",
-      isNearby: true,
+  // Helper function to map shortlisted profile to component format
+  const mapShortlistedProfile = (profile) => {
+    const user = profile.userId || profile;
+    return {
+      id: profile.id || profile._id || user?._id,
+      name: user?.name || "Unknown",
+      age: user?.age || (user?.dob ? getAge(user.dob) : null),
+      height: user?.height || "N/A",
+      location: user?.location || user?.city || "N/A",
+      city: user?.city || "N/A",
+      state: user?.state || "N/A",
+      caste: user?.caste || "N/A",
+      occupation: user?.occupation || "N/A",
+      education: user?.education || "N/A",
+      profileImage: user?.profileImage || "",
+      customId: user?.customId || "N/A",
+      shortlistedDate: formatDate(profile.shortlistedAt || profile.createdAt),
+      photos: user?.photos || [],
     };
+  };
+
+  // Map shortlisted profiles
+  const mappedShortlistedProfiles = Array.isArray(shortlistedProfiles)
+    ? shortlistedProfiles.map(mapShortlistedProfile)
+    : [];
+
+  const renderShortlistedCard = (profile) => {
+    return (
+      <Card
+        sx={{
+          borderRadius: 3,
+          overflow: "hidden",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+          cursor: "pointer",
+          "&:hover": {
+            boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+            transform: "translateY(-2px)",
+          },
+          transition: "all 0.3s ease",
+        }}
+        onClick={() => handleViewProfile(profile)}
+      >
+        <CardContent sx={{ p: 0 }}>
+          <Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
+            <Avatar
+              src={profile.profileImage}
+              sx={{ width: 80, height: 80, mr: 2 }}
+            />
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                {profile.name}
+                {profile.age && `, ${profile.age}`}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                ID: {profile.customId}
+              </Typography>
+              <Typography variant="caption" sx={{ color: "#999" }}>
+                Shortlisted on {profile.shortlistedDate}
+              </Typography>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const ProfileCard = () => {
 
     return (
       <>
@@ -623,7 +855,7 @@ const navigate = useNavigate();
                 style={{ fontWeight: "600", color: "#2d3436" }}
               >
                 Shortlisted Profiles{" "}
-                <span style={{ color: "#636e72", fontWeight: "400" }}>(1)</span>
+                <span style={{ color: "#636e72", fontWeight: "400" }}>({mappedShortlistedProfiles.length})</span>
               </h5>
               <p className="text-muted mb-0" style={{ fontSize: "14px" }}>
                 Move ahead with your decision by sending an interest!
@@ -649,15 +881,17 @@ const navigate = useNavigate();
             1200: { slidesPerView: 2 },
           }}
         >
-          <SwiperSlide>
-            <Card
-              className="border-0 shadow-sm overflow-hidden"
-              style={{ borderRadius: "12px" }}
-            >
-              <div style={{ position: "relative", height: "450px" }}>
-                <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=450&fit=crop"
-                  alt={profileData.name}
+          {mappedShortlistedProfiles.length > 0 ? (
+            mappedShortlistedProfiles.map((profile, index) => (
+              <SwiperSlide key={profile.id || index}>
+                <Card
+                  className="border-0 shadow-sm overflow-hidden"
+                  style={{ borderRadius: "12px" }}
+                >
+                  <div style={{ position: "relative", height: "450px" }}>
+                    <img
+                      src={profile.profileImage || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=450&fit=crop"}
+                      alt={profile.name}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -690,7 +924,7 @@ const navigate = useNavigate();
                     Shortlisted
                     <br />
                     <span style={{ fontSize: "11px" }}>
-                      on {profileData.shortlistedDate}
+                      on {profile.shortlistedDate}
                     </span>
                   </Badge>
                 </div>
@@ -709,17 +943,8 @@ const navigate = useNavigate();
                     className="d-flex align-items-center gap-1 px-2 py-2"
                   >
                     <CameraAlt style={{ fontSize: "14px" }} />
-                    <span>{profileData.photoCount}</span>
+                    <span>{profile.photos?.length || 0}</span>
                   </Badge>
-                  {profileData.isNearby && (
-                    <Badge
-                      bg="success"
-                      className="px-2 py-2"
-                      style={{ fontSize: "11px" }}
-                    >
-                      Nearby
-                    </Badge>
-                  )}
                 </div>
 
                 {/* Profile Info */}
@@ -736,38 +961,28 @@ const navigate = useNavigate();
                     className="mb-1"
                     style={{ fontSize: "12px", opacity: 0.9 }}
                   >
-                    Last seen at {profileData.lastSeen}
+                    {profile.lastSeen ? `Last seen ${formatLastSeen(profile.lastSeen)}` : ""}
                   </p>
                   <h3
                     className="mb-2"
                     style={{ fontWeight: "700", fontSize: "28px" }}
                   >
-                    {profileData.name}, {profileData.age}
+                    {profile.name}{profile.age ? `, ${profile.age}` : ""}
                   </h3>
                   <p
                     className="mb-1"
                     style={{ fontSize: "13px", lineHeight: "1.6" }}
                   >
-                    {profileData.height} • {profileData.location} •{" "}
-                    {profileData.origin}
+                    {profile.height} • {profile.location} • {profile.caste}
                   </p>
                   <p
                     className="mb-1"
                     style={{ fontSize: "13px", lineHeight: "1.6" }}
                   >
-                    {profileData.profession} • {profileData.salary}
+                    {profile.occupation} • {profile.education}
                   </p>
                   <p className="mb-2" style={{ fontSize: "13px" }}>
-                    {profileData.education}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "11px",
-                      opacity: 0.8,
-                      fontStyle: "italic",
-                    }}
-                  >
-                    Profile managed by {profileData.managedBy}
+                    ID: {profile.customId}
                   </p>
                 </div>
 
@@ -810,7 +1025,16 @@ const navigate = useNavigate();
               </div>
             </Card>
           </SwiperSlide>
-       
+            ))
+          ) : (
+            <SwiperSlide>
+              <Card sx={{ p: 4, textAlign: "center" }}>
+                <Typography variant="body1" sx={{ color: "#666" }}>
+                  No shortlisted profiles yet
+                </Typography>
+              </Card>
+            </SwiperSlide>
+          )}
         </Swiper>
       </>
     );
@@ -852,7 +1076,7 @@ const navigate = useNavigate();
             }}
           >
             <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              {interest.name}, {getAge(interest.age)}
+              {interest.name}{interest.age ? `, ${interest.age}` : ""}
             </Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>
               ID: {interest.profileId} • Last seen {interest.lastSeen}
@@ -866,7 +1090,11 @@ const navigate = useNavigate();
         <CardContent sx={{ p: 3 }}>
           {/* Tabs */}
           <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-            <Tabs value="about" sx={{ minHeight: "auto" }}>
+            <Tabs 
+              value={activeProfileTab} 
+              onChange={(e, newValue) => setActiveProfileTab(newValue)}
+              sx={{ minHeight: "auto" }}
+            >
               <Tab
                 label="About Me"
                 value="about"
@@ -886,67 +1114,423 @@ const navigate = useNavigate();
           </Box>
 
           {/* About Me Content */}
+          {activeProfileTab === "about" && (
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
               Basic Information
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={6}>
-                <Typography variant="body2" sx={{ color: "#666" }}>
-                  {interest.religion} - {interest.caste}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body2" sx={{ color: "#666" }}>
-                  {getHeight(interest.height)}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body2" sx={{ color: "#666" }}>
-                  {interest.annualIncome} per Annum
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body2" sx={{ color: "#666" }}>
-                  Mother tongue is {interest.motherTongue}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography variant="body2" sx={{ color: "#666" }}>
-                  {interest.maritalStatus}
-                </Typography>
-              </Grid>
+              {interest.religion && interest.religion !== "N/A" && interest.caste && interest.caste !== "N/A" && (
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    {interest.religion} - {interest.caste}
+                  </Typography>
+                </Grid>
+              )}
+              {interest.height && interest.height !== "N/A" && (
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Height: {getHeight(interest.height)}
+                  </Typography>
+                </Grid>
+              )}
+              {interest.annualIncome && interest.annualIncome !== "N/A" && (
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Annual Income: {interest.annualIncome}
+                  </Typography>
+                </Grid>
+              )}
+              {interest.motherTongue && interest.motherTongue !== "N/A" && (
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Mother tongue: {interest.motherTongue}
+                  </Typography>
+                </Grid>
+              )}
+              {interest.maritalStatus && interest.maritalStatus !== "N/A" && (
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Marital Status: {interest.maritalStatus}
+                  </Typography>
+                </Grid>
+              )}
+              {interest.city && interest.city !== "N/A" && (
+                <Grid item xs={6}>
+                  <Typography variant="body2" sx={{ color: "#666" }}>
+                    Location: {interest.city}{interest.state && interest.state !== "N/A" ? `, ${interest.state}` : ""}
+                  </Typography>
+                </Grid>
+              )}
             </Grid>
 
-            <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.6 }}>
-              I am {interest.name}, a {getAge(interest.age)}-year-old{" "}
-              {interest.education} graduate working as {interest.occupation} in
-              the private sector in {interest.city}. I am an independent and
-              career-oriented woman looking for a life partner who shares
-              similar values and aspirations.
-            </Typography>
+            {interest.about ? (
+              <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.6 }}>
+                {interest.about}
+              </Typography>
+            ) : (
+              <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.6 }}>
+                {interest.name}{interest.age ? `, ${interest.age}` : ""}
+                {interest.education && interest.education !== "N/A" 
+                  ? `, ${interest.education} graduate` 
+                  : ""}
+                {interest.occupation && interest.occupation !== "N/A" 
+                  ? ` working as ${interest.occupation}` 
+                  : ""}
+                {interest.city && interest.city !== "N/A" 
+                  ? ` in ${interest.city}` 
+                  : ""}
+              </Typography>
+            )}
 
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Education
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-              {interest.education} - Post Graduation
-            </Typography>
+            {interest.education && interest.education !== "N/A" && (
+              <>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  Education
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
+                  {interest.education}
+                </Typography>
+              </>
+            )}
 
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Career
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-              {interest.occupation} - Private Sector
-            </Typography>
-
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Family
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-              Father is a Businessman/Entrepreneur & Mother is a Homemaker
-            </Typography>
+            {interest.occupation && interest.occupation !== "N/A" && (
+              <>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  Career
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
+                  {interest.occupation}
+                  {interest.city && interest.city !== "N/A" ? ` in ${interest.city}` : ""}
+                </Typography>
+              </>
+            )}
           </Box>
+          )}
+
+          {/* Family Content */}
+          {activeProfileTab === "family" && (
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+                Family Background
+              </Typography>
+              
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                {interest.familyType && interest.familyType !== "N/A" && (
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                      Family Type
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {interest.familyType.charAt(0).toUpperCase() + interest.familyType.slice(1)}
+                    </Typography>
+                  </Grid>
+                )}
+                
+                {interest.nativePlace && interest.nativePlace !== "N/A" && (
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                      Native Place
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {interest.nativePlace}
+                    </Typography>
+                  </Grid>
+                )}
+                
+                {interest.familyIncome && interest.familyIncome !== "N/A" && (
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                      Family Income
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {interest.familyIncome}
+                    </Typography>
+                  </Grid>
+                )}
+                
+                {interest.familyStatus && interest.familyStatus !== "N/A" && (
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                      Family Status
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {interest.familyStatus.charAt(0).toUpperCase() + interest.familyStatus.slice(1).replace(/_/g, " ")}
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
+
+              <Divider sx={{ my: 3 }} />
+
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Parents Information
+              </Typography>
+              
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                {interest.fatherOccupation && interest.fatherOccupation !== "N/A" && (
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                      Father's Occupation
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {interest.fatherOccupation.charAt(0).toUpperCase() + interest.fatherOccupation.slice(1).replace(/_/g, " ")}
+                    </Typography>
+                  </Grid>
+                )}
+                
+                {interest.motherOccupation && interest.motherOccupation !== "N/A" && (
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                      Mother's Occupation
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                      {interest.motherOccupation.charAt(0).toUpperCase() + interest.motherOccupation.slice(1).replace(/_/g, " ")}
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
+
+              <Divider sx={{ my: 3 }} />
+
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Siblings Information
+              </Typography>
+              
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                    Brothers
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    {interest.brothers || 0}
+                    {interest.brothers > 0 && interest.brothersMarried !== undefined && (
+                      <span style={{ color: "#666", fontSize: "0.875rem", marginLeft: "8px" }}>
+                        ({interest.brothersMarried ? "Married" : "Unmarried"})
+                      </span>
+                    )}
+                  </Typography>
+                </Grid>
+                
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                    Sisters
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    {interest.sisters || 0}
+                    {interest.sisters > 0 && interest.sistersMarried !== undefined && (
+                      <span style={{ color: "#666", fontSize: "0.875rem", marginLeft: "8px" }}>
+                        ({interest.sistersMarried ? "Married" : "Unmarried"})
+                      </span>
+                    )}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+
+          {/* Looking For Content */}
+          {activeProfileTab === "looking" && (
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+                Partner Preferences
+              </Typography>
+              
+              {interest.preferences && Object.keys(interest.preferences).length > 0 ? (
+                <>
+                  {/* Age Range */}
+                  {interest.preferences.ageRange && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Age Range
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.ageRange.min || "N/A"} - {interest.preferences.ageRange.max || "N/A"} years
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Height Range */}
+                  {interest.preferences.heightRange && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Height Preference
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.heightRange.min || "N/A"} - {interest.preferences.heightRange.max || "N/A"}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Education Preference */}
+                  {interest.preferences.educationPref && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Education Preference
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.educationPref.charAt(0).toUpperCase() + interest.preferences.educationPref.slice(1).replace(/_/g, " ")}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Occupation Preference */}
+                  {interest.preferences.occupationPref && Array.isArray(interest.preferences.occupationPref) && interest.preferences.occupationPref.length > 0 && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Occupation Preference
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.occupationPref.map(occ => 
+                          occ.charAt(0).toUpperCase() + occ.slice(1).replace(/_/g, " ")
+                        ).join(", ")}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Annual Income Preference */}
+                  {interest.preferences.annualIncomePref && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Annual Income Preference
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.annualIncomePref.charAt(0).toUpperCase() + interest.preferences.annualIncomePref.slice(1).replace(/_/g, " ")}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Location Preference */}
+                  {interest.preferences.locationPref && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Location Preference
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.locationPref}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Marital Status Preference */}
+                  {interest.preferences.maritalStatusPref && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Marital Status Preference
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.maritalStatusPref.charAt(0).toUpperCase() + interest.preferences.maritalStatusPref.slice(1).replace(/_/g, " ")}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Religion/Caste Preference */}
+                  {interest.preferences.religionCastePref && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Religion/Caste Preference
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.religionCastePref.charAt(0).toUpperCase() + interest.preferences.religionCastePref.slice(1).replace(/_/g, " ")}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Relocation */}
+                  {interest.preferences.relocation && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Open to Relocation
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.relocation.charAt(0).toUpperCase() + interest.preferences.relocation.slice(1)}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Family Orientation */}
+                  {interest.preferences.familyOrientation && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Family Orientation
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.preferences.familyOrientation.charAt(0).toUpperCase() + interest.preferences.familyOrientation.slice(1).replace(/_/g, " ")}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Lifestyle Expectations */}
+                  {interest.preferences.lifestyleExpectations && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Lifestyle Expectations
+                      </Typography>
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        {interest.preferences.lifestyleExpectations.diet && (
+                          <Typography variant="body2">
+                            <strong>Diet:</strong> {interest.preferences.lifestyleExpectations.diet.charAt(0).toUpperCase() + interest.preferences.lifestyleExpectations.diet.slice(1).replace(/_/g, " ")}
+                          </Typography>
+                        )}
+                        {interest.preferences.lifestyleExpectations.drinking && (
+                          <Typography variant="body2">
+                            <strong>Drinking:</strong> {interest.preferences.lifestyleExpectations.drinking.charAt(0).toUpperCase() + interest.preferences.lifestyleExpectations.drinking.slice(1).replace(/_/g, " ")}
+                          </Typography>
+                        )}
+                        {interest.preferences.lifestyleExpectations.smoking && (
+                          <Typography variant="body2">
+                            <strong>Smoking:</strong> {interest.preferences.lifestyleExpectations.smoking.charAt(0).toUpperCase() + interest.preferences.lifestyleExpectations.smoking.slice(1).replace(/_/g, " ")}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  )}
+
+                  {/* Qualities */}
+                  {interest.preferences.qualities && Array.isArray(interest.preferences.qualities) && interest.preferences.qualities.length > 0 && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Desired Qualities
+                      </Typography>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                        {interest.preferences.qualities.map((quality, index) => (
+                          <Chip 
+                            key={index} 
+                            label={quality} 
+                            size="small" 
+                            sx={{ backgroundColor: "#e3f2fd", color: "#1976d2" }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+
+                  {/* Deal Breakers */}
+                  {interest.preferences.dealBreakers && Array.isArray(interest.preferences.dealBreakers) && interest.preferences.dealBreakers.length > 0 && (
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+                        Deal Breakers
+                      </Typography>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                        {interest.preferences.dealBreakers.map((breaker, index) => (
+                          <Chip 
+                            key={index} 
+                            label={breaker} 
+                            size="small" 
+                            color="error"
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+                </>
+              ) : (
+                <Typography variant="body1" sx={{ color: "#666", textAlign: "center", py: 4 }}>
+                  No preferences set yet
+                </Typography>
+              )}
+            </Box>
+          )}
 
           {/* Action Buttons */}
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
@@ -1025,12 +1609,12 @@ const navigate = useNavigate();
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs value={activeTab} onChange={handleTabChange} sx={{ px: 2 }}>
             <Tab
-              label={`Received (${activityData.receivedInterests.length})`}
+              label={`Received (${receivedInterests.length})`}
               value="received"
               sx={{ textTransform: "none", fontWeight: 600 }}
             />
             <Tab
-              label={`Sent (${activityData.sentInterests.length})`}
+              label={`Sent (${sentInterests.length})`}
               value="sent"
               sx={{ textTransform: "none", fontWeight: 600 }}
             />
@@ -1040,8 +1624,8 @@ const navigate = useNavigate();
         <CardContent sx={{ p: 3 }}>
           {activeTab === "received" && (
             <Box className="d-flex flex-column gap-3">
-              {activityData?.receivedInterests.length > 0 ? (
-                activityData?.receivedInterests.map((interest) =>
+              {receivedInterests.length > 0 ? (
+                receivedInterests.map((interest) =>
                   renderInterestCard(interest, true)
                 )
               ) : (
@@ -1059,8 +1643,8 @@ const navigate = useNavigate();
 
           {activeTab === "sent" && (
             <Box className="d-flex flex-column gap-3">
-              {activityData?.sentInterests.length > 0 ? (
-                activityData?.sentInterests.map((interest) =>
+              {sentInterests.length > 0 ? (
+                sentInterests.map((interest) =>
                   renderInterestCard(interest, false)
                 )
               ) : (
