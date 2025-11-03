@@ -50,6 +50,7 @@ import SearchResults from "../components/SearchResults";
 import ProfileDetails from "../components/ProfileDetails";
 import ProfileEdit from "../components/ProfileEdit";
 import ActivityPage from "../components/ActivityPage";
+import MessengerChatRoom from "../components/MessengerChatRoom";
 import {
   CheckCircle,
   Close,
@@ -84,6 +85,7 @@ const MyMatchesPage = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [editingProfile, setEditingProfile] = useState({});
+  const [selectedChatProfile, setSelectedChatProfile] = useState(null);
 
   // Dynamic middle section view states
   const [middleSectionView, setMiddleSectionView] = useState("matches");
@@ -813,6 +815,43 @@ const MyMatchesPage = () => {
     setMiddleSectionView("matches");
   };
 
+  // Handle chat click from match card
+  const handleChatClick = (match) => {
+    const chatProfile = {
+      id: match._id,
+      _id: match._id,
+      name: match.name,
+      profileImage: match.profileImage,
+      avatar: match.profileImage,
+      age: getAge(match.dob),
+      height: getHeight(match.height),
+      caste: match.caste,
+      location: match.location || match.city,
+      occupation: match.occupation || "N/A",
+      annualIncome: match.annualIncome || "N/A",
+      maritalStatus: match.maritalStatus || "N/A",
+      dob: match.dob,
+      isOnline: match.isOnline || false,
+      customId: match.customId,
+    };
+    setSelectedChatProfile(chatProfile);
+    setMiddleSectionView("chat");
+  };
+
+  // Handle back from chat
+  const handleBackFromChat = () => {
+    setSelectedChatProfile(null);
+    setMiddleSectionView("matches");
+  };
+
+  // Handle interest sent from card (now handled inline in MatchCard)
+  const handleInterestSentFromCard = async (profileId) => {
+    // Reload interest limits
+    await loadInterestLimits();
+    // Optionally refresh matches to update interest status
+    // loadMatches(1, true);
+  };
+
   // Navigation handlers for different sections
   const handleActivityClick = () => {
     setMiddleSectionView("activity");
@@ -1117,15 +1156,28 @@ const MyMatchesPage = () => {
                 onFilterChange={handleFilterChange}
                 onSearchClick={() => setMiddleSectionView("search")}
                 onRetryLoad={() => loadMatches(1, true)}
-                onShowInterest={handleShowInterest}
+                onShowInterest={(profileId) => {
+                  handleShowInterest(profileId);
+                  handleInterestSentFromCard(profileId);
+                }}
                 onShowSuperInterest={handleShowSuperInterest}
                 onViewProfile={handleViewProfile}
                 onToggleShortlist={handleToggleShortlist}
+                onChatClick={handleChatClick}
                 getAge={getAge}
                 getHeight={getHeight}
                 isLoadingMore={isLoadingMore}
                 hasMoreMatches={hasMoreMatches}
               />
+            )}
+            {middleSectionView === "chat" && selectedChatProfile && (
+              <Box sx={{ height: "calc(100vh - 200px)" }}>
+                <MessengerChatRoom
+                  profile={selectedChatProfile}
+                  onBack={handleBackFromChat}
+                  onInterestSent={handleInterestSentFromCard}
+                />
+              </Box>
             )}
             {middleSectionView === "profile-edit" && (
               <ProfileEdit
@@ -1342,6 +1394,7 @@ const MyMatchesPage = () => {
           </Card>
         </Grid>
       </Grid>
+
     </Container>
   );
 };

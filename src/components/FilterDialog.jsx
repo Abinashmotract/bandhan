@@ -13,7 +13,7 @@ import {
   Select,
   MenuItem,
   Chip,
-  Divider,
+  IconButton,
   FormControlLabel,
   Radio,
   RadioGroup,
@@ -25,6 +25,7 @@ import {
   Slider,
 } from "@mui/material";
 import { Lock as LockIcon } from "@mui/icons-material";
+import CloseIcon from '@mui/icons-material/Close';
 import { useSelector } from "react-redux";
 
 const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
@@ -205,10 +206,7 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
       case "typeOfMatches":
         return (
           <Box>
-            <RadioGroup
-              value={localFilters.typeOfMatch}
-              onChange={(e) => handleChange("typeOfMatch", e.target.value)}
-            >
+            <RadioGroup value={localFilters.typeOfMatch} onChange={(e) => handleChange("typeOfMatch", e.target.value)}>
               <FormControlLabel
                 value="all"
                 control={<Radio sx={{ color: "#dc2626", "&.Mui-checked": { color: "#dc2626" } }} />}
@@ -643,59 +641,22 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="lg"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 2,
-          maxHeight: "90vh",
-          minHeight: "600px",
-        },
-      }}
-    >
-      <DialogTitle
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          pb: 2,
-          borderBottom: 1,
-          borderColor: "divider",
-        }}
-      >
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 2, maxHeight: "90vh", minHeight: "600px", }, }}>
+      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pb: 2, borderBottom: 1, borderColor: "divider", }}>
         <Typography variant="h5" sx={{ fontWeight: 700, color: "#1a1a1a" }}>
           Refine Matches
         </Typography>
-        <Link
-          component="button"
-          onClick={handleReset}
-          sx={{
-            color: "#dc2626",
-            textDecoration: "none",
-            cursor: "pointer",
-            fontWeight: 500,
-            "&:hover": {
-              textDecoration: "underline",
-            },
-          }}
-        >
+        <Link component="button" onClick={handleReset} sx={{ color: "#dc2626", textDecoration: "none", cursor: "pointer", fontWeight: 500, "&:hover": { textDecoration: "underline", }, }}>
           Reset
         </Link>
+        <IconButton onClick={onClose} sx={{ color: "#1a1a1a", "&:hover": { backgroundColor: "rgba(0,0,0,0.05)" }, }}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ p: 0, display: "flex", minHeight: "500px" }}>
         {/* Left Sidebar */}
-        <Box
-          sx={{
-            width: "280px",
-            borderRight: 1,
-            borderColor: "divider",
-            bgcolor: "#fafafa",
-          }}
-        >
+        <Box sx={{ width: "280px", borderRight: 1, borderColor: "divider", bgcolor: "#fafafa", }}>
           <List sx={{ p: 0 }}>
             {filterCategories.map((category) => (
               <ListItem key={category.id} disablePadding>
@@ -748,14 +709,7 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
       </DialogContent>
 
       {/* Bottom Action Button */}
-      <Box
-        sx={{
-          p: 3,
-          borderTop: 1,
-          borderColor: "divider",
-          bgcolor: "#fafafa",
-        }}
-      >
+      <Box sx={{ p: 3, borderTop: 1, borderColor: "divider", bgcolor: "#fafafa", }}>
         <Button
           onClick={handleApply}
           variant="contained"

@@ -28,6 +28,7 @@ const MatchesList = ({
   onShowSuperInterest,
   onViewProfile,
   onToggleShortlist,
+  onChatClick,
   getAge,
   getHeight,
   isLoadingMore,
@@ -243,6 +244,7 @@ const MatchesList = ({
               onShowSuperInterest={onShowSuperInterest}
               onViewProfile={onViewProfile}
               onToggleShortlist={onToggleShortlist}
+              onChatClick={onChatClick}
               getAge={getAge}
               getHeight={getHeight}
             />
