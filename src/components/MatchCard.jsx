@@ -352,7 +352,9 @@ const MatchCard = ({
                   color: "#1976d2",
                   fontSize: "1.4rem",
                   lineHeight: 1.2,
+                  cursor:"pointer"
                 }}
+                onClick={() => onViewProfile(match)}
               >
                 {match?.name}, {getAge(match?.dob) || "N/A"}
               </Typography>

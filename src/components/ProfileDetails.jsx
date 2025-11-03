@@ -54,6 +54,7 @@ const ProfileDetails = ({
   const [activeTab, setActiveTab] = useState("about");
 
   if (!selectedMatch) return null;
+  console.log(selectedMatch);
 
   // Define getAgeValue FIRST
   const getAgeValue =
@@ -225,7 +226,8 @@ const ProfileDetails = ({
   const matchPercentage = Math.round((matchCount / totalCriteria) * 100);
 
   // Filter criteria by category
-  const mustHaves = allCriteriaList.filter((c) => c.category === "MustHaves");
+  const mustHaves = allCriteriaList;
+  console.log(mustHaves , allCriteriaList);
   const goodToHaves = allCriteriaList.filter(
     (c) => c.category === "GoodToHaves"
   );
@@ -484,7 +486,7 @@ const ProfileDetails = ({
                 sx={{ fontWeight: 700, color: PRIMARY_COLOR, mb: 0.2 }}
               >
                 <Stack direction="row" alignItems="center" spacing={1}>
-                  {React.cloneElement(icon, { sx: { fontSize: 18 } })}
+                  {/* {React?.cloneElement(icon, { sx: { fontSize: 18 } })} */}
                   <span>{label}</span>
                 </Stack>
               </Typography>
@@ -618,9 +620,24 @@ const ProfileDetails = ({
           </Box>
         </Box>
 
-        <CardContent>
-          <ActionButtons option={actionButtonOption} />
-        </CardContent>
+        {/* <CardContent> */}
+        <div
+          className="position-fixed bottom-0"
+          style={{ transform: "translate(17px, -17px)" }}
+        >
+          <Box
+            sx={{
+              backgroundColor: "#fff",
+              p: 3,
+              borderRadius: 3,
+              boxShadow: "0 8px 30px rgba(81, 54, 95, 0.15)",
+            }}
+          >
+            <ActionButtons option={actionButtonOption} />
+          </Box>
+        </div>
+
+        {/* </CardContent> */}
       </Card>
 
       <Box>
@@ -910,25 +927,20 @@ const ProfileDetails = ({
                     <Grid container spacing={2} sx={{ mb: 4 }}>
                       {mustHaves.map((criterion, index) => (
                         <PreferenceItem
-                          key={`must-${index}`}
+                          key={index}
+                          icon={criterion.icon}
                           label={criterion.label}
                           preference={criterion.userValue}
                           actual={criterion.matchValue}
                           match={criterion.match}
-                          icon={criterion.icon}
                         />
                       ))}
                     </Grid>
                   ) : (
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#666", mb: 4, fontStyle: "italic" }}
-                    >
-                      No must-have preferences specified.
+                    <Typography variant="body2" sx={{ color: "#999" }}>
+                      No must-have preferences found.
                     </Typography>
                   )}
-
-                  <Divider sx={{ my: 3 }} />
 
                   {/* Good-to-Haves Section */}
                   <Typography
@@ -942,32 +954,30 @@ const ProfileDetails = ({
                       gap: 1,
                     }}
                   >
-                    <MonitorIcon sx={{ color: PRIMARY_COLOR }} /> Good-to-Have
-                    Preferences
+                    <FavoriteBorderIcon sx={{ color: PRIMARY_COLOR }} />{" "}
+                    Good-to-Have Preferences
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-                    These preferences are important but may be negotiable.
+                    These preferences are desirable but flexible for
+                    compatibility.
                   </Typography>
 
                   {goodToHaves.length > 0 ? (
                     <Grid container spacing={2}>
                       {goodToHaves.map((criterion, index) => (
                         <PreferenceItem
-                          key={`good-${index}`}
+                          key={index}
+                          icon={criterion.icon}
                           label={criterion.label}
                           preference={criterion.userValue}
                           actual={criterion.matchValue}
                           match={criterion.match}
-                          icon={criterion.icon}
                         />
                       ))}
                     </Grid>
                   ) : (
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "#666", fontStyle: "italic" }}
-                    >
-                      No good-to-have preferences specified.
+                    <Typography variant="body2" sx={{ color: "#999" }}>
+                      No good-to-have preferences found.
                     </Typography>
                   )}
                 </CardContent>

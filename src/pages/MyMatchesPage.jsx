@@ -130,7 +130,6 @@ const MyMatchesPage = () => {
 
   const getHeight = (height) => {
     if (!height) return null;
-    console.log(height);
     return height;
   };
 
