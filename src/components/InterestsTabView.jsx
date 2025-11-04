@@ -16,9 +16,14 @@ import {
 } from '../store/slices/activitySlice';
 import ProfileCard from './ProfileCard';
 import ProfileDetails from './ProfileDetails';
+import MatchCard from './MatchCard';
+import { useNavigate } from 'react-router-dom';
+import { showSuccess, showError } from '../utils/toast';
+import { showSuperInterest, addToShortlist, removeFromShortlist, updateShortlistStatus } from '../store/slices/matchesSlice';
 
 const InterestsTabView = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('received');
   const [selectedProfile, setSelectedProfile] = useState(null);
 
@@ -62,6 +67,7 @@ const InterestsTabView = () => {
   };
 
   const getAge = (dob) => {
+    if (!dob) return null;
     const today = new Date();
     const birthDate = new Date(dob);
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -71,6 +77,70 @@ const InterestsTabView = () => {
       age--;
     }
     return age;
+  };
+
+  const getHeight = (height) => {
+    if (!height) return null;
+    return height;
+  };
+
+  const handleShowInterest = (profileId) => {
+    // Interest is handled within MatchCard component
+    console.log("Interest shown for:", profileId);
+  };
+
+  const handleShowSuperInterest = async (profileId) => {
+    try {
+      const result = await dispatch(showSuperInterest(profileId));
+      if (showSuperInterest.fulfilled.match(result)) {
+        showSuccess("Super interest sent successfully!");
+      } else {
+        showError(result.payload || "Failed to send super interest");
+      }
+    } catch (error) {
+      showError("Failed to send super interest");
+    }
+  };
+
+  const handleToggleShortlist = async (profileId, isShortlisted = null) => {
+    // If isShortlisted is provided, just update the local state without making API call
+    if (isShortlisted !== null) {
+      dispatch(updateShortlistStatus({ profileId, isShortlisted }));
+      return;
+    }
+
+    // Otherwise, make the API call
+    try {
+      if (isShortlisted) {
+        const result = await dispatch(removeFromShortlist(profileId));
+        if (removeFromShortlist.fulfilled.match(result)) {
+          showSuccess("Profile removed from shortlist");
+        } else {
+          showError(result.payload || "Failed to remove from shortlist");
+        }
+      } else {
+        const result = await dispatch(addToShortlist(profileId));
+        if (addToShortlist.fulfilled.match(result)) {
+          showSuccess("Profile added to shortlist");
+        } else {
+          if (result.payload && result.payload.includes("already")) {
+            showSuccess("Profile is already in your shortlist");
+          } else {
+            showError(result.payload || "Failed to add to shortlist");
+          }
+        }
+      }
+    } catch (error) {
+      showError("Failed to update shortlist");
+    }
+  };
+
+  const handleViewProfile = (match) => {
+    navigate(`/profile/${match._id}`);
+  };
+
+  const handleChatClick = (match) => {
+    navigate(`/chat/${match._id}`);
   };
 
   if (selectedProfile) {
@@ -113,6 +183,53 @@ const InterestsTabView = () => {
       );
     }
 
+    // For "Interest Sent" tab, use MatchCard with vertical and compact props
+    if (activeTab === 'sent') {
+      return (
+        <Grid container spacing={2} sx={{ p: 2, justifyContent: 'center' }}>
+          {interests?.map((interest) => {
+            const user = interest.targetUser || interest;
+            const matchData = {
+              _id: user.id || user._id || interest.targetUser?.id || interest.id,
+              name: user.name || interest.name,
+              age: user.age || getAge(user.dob || user.dateOfBirth || interest.dob),
+              profileImage: user.profileImage || interest.profileImage || user.profilePicture,
+              location: user.location || user.city || interest.location || interest.city,
+              occupation: user.occupation || interest.occupation,
+              education: user.education || interest.education,
+              height: user.height || interest.height,
+              isShortlisted: user.isShortlisted || interest.isShortlisted || false,
+              hasShownInterest: true, // Since it's in "Interest Sent" tab
+              hasShownSuperInterest: user.hasShownSuperInterest || interest.hasShownSuperInterest || interest.type === 'super_interest' || false,
+              customId: user.customId || interest.customId || interest.profileId,
+              maritalStatus: user.maritalStatus || interest.maritalStatus,
+              ...interest
+            };
+
+            return (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={matchData._id}>
+                <Box sx={{ maxWidth: "320px", width: "100%", mx: "auto" }}>
+                  <MatchCard
+                    match={matchData}
+                    onShowInterest={handleShowInterest}
+                    onShowSuperInterest={handleShowSuperInterest}
+                    onViewProfile={handleViewProfile}
+                    onToggleShortlist={handleToggleShortlist}
+                    onChatClick={handleChatClick}
+                    getAge={getAge}
+                    getHeight={getHeight}
+                    variant="vertical"
+                    compact={true}
+                  />
+                </Box>
+              </Grid>
+            );
+          })}
+        </Grid>
+      );
+    }
+
+    // For "Interests Received" tab, keep using ProfileCard
     return (
       <Grid container spacing={2} sx={{ p: 2 }}>
         {interests.map((interest) => (
