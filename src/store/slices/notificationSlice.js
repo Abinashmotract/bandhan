@@ -104,9 +104,21 @@ const notificationSlice = createSlice({
       })
       .addCase(getNotifications.fulfilled, (state, action) => {
         state.loading = false;
-        state.notifications = action.payload.data || [];
-        state.pagination = action.payload.pagination || null;
-        state.unreadCount = state.notifications.filter(notif => !notif.isRead).length;
+        // Handle both response formats: { data: { notifications, unreadCount } } or { data: [...] }
+        const responseData = action.payload.data || action.payload;
+        if (Array.isArray(responseData)) {
+          state.notifications = responseData;
+          state.unreadCount = responseData.filter(notif => !notif.isRead).length;
+        } else if (responseData && responseData.notifications) {
+          state.notifications = responseData.notifications || [];
+          state.unreadCount = responseData.unreadCount !== undefined 
+            ? responseData.unreadCount 
+            : state.notifications.filter(notif => !notif.isRead).length;
+          state.pagination = responseData.pagination || null;
+        } else {
+          state.notifications = [];
+          state.unreadCount = 0;
+        }
       })
       .addCase(getNotifications.rejected, (state, action) => {
         state.loading = false;

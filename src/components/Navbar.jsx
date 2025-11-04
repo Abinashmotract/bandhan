@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {
   AppBar,
@@ -19,9 +19,11 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
+import { getNotifications } from "../store/slices/notificationSlice";
 import { showError, showSuccess } from "../utils/toast";
 import logo from "../assets/WhatsApp Image 2025-01-28 at 9.41.07 PM.png";
 
@@ -62,6 +64,21 @@ const Navbar = () => {
   );
   const { unreadCount } = useSelector((state) => state.notification);
   console.log("isInitialized", isInitialized, isAuthenticated);
+
+  // Fetch notifications when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && isInitialized) {
+      // Fetch notifications to get unread count (API returns unreadCount in response)
+      dispatch(getNotifications({ page: 1, limit: 10 }));
+      
+      // Set up interval to refresh notifications every 30 seconds
+      const interval = setInterval(() => {
+        dispatch(getNotifications({ page: 1, limit: 10 }));
+      }, 30000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, isInitialized, dispatch]);
 
   // Function to check if a route is active
   const isActiveRoute = (href) => {
@@ -113,10 +130,9 @@ const Navbar = () => {
   const authenticatedNavItems = [
     { text: "Matches", href: "matches" },
     // { text: "Favorites", href: "favorites" },
-    { text: "Messages", href: "chat" },
     // { text: "Horoscope", href: "horoscope" },
     // { text: "Events", href: "events" },
-    { text: "Notifications", href: "notifications", showBadge: true },
+    { text: "Notifications", href: "notifications", showBadge: true, isIcon: true },
   ];
 
   // Get user info for admin check
@@ -173,7 +189,15 @@ const Navbar = () => {
             >
               <ListItemText
                 primary={
-                  item.showBadge && unreadCount > 0 ? (
+                  item.isIcon ? (
+                    item.showBadge && unreadCount > 0 ? (
+                      <Badge badgeContent={unreadCount} color="error">
+                        <CircleNotificationsIcon />
+                      </Badge>
+                    ) : (
+                      <CircleNotificationsIcon />
+                    )
+                  ) : item.showBadge && unreadCount > 0 ? (
                     <Badge badgeContent={unreadCount} color="error">
                       {item.text}
                     </Badge>
@@ -282,9 +306,26 @@ const Navbar = () => {
                   key={item.text}
                   to={item.href}
                   className={`nav-link ${isActive ? "active" : ""}`}
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
                 >
-                  {item.text}
-                  <span className="nav-underline"></span>
+                  {item.isIcon ? (
+                    item.showBadge && unreadCount > 0 ? (
+                      <Badge badgeContent={unreadCount} color="error">
+                        <CircleNotificationsIcon sx={{ fontSize: 24 }} />
+                      </Badge>
+                    ) : (
+                      <CircleNotificationsIcon sx={{ fontSize: 24 }} />
+                    )
+                  ) : (
+                    <>
+                      {item.text}
+                      <span className="nav-underline"></span>
+                    </>
+                  )}
                 </Link>
               );
             })}

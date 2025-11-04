@@ -29,7 +29,6 @@ import {
   CheckCircleOutline as CheckCircleOutlineIcon,
   Chat as ChatIcon,
   Send as SendIcon,
-  ThumbUp as ThumbUpIcon,
   Collections as CollectionsIcon,
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
@@ -51,11 +50,95 @@ const MatchCard = ({
   const [interestSent, setInterestSent] = useState(match.hasShownInterest || false);
   const [sendingInterest, setSendingInterest] = useState(false);
   const [hasImage, setHasImage] = useState(!!match.profileImage);
+  const [isShortlisted, setIsShortlisted] = useState(match.isShortlisted || false);
+  const [hasShownSuperInterest, setHasShownSuperInterest] = useState(match.hasShownSuperInterest || false);
+  const [processingSuperInterest, setProcessingSuperInterest] = useState(false);
+  const [processingShortlist, setProcessingShortlist] = useState(false);
 
-  const handleShortlistClick = (e) => {
+  const handleShortlistClick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onToggleShortlist(match._id);
+    
+    try {
+      setProcessingShortlist(true);
+      const { API_BASE_URL } = await import("../utils/api");
+      const Cookies = (await import("js-cookie")).default;
+      const token = Cookies.get("accessToken");
+
+      if (!token) {
+        showError("Please login to shortlist");
+        return;
+      }
+
+      if (isShortlisted) {
+        // Remove from shortlist
+        const response = await fetch(`${API_BASE_URL}/matches/shortlist`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            profileId: match._id,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setIsShortlisted(false);
+          showSuccess("Profile removed from shortlist");
+          // Update parent component state without triggering another API call
+          if (onToggleShortlist) {
+            // Pass a flag to indicate state was already updated
+            onToggleShortlist(match._id, false);
+          }
+        } else {
+          showError(data.message || "Failed to remove from shortlist");
+        }
+      } else {
+        // Add to shortlist
+        const response = await fetch(`${API_BASE_URL}/matches/shortlist`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            profileId: match._id,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setIsShortlisted(true);
+          showSuccess("Profile added to shortlist");
+          // Update parent component state without triggering another API call
+          if (onToggleShortlist) {
+            // Pass a flag to indicate state was already updated
+            onToggleShortlist(match._id, true);
+          }
+        } else {
+          // Handle "already shortlisted" error gracefully
+          if (data.message && data.message.includes("already")) {
+            setIsShortlisted(true);
+            showSuccess("Profile is already in your shortlist");
+            // Update parent state even when already shortlisted
+            if (onToggleShortlist) {
+              onToggleShortlist(match._id, true);
+            }
+          } else {
+            showError(data.message || "Failed to add to shortlist");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling shortlist:", error);
+      showError("Failed to update shortlist. Please try again.");
+    } finally {
+      setProcessingShortlist(false);
+    }
   };
 
   const handleInterestClick = (e) => {
@@ -158,16 +241,34 @@ const MatchCard = ({
         }),
       });
 
-      const data = await response.json();
+      // Check if response is HTML (404 error page) or not found
+      if (response.status === 404) {
+        showError("Photo request feature is not available yet");
+        return;
+      }
 
-      if (data.success) {
-        showSuccess("Photo request sent successfully!");
-      } else {
-        showError(data.message || "Failed to request photo");
+      // Check content type
+      const contentType = response.headers.get("content-type");
+      if (contentType && !contentType.includes("application/json")) {
+        showError("Photo request feature is not available yet");
+        return;
+      }
+
+      try {
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          showSuccess("Photo request sent successfully!");
+        } else {
+          showError(data.message || "Failed to request photo");
+        }
+      } catch (parseError) {
+        // If JSON parsing fails, it's likely an HTML error page
+        showError("Photo request feature is not available yet");
       }
     } catch (error) {
       console.error("Error requesting photo:", error);
-      showError("Failed to request photo. Please try again.");
+      showError("Photo request feature is not available yet");
     }
   };
 
@@ -366,31 +467,6 @@ const MatchCard = ({
               )}
             </Box>
 
-            {/* Compatibility Tag */}
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                backgroundColor: "#51365F",
-                border: "2px solid #51365F",
-                borderRadius: 2,
-                px: 1.5,
-                py: 0.5,
-                mb: 2,
-              }}
-            >
-              <ThumbUpIcon sx={{ color: "white", fontSize: 16, mr: 0.5 }} />
-              <Typography
-                variant="caption"
-                sx={{
-                  color: "white",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                }}
-              >
-                Most Compatible
-              </Typography>
-            </Box>
 
             {/* Basic Information */}
             <Box sx={{ mb: 2 }}>
@@ -485,7 +561,7 @@ const MatchCard = ({
               }}
             >
               <TextField
-                fullWidth
+                size="small"
                 placeholder="Send a personalised message"
                 value={interestMessage}
                 onChange={(e) => setInterestMessage(e.target.value)}
@@ -504,25 +580,25 @@ const MatchCard = ({
                         onClick={handleSendInterest}
                         disabled={!interestMessage.trim() || sendingInterest}
                         edge="end"
+                        size="small"
                         sx={{
-                          bgcolor: "#e0e0e0",
-                          color: "#666",
+                          bgcolor: "#dc2626",
+                          color: "white",
                           "&:hover": {
-                            bgcolor: "#dc2626",
-                            color: "white",
+                            bgcolor: "#b91c1c",
                           },
                           "&.Mui-disabled": {
                             bgcolor: "#f5f5f5",
                             color: "#ccc",
                           },
-                          width: 32,
-                          height: 32,
+                          width: 28,
+                          height: 28,
                         }}
                       >
                         {sendingInterest ? (
-                          <CircularProgress size={16} color="inherit" />
+                          <CircularProgress size={14} color="inherit" />
                         ) : (
-                          <SendIcon sx={{ fontSize: 18 }} />
+                          <SendIcon sx={{ fontSize: 16 }} />
                         )}
                       </IconButton>
                     </InputAdornment>
@@ -530,10 +606,22 @@ const MatchCard = ({
                 }}
                 sx={{
                   flex: 1,
+                  maxWidth: "60%",
                   "& .MuiOutlinedInput-root": {
-                    backgroundColor: "white",
+                    backgroundColor: "#f5f5f5",
                     borderRadius: 2,
                     pr: 0.5,
+                    fontSize: "0.875rem",
+                    "&:hover": {
+                      backgroundColor: "#eeeeee",
+                    },
+                    "&.Mui-focused": {
+                      backgroundColor: "white",
+                      boxShadow: "0 0 0 2px rgba(220, 38, 38, 0.1)",
+                    },
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    py: 0.75,
                   },
                 }}
               />
@@ -602,19 +690,71 @@ const MatchCard = ({
                   display: "flex",
                   alignItems: "center",
                   gap: 0.5,
-                  cursor: "pointer",
-                  color: "#51365F",
+                  cursor: processingSuperInterest || hasShownSuperInterest ? "default" : "pointer",
+                  color: hasShownSuperInterest ? "#e91e63" : "#51365F",
                   flex: "1 1 auto",
                   minWidth: 0,
-                  "&:hover": { opacity: 0.8 },
+                  opacity: processingSuperInterest || hasShownSuperInterest ? 0.7 : 1,
+                  "&:hover": { opacity: processingSuperInterest || hasShownSuperInterest ? 0.7 : 0.8 },
                 }}
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  onShowSuperInterest(match._id);
+                  
+                  if (hasShownSuperInterest || processingSuperInterest) {
+                    return;
+                  }
+
+                  try {
+                    setProcessingSuperInterest(true);
+                    const { API_BASE_URL } = await import("../utils/api");
+                    const Cookies = (await import("js-cookie")).default;
+                    const token = Cookies.get("accessToken");
+
+                    if (!token) {
+                      showError("Please login to send super interest");
+                      return;
+                    }
+
+                    const response = await fetch(`${API_BASE_URL}/matches/super-interest`, {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({
+                        profileId: match._id,
+                      }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                      setHasShownSuperInterest(true);
+                      showSuccess("Super interest sent successfully!");
+                      if (onShowSuperInterest) {
+                        onShowSuperInterest(match._id);
+                      }
+                    } else {
+                      // Handle limit reached error with a more user-friendly message
+                      if (data.code === "SUPER_INTEREST_LIMIT_REACHED" || 
+                          (data.message && data.message.includes("limit"))) {
+                        showError("Daily super interest limit reached. Upgrade to premium for unlimited super interests.");
+                      } else {
+                        showError(data.message || "Failed to send super interest");
+                      }
+                    }
+                  } catch (error) {
+                    console.error("Error sending super interest:", error);
+                    showError("Failed to send super interest. Please try again.");
+                  } finally {
+                    setProcessingSuperInterest(false);
+                  }
                 }}
               >
-                {match.isShortlisted ? (
+                {processingSuperInterest ? (
+                  <CircularProgress size={14} sx={{ color: "#51365F" }} />
+                ) : hasShownSuperInterest ? (
                   <FavoriteIcon sx={{ fontSize: 18, color: "#e91e63" }} />
                 ) : (
                   <FavoriteBorderIcon sx={{ fontSize: 18 }} />
@@ -622,13 +762,13 @@ const MatchCard = ({
                 <Typography
                   variant="body2"
                   sx={{
-                    color: match.isShortlisted ? "#e91e63" : "#51365F",
+                    color: hasShownSuperInterest ? "#e91e63" : "#51365F",
                     fontWeight: 600,
                     fontSize: "0.8rem",
                     whiteSpace: "nowrap",
                   }}
                 >
-                  Super Interest
+                  {hasShownSuperInterest ? "Super Interest Sent" : "Super Interest"}
                 </Typography>
               </Box>
 
@@ -637,29 +777,32 @@ const MatchCard = ({
                   display: "flex",
                   alignItems: "center",
                   gap: 0.5,
-                  cursor: "pointer",
-                  color: "#51365F",
+                  cursor: processingShortlist ? "default" : "pointer",
+                  color: isShortlisted ? "#ff9800" : "#51365F",
                   flex: "1 1 auto",
                   minWidth: 0,
-                  "&:hover": { opacity: 0.8 },
+                  opacity: processingShortlist ? 0.7 : 1,
+                  "&:hover": { opacity: processingShortlist ? 0.7 : 0.8 },
                 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onToggleShortlist(match._id);
-                }}
+                onClick={handleShortlistClick}
               >
-                <StarIcon sx={{ fontSize: 18 }} />
+                {processingShortlist ? (
+                  <CircularProgress size={14} sx={{ color: "#51365F" }} />
+                ) : isShortlisted ? (
+                  <StarIcon sx={{ fontSize: 18, color: "#ff9800" }} />
+                ) : (
+                  <StarBorderIcon sx={{ fontSize: 18 }} />
+                )}
                 <Typography
                   variant="body2"
                   sx={{
-                    color: "#51365F",
+                    color: isShortlisted ? "#ff9800" : "#51365F",
                     fontWeight: 600,
                     fontSize: "0.8rem",
                     whiteSpace: "nowrap",
                   }}
                 >
-                  Shortlist
+                  {isShortlisted ? "Shortlisted" : "Shortlist"}
                 </Typography>
               </Box>
 

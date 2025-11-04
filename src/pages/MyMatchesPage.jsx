@@ -34,6 +34,7 @@ import {
   removeFromShortlist,
   updateMatchInterest,
   updateInterestLimits,
+  updateShortlistStatus,
 } from "../store/slices/matchesSlice";
 import {
   activityAPI,
@@ -486,9 +487,26 @@ const MyMatchesPage = () => {
     }
   };
 
-  const handleToggleShortlist = async (profileId) => {
+  const handleToggleShortlist = async (profileId, isShortlisted = null) => {
     const matchToUpdate = matches.find(m => m._id === profileId);
     if (matchToUpdate) {
+      // If isShortlisted is provided, just update the local state without making API call
+      // This is used when MatchCard has already handled the API call
+      if (isShortlisted !== null) {
+        // Update displayedMatches if it exists
+        if (displayedMatches.length > 0) {
+          setDisplayedMatches(prevMatches =>
+            prevMatches.map(m =>
+              m._id === profileId ? { ...m, isShortlisted } : m
+            )
+          );
+        }
+        // Also update Redux state
+        dispatch(updateShortlistStatus({ profileId, isShortlisted }));
+        return;
+      }
+
+      // Otherwise, make the API call (legacy behavior)
       try {
         if (matchToUpdate.isShortlisted) {
           const result = await dispatch(removeFromShortlist(profileId));
