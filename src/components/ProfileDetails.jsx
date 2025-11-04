@@ -48,7 +48,6 @@ const ProfileDetails = ({
   onShowSuperInterest,
   getAge,
   onToggleShortlist,
-  getMatchingCriteria,
   actionButtonOption = 1,
 }) => {
   const [activeTab, setActiveTab] = useState("about");
@@ -56,7 +55,7 @@ const ProfileDetails = ({
   if (!selectedMatch) return null;
   console.log(selectedMatch);
 
-  // Define getAgeValue FIRST
+  // Helper function to calculate age
   const getAgeValue =
     getAge ||
     ((dob) => {
@@ -66,183 +65,131 @@ const ProfileDetails = ({
       return currentYear - birthYear;
     });
 
-  // THEN define getMatchingCriteriaValue with PROPER DUMMY DATA
-  const getMatchingCriteriaValue =
-    getMatchingCriteria ||
-    ((match) => {
-      const age = getAgeValue(match.dob);
-      return {
-        // Must-Haves - Critical criteria
-        age: {
-          label: "Age Range",
-          userValue: "24-28 Years",
-          matchValue: `${age} Years`,
-          match: age >= 24 && age <= 28,
-          category: "MustHaves",
-          icon: <CakeIcon />,
-        },
-        maritalStatus: {
-          label: "Marital Status",
-          userValue: "Never Married",
-          matchValue: match.maritalStatus || "Never Married",
-          match: (match.maritalStatus || "Never Married") === "Never Married",
-          category: "MustHaves",
-          icon: <FavoriteBorderIcon />,
-        },
-        religion: {
-          label: "Religion",
-          userValue: "Hindu",
-          matchValue: match.religion || "Hindu",
-          match: (match.religion || "Hindu") === "Hindu",
-          category: "MustHaves",
-          icon: <VerifiedIcon />,
-        },
-        caste: {
-          label: "Caste",
-          userValue: "Rajput/Kshatriya",
-          matchValue: match.caste || "Rajput",
-          match: ["Rajput", "Kshatriya"].includes(match.caste || "Rajput"),
-          category: "MustHaves",
-          icon: <VerifiedIcon />,
-        },
-        diet: {
-          label: "Diet Type",
-          userValue: "Vegetarian (Strict)",
-          matchValue: match.diet || "Vegetarian",
-          match: (match.diet || "Vegetarian") === "Vegetarian",
-          category: "MustHaves",
-          icon: <RestaurantIcon />,
-        },
-
-        // Good to Haves - Preferred but flexible criteria
-        height: {
-          label: "Height",
-          userValue: "5'5'' - 5'9''",
-          matchValue: match.height || "5'6''",
-          match: true, // 5'6" is within range
-          category: "GoodToHaves",
-          icon: <HeightIcon />,
-        },
-        education: {
-          label: "Education Level",
-          userValue: "B.Tech/MBA or equivalent",
-          matchValue: match.education || "B.Com.",
-          match: false, // B.Com. doesn't match B.Tech/MBA
-          category: "GoodToHaves",
-          icon: <SchoolIcon />,
-        },
-        occupation: {
-          label: "Occupation",
-          userValue: "IT/Marketing/Finance",
-          matchValue: match.occupation || "Accounting Professional",
-          match: true, // Accounting is related to Finance
-          category: "GoodToHaves",
-          icon: <WorkIcon />,
-        },
-        location: {
-          label: "Preferred City",
-          userValue: "Delhi/NCR only",
-          matchValue: `${match.city || "Greater Noida"}, ${
-            match.state || "Uttar Pradesh"
-          }`,
-          match: true, // Greater Noida is in NCR
-          category: "GoodToHaves",
-          icon: <LocationOnIcon />,
-        },
-        drinking: {
-          label: "Drinking Habits",
-          userValue: "Non-drinker / Social",
-          matchValue: match.drinking || "Non-drinker",
-          match: (match.drinking || "Non-drinker") === "Non-drinker",
-          category: "GoodToHaves",
-          icon: <MonitorIcon />,
-        },
-        smoking: {
-          label: "Smoking Habits",
-          userValue: "Non-smoker (Mandatory)",
-          matchValue: match.smoking || "Non-smoker",
-          match: (match.smoking || "Non-smoker") === "Non-smoker",
-          category: "GoodToHaves",
-          icon: <MonitorIcon />,
-        },
-        income: {
-          label: "Annual Income",
-          userValue: "₹10-20 Lakhs",
-          matchValue: "₹8 Lakhs",
-          match: false, // Below preferred range
-          category: "GoodToHaves",
-          icon: <WorkIcon />,
-        },
-        familyStatus: {
-          label: "Family Background",
-          userValue: "Nuclear Family Preferred",
-          matchValue: "Nuclear Family",
-          match: true, // Matches preference
-          category: "GoodToHaves",
-          icon: <FamilyRestroomIcon />,
-        },
-      };
-    });
-
-  // Merge selectedMatch with mock data for fallback - FIXED: Use selectedMatch instead of match
-  const selectedMatchData = {
-    // Mock data as fallback
-    name: "Nikita Roy",
-    dob: "1997-01-01",
-    customId: "DCYWTU108",
-    profileImage:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1500&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    height: "5'6''",
-    occupation: "Accounting Professional",
-    education: "B.Com. - Undergraduate Degree",
-    motherTongue: "Hindi",
-    maritalStatus: "Never Married",
-    diet: "Vegetarian",
-    drinking: "Non-drinker",
-    smoking: "Non-smoker",
-    religion: "Hindu",
-    caste: "Rajput",
-    city: "Greater Noida",
-    state: "Uttar Pradesh",
-    // about:
-    //   "I'm a compassionate and optimistic individual who believes in living life with kindness and positivity. I enjoy exploring new ideas, learning continuously, and meeting people from different walks of life. I'm looking for a partner who is caring, mature, and shares similar core values.",
-    familyDetails:
-      "Nuclear Family from Greater Noida, Uttar Pradesh. Father is a Private Employee & Mother is a Homemaker.",
-    hasShownInterest: false,
-    hasShownSuperInterest: false,
-    // Override with actual selectedMatch props
-    ...selectedMatch,
+  // Helper function to format text (convert snake_case to Title Case)
+  const formatText = (text) => {
+    if (!text) return "Not specified";
+    return text
+      .toString()
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
-  // Calculate matching criteria - FIXED: Pass selectedMatchData instead of match
-  const matchingCriteria = getMatchingCriteriaValue(selectedMatchData);
-  const matchedCriteriaList = Object.values(matchingCriteria).filter(
-    (c) => c.match
-  );
-  const allCriteriaList = Object.values(matchingCriteria);
+  // Helper function to format height
+  const formatHeight = (height) => {
+    if (!height) return "Not specified";
+    // If height is in format like "5ft_4in", convert to "5'4""
+    if (height.includes("ft")) {
+      return height.replace("ft_", "'").replace("in", '"').replace("_", "");
+    }
+    return height;
+  };
 
-  const matchCount = matchedCriteriaList.length;
-  const totalCriteria = allCriteriaList.length;
-  const matchPercentage = Math.round((matchCount / totalCriteria) * 100);
+  // Get icon for each preference type
+  const getPreferenceIcon = (label) => {
+    const iconMap = {
+      Height: <HeightIcon />,
+      Age: <CakeIcon />,
+      "Marital Status": <FavoriteBorderIcon />,
+      Religion: <VerifiedIcon />,
+      "Mother Tongue": <LanguageIcon />,
+      Caste: <VerifiedIcon />,
+      Occupation: <WorkIcon />,
+      "Annual Income": <WorkIcon />,
+      Diet: <RestaurantIcon />,
+      Drinking: <MonitorIcon />,
+      Smoking: <MonitorIcon />,
+      Education: <SchoolIcon />,
+      Location: <LocationOnIcon />,
+      "Family Background": <FamilyRestroomIcon />,
+    };
+    return iconMap[label] || <VerifiedIcon />;
+  };
 
-  // Filter criteria by category
+  // Build matching criteria from API response
+  const buildMatchingCriteria = (match) => {
+    if (!match.preferenceMatching || match.preferenceMatching.length === 0) {
+      return [];
+    }
+
+    return match.preferenceMatching.map((pref) => ({
+      label: pref.label,
+      userValue: pref.userValue,
+      matchValue: pref.matchValue,
+      match: pref.match,
+      userPreference: pref.userPreference || "Any",
+      icon: getPreferenceIcon(pref.label),
+      // You can categorize based on importance if needed
+      category: ["Age", "Marital Status", "Religion", "Caste", "Diet"].includes(
+        pref.label
+      )
+        ? "MustHaves"
+        : "GoodToHaves",
+    }));
+  };
+
+  // Get matching criteria from API response
+  const matchingCriteria = buildMatchingCriteria(selectedMatch);
+  const matchedCriteriaList = matchingCriteria.filter((c) => c.match === true);
+  const allCriteriaList = matchingCriteria;
+
+  const matchCount =
+    selectedMatch.matchedPreferencesCount || matchedCriteriaList.length;
+  const totalCriteria =
+    selectedMatch.totalPreferencesCount || allCriteriaList.length;
+  const matchPercentage =
+    totalCriteria > 0
+      ? Math.round((matchCount / totalCriteria) * 100)
+      : selectedMatch.matchScore || 0;
+
+  // Filter criteria by category - FIXED: Use preferenceMatching for mustHaves
   const mustHaves = allCriteriaList;
-  console.log(mustHaves , allCriteriaList);
-  const goodToHaves = allCriteriaList.filter(
-    (c) => c.category === "GoodToHaves"
-  );
+  console.log("MustHaves:", mustHaves, allCriteriaList);
+
+  // FIXED: Convert goodToHaves object to array for mapping
+  const goodToHaves = selectedMatch?.preferences
+    ? Object.entries(selectedMatch.preferences).map(([key, value]) => {
+        // Convert the object key to a readable label
+        const labelMap = {
+          ageRange: "Age Range",
+          heightRange: "Height Range",
+          maritalStatus: "Marital Status",
+          religion: "Religion",
+          education: "Education",
+          annualIncomePref: "Annual Income",
+          diet: "Diet",
+          educationPref: "Education Preference",
+          familyOrientation: "Family Orientation",
+          location: "Location",
+          locationPref: "Location Preference",
+          maritalStatusPref: "Marital Status Preference",
+          occupationPref: "Occupation Preference",
+          profession: "Profession",
+          qualities: "Qualities",
+          religionCastePref: "Religion & Caste",
+          relocation: "Relocation",
+        };
+
+        return {
+          label: labelMap[key] || formatText(key),
+          value: value,
+          icon: getPreferenceIcon(labelMap[key] || key),
+        };
+      })
+    : [];
+
+  console.log("goodToHaves", goodToHaves);
 
   // Component to render the action buttons based on the selected option
   const ActionButtons = ({ option }) => {
-    const isInterestSent = selectedMatchData.hasShownInterest;
-    const isSuperInterestSent = selectedMatchData.hasShownSuperInterest;
+    const isInterestSent = selectedMatch.hasShownInterest;
+    const isSuperInterestSent = selectedMatch.hasShownSuperInterest;
 
     const interestButton = (
       <Button
         variant={option === 2 || option === 4 ? "outlined" : "contained"}
         size="small"
         startIcon={<FavoriteBorderIcon />}
-        onClick={() => onShowInterest(selectedMatchData?._id)}
+        onClick={() => onShowInterest(selectedMatch?._id)}
         disabled={isInterestSent}
         sx={{
           backgroundColor:
@@ -270,7 +217,7 @@ const ProfileDetails = ({
         variant="contained"
         size="small"
         startIcon={<StarIcon />}
-        onClick={() => onShowSuperInterest(selectedMatchData?._id)}
+        onClick={() => onShowSuperInterest(selectedMatch?._id)}
         disabled={isSuperInterestSent}
         sx={{
           backgroundColor: ACCENT_COLOR,
@@ -299,8 +246,7 @@ const ProfileDetails = ({
         variant="contained"
         size="small"
         startIcon={<StarIcon />}
-        onClick={() => onToggleShortlist(selectedMatchData?._id)}
-        disabled={isSuperInterestSent}
+        onClick={() => onToggleShortlist(selectedMatch?._id)}
         sx={{
           backgroundColor: "#9300f5d3",
           color: "white",
@@ -370,7 +316,7 @@ const ProfileDetails = ({
             <IconButton
               aria-label="Super Interest"
               size="large"
-              onClick={() => onShowSuperInterest(selectedMatchData.customId)}
+              onClick={() => onShowSuperInterest(selectedMatch._id)}
               disabled={isSuperInterestSent}
               sx={{
                 backgroundColor: isSuperInterestSent
@@ -403,9 +349,7 @@ const ProfileDetails = ({
                   size="large"
                   fullWidth
                   startIcon={<StarIcon />}
-                  onClick={() =>
-                    onShowSuperInterest(selectedMatchData.customId)
-                  }
+                  onClick={() => onShowSuperInterest(selectedMatch._id)}
                   disabled={isSuperInterestSent}
                   sx={{
                     color: ACCENT_COLOR,
@@ -466,19 +410,27 @@ const ProfileDetails = ({
         sx={{
           backgroundColor: match
             ? "rgba(76, 175, 80, 0.08)"
-            : "rgba(244, 67, 54, 0.08)",
-          borderColor: match ? "#4caf50" : "#f44336",
+            : match === false
+            ? "rgba(244, 67, 54, 0.08)"
+            : "rgba(158, 158, 158, 0.08)",
+          borderColor: match
+            ? "#4caf50"
+            : match === false
+            ? "#f44336"
+            : "#9e9e9e",
           borderRadius: 2,
         }}
       >
         <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
           <Stack direction="row" spacing={1.5} alignItems="flex-start">
-            {match ? (
+            {match === true ? (
               <CheckCircleIcon
                 sx={{ color: "#4caf50", fontSize: 22, mt: 0.5 }}
               />
-            ) : (
+            ) : match === false ? (
               <CloseIcon sx={{ color: "#f44336", fontSize: 22, mt: 0.5 }} />
+            ) : (
+              <CloseIcon sx={{ color: "#9e9e9e", fontSize: 22, mt: 0.5 }} />
             )}
             <Box>
               <Typography
@@ -486,7 +438,6 @@ const ProfileDetails = ({
                 sx={{ fontWeight: 700, color: PRIMARY_COLOR, mb: 0.2 }}
               >
                 <Stack direction="row" alignItems="center" spacing={1}>
-                  {/* {React?.cloneElement(icon, { sx: { fontSize: 18 } })} */}
                   <span>{label}</span>
                 </Stack>
               </Typography>
@@ -494,7 +445,8 @@ const ProfileDetails = ({
                 variant="caption"
                 sx={{ color: "#666", display: "block" }}
               >
-                **Pref:** {preference} | **Match:** {actual}
+                <strong>Pref:</strong> {preference} | <strong>Match:</strong>{" "}
+                {actual}
               </Typography>
             </Box>
           </Stack>
@@ -502,6 +454,199 @@ const ProfileDetails = ({
       </Card>
     </Grid>
   );
+
+  const GoodToHaveItem = ({ icon, label, value }) => {
+    // Filter function to remove _id fields from objects and arrays
+    const filterIdFields = (data) => {
+      if (Array.isArray(data)) {
+        return data.map((item) => {
+          if (typeof item === "object" && item !== null) {
+            const { _id, ...filteredItem } = item;
+            return filteredItem;
+          }
+          return item;
+        });
+      } else if (typeof data === "object" && data !== null) {
+        const { _id, ...filteredData } = data;
+        return filteredData;
+      }
+      return data;
+    };
+
+    const filteredValue = filterIdFields(value);
+
+    // Helper function to render different value types
+    const renderValue = (val) => {
+      // Handle null/undefined
+      if (val === null || val === undefined) {
+        return <Typography variant="caption">Not specified</Typography>;
+      }
+
+      // Handle arrays
+      if (Array.isArray(val)) {
+        if (val.length === 0) {
+          return <Typography variant="caption">No preferences set</Typography>;
+        }
+
+        return (
+          <Box sx={{ mt: 1 }}>
+            {val.map((item, index) => (
+              <Chip
+                key={index}
+                label={
+                  typeof item === "object" ? JSON.stringify(item) : String(item)
+                }
+                size="small"
+                variant="outlined"
+                sx={{
+                  m: 0.5,
+                  borderColor: "#9e9e9e",
+                  color: "#666",
+                  backgroundColor: "rgba(158, 158, 158, 0.05)",
+                  fontSize: "0.7rem",
+                  height: "24px",
+                }}
+              />
+            ))}
+          </Box>
+        );
+      }
+
+      // Handle objects
+      if (typeof val === "object") {
+        const entries = Object.entries(val);
+        if (entries.length === 0) {
+          return (
+            <Typography variant="caption">No details specified</Typography>
+          );
+        }
+
+        return (
+          <Box sx={{ mt: 1 }}>
+            {entries.map(([key, value], index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  py: 0.5,
+                  borderBottom:
+                    index < entries.length - 1
+                      ? "1px solid rgba(158, 158, 158, 0.2)"
+                      : "none",
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 600,
+                    color: PRIMARY_COLOR,
+                    minWidth: "80px",
+                  }}
+                >
+                  {formatText(key)}:
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#666", textAlign: "right", flex: 1 }}
+                >
+                  {Array.isArray(value) ? value.join(", ") : String(value)}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        );
+      }
+
+      // Handle simple values
+      return (
+        <Typography
+          variant="body2"
+          sx={{
+            color: "#333",
+            fontWeight: 500,
+            backgroundColor: "rgba(158, 158, 158, 0.1)",
+            p: 1,
+            borderRadius: 1,
+            mt: 1,
+          }}
+        >
+          {String(val)}
+        </Typography>
+      );
+    };
+
+    return (
+      <Grid item xs={12}>
+        <Card
+          variant="outlined"
+          sx={{
+            backgroundColor: "rgba(158, 158, 158, 0.03)",
+            borderColor: "#e0e0e0",
+            borderRadius: 3,
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              backgroundColor: "rgba(158, 158, 158, 0.06)",
+              borderColor: "#9e9e9e",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            },
+          }}
+        >
+          <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
+            <Stack direction="row" spacing={2} alignItems="flex-start">
+              <Box
+                sx={{
+                  color: "#9e9e9e",
+                  fontSize: 24,
+                  mt: 0.5,
+                  backgroundColor: "rgba(158, 158, 158, 0.1)",
+                  p: 1,
+                  borderRadius: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minWidth: "50px",
+                  minHeight: "50px",
+                }}
+              >
+                {icon}
+              </Box>
+
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 700,
+                    color: PRIMARY_COLOR,
+                    mb: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  {label}
+                  <Chip
+                    label="Preference"
+                    size="small"
+                    variant="filled"
+                    sx={{
+                      backgroundColor: "#9e9e9e",
+                      color: "white",
+                      fontSize: "0.6rem",
+                      height: "20px",
+                    }}
+                  />
+                </Typography>
+
+                {renderValue(filteredValue)}
+              </Box>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Grid>
+    );
+  };
 
   return (
     <Container className="px-0" maxWidth="lg" sx={{ pt: 3, pb: 6 }}>
@@ -532,8 +677,10 @@ const ProfileDetails = ({
           <CardMedia
             component="img"
             height="500"
-            image={selectedMatchData.profileImage}
-            alt={selectedMatchData.name}
+            image={
+              selectedMatch.profileImage || "https://via.placeholder.com/500"
+            }
+            alt={selectedMatch.name}
             sx={{ objectFit: "cover", width: "100%", maxHeight: 500 }}
           />
 
@@ -596,7 +743,8 @@ const ProfileDetails = ({
             }}
           >
             <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-              {selectedMatchData.name}, {getAgeValue(selectedMatchData.dob)}
+              {selectedMatch.name},{" "}
+              {selectedMatch.age || getAgeValue(selectedMatch.dob)}
             </Typography>
             <Stack
               direction="row"
@@ -606,24 +754,27 @@ const ProfileDetails = ({
             >
               <LocationOnIcon sx={{ fontSize: 18 }} />
               <Typography variant="body2">
-                {selectedMatchData.city}, {selectedMatchData.state}
+                {selectedMatch.city || "City"}, {selectedMatch.state || "State"}
               </Typography>
-              <Divider
-                orientation="vertical"
-                flexItem
-                sx={{ mx: 1, bgcolor: "white" }}
-              />
-              <Typography variant="caption">
-                ID: {selectedMatchData.customId}
-              </Typography>
+              {selectedMatch.customId && (
+                <>
+                  <Divider
+                    orientation="vertical"
+                    flexItem
+                    sx={{ mx: 1, bgcolor: "white" }}
+                  />
+                  <Typography variant="caption">
+                    ID: {selectedMatch.customId}
+                  </Typography>
+                </>
+              )}
             </Stack>
           </Box>
         </Box>
 
-        {/* <CardContent> */}
         <div
           className="position-fixed bottom-0"
-          style={{ transform: "translate(17px, -17px)" }}
+          style={{ transform: "translate(28px, -17px)" }}
         >
           <Box
             sx={{
@@ -636,8 +787,6 @@ const ProfileDetails = ({
             <ActionButtons option={actionButtonOption} />
           </Box>
         </div>
-
-        {/* </CardContent> */}
       </Card>
 
       <Box>
@@ -692,27 +841,29 @@ const ProfileDetails = ({
         <Stack spacing={4}>
           {activeTab === "about" && (
             <>
-              <Card
-                sx={{
-                  borderRadius: 3,
-                  boxShadow: "0 8px 24px rgba(81, 54, 95, 0.12)",
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 700, mb: 2, color: PRIMARY_COLOR }}
-                  >
-                    Bio 📝
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    sx={{ lineHeight: 1.7, color: "#444" }}
-                  >
-                    {selectedMatchData.about}
-                  </Typography>
-                </CardContent>
-              </Card>
+              {selectedMatch.about && (
+                <Card
+                  sx={{
+                    borderRadius: 3,
+                    boxShadow: "0 8px 24px rgba(81, 54, 95, 0.12)",
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 700, mb: 2, color: PRIMARY_COLOR }}
+                    >
+                      Bio 📝
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ lineHeight: 1.7, color: "#444" }}
+                    >
+                      {selectedMatch.about}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              )}
 
               <Card
                 sx={{
@@ -731,36 +882,40 @@ const ProfileDetails = ({
                     <DetailItem
                       icon={<HeightIcon />}
                       label="Height"
-                      value={selectedMatchData.height}
+                      value={formatHeight(selectedMatch.height)}
                     />
                     <DetailItem
                       icon={<CakeIcon />}
                       label="Age"
-                      value={`${getAgeValue(selectedMatchData.dob)} Years`}
+                      value={`${
+                        selectedMatch.age || getAgeValue(selectedMatch.dob)
+                      } Years`}
                     />
                     <DetailItem
                       icon={<LanguageIcon />}
                       label="Mother Tongue"
                       value={
-                        Array.isArray(selectedMatchData.motherTongue)
-                          ? selectedMatchData.motherTongue.join(", ")
-                          : selectedMatchData.motherTongue
+                        Array.isArray(selectedMatch.motherTongue)
+                          ? selectedMatch.motherTongue
+                              .map(formatText)
+                              .join(", ")
+                          : formatText(selectedMatch.motherTongue)
                       }
                     />
                     <DetailItem
                       icon={<WorkIcon />}
                       label="Occupation"
-                      value={selectedMatchData.occupation}
+                      value={formatText(selectedMatch.occupation)}
                     />
                     <DetailItem
                       icon={<SchoolIcon />}
                       label="Education"
-                      value={selectedMatchData.education}
+                      value={formatText(selectedMatch.education)}
                     />
                     <DetailItem
                       icon={<RestaurantIcon />}
                       label="Diet"
-                      value={selectedMatchData.diet}
+                      value={formatText(selectedMatch.diet)}
                     />
                   </Grid>
                   <Divider sx={{ my: 3 }} />
@@ -774,22 +929,24 @@ const ProfileDetails = ({
                     <DetailItem
                       icon={<FavoriteBorderIcon />}
                       label="Marital Status"
-                      value={selectedMatchData.maritalStatus}
+                      value={formatText(selectedMatch.maritalStatus)}
                     />
                     <DetailItem
                       icon={<LocationOnIcon />}
                       label="Location"
-                      value={`${selectedMatchData.city}, ${selectedMatchData.state}`}
+                      value={`${selectedMatch.city || "N/A"}, ${
+                        selectedMatch.state || "N/A"
+                      }`}
                     />
                     <DetailItem
                       icon={<VerifiedIcon />}
                       label="Religion"
-                      value={selectedMatchData.religion}
+                      value={formatText(selectedMatch.religion)}
                     />
                     <DetailItem
                       icon={<VerifiedIcon />}
                       label="Caste"
-                      value={selectedMatchData.caste}
+                      value={formatText(selectedMatch.caste)}
                     />
                   </Grid>
                 </CardContent>
@@ -816,14 +973,14 @@ const ProfileDetails = ({
                 </Typography>
                 <Typography variant="body1" sx={{ color: "#666", mb: 3 }}>
                   To respect the member's privacy, family details are only
-                  unlocked after an **Interest** or **Super Interest** is
-                  accepted.
+                  unlocked after an <strong>Interest</strong> or{" "}
+                  <strong>Super Interest</strong> is accepted.
                 </Typography>
                 <Button
                   variant="contained"
                   startIcon={<LockIcon />}
-                  onClick={() => onShowInterest(selectedMatchData.customId)}
-                  disabled={selectedMatchData.hasShownInterest}
+                  onClick={() => onShowInterest(selectedMatch._id)}
+                  disabled={selectedMatch.hasShownInterest}
                   sx={{
                     backgroundColor: PRIMARY_COLOR,
                     "&:hover": { backgroundColor: "#3d2847" },
@@ -832,7 +989,7 @@ const ProfileDetails = ({
                     borderRadius: 2,
                   }}
                 >
-                  {selectedMatchData.hasShownInterest
+                  {selectedMatch.hasShownInterest
                     ? "Interest Sent"
                     : "Send Interest to Connect"}
                 </Button>
@@ -856,8 +1013,11 @@ const ProfileDetails = ({
                     Compatibility Score 🎉
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-                    You meet **{matchCount} out of {totalCriteria}** of{" "}
-                    {selectedMatchData.name}'s desired criteria.
+                    You meet{" "}
+                    <strong>
+                      {matchCount} out of {totalCriteria}
+                    </strong>{" "}
+                    of {selectedMatch.name}'s desired criteria.
                   </Typography>
 
                   <Box>
@@ -896,92 +1056,116 @@ const ProfileDetails = ({
                 </CardContent>
               </Card>
 
-              <Card
-                sx={{
-                  borderRadius: 3,
-                  boxShadow: "0 8px 24px rgba(81, 54, 95, 0.12)",
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  {/* Must-Haves Section */}
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      mb: 2,
-                      color: PRIMARY_COLOR,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <StarIcon sx={{ color: ACCENT_COLOR }} /> Must-Have
-                    Preferences
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-                    These criteria are considered **critical** for a potential
-                    match.
-                  </Typography>
+              {allCriteriaList.length > 0 ? (
+                <Card
+                  sx={{
+                    borderRadius: 3,
+                    boxShadow: "0 8px 24px rgba(81, 54, 95, 0.12)",
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    {mustHaves.length > 0 && (
+                      <>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 700,
+                            mb: 2,
+                            color: PRIMARY_COLOR,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <StarIcon sx={{ color: ACCENT_COLOR }} /> Must-Have
+                          Preferences
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#666", mb: 3 }}
+                        >
+                          These criteria are considered{" "}
+                          <strong>critical</strong> for a potential match.
+                        </Typography>
 
-                  {mustHaves.length > 0 ? (
-                    <Grid container spacing={2} sx={{ mb: 4 }}>
-                      {mustHaves.map((criterion, index) => (
-                        <PreferenceItem
-                          key={index}
-                          icon={criterion.icon}
-                          label={criterion.label}
-                          preference={criterion.userValue}
-                          actual={criterion.matchValue}
-                          match={criterion.match}
-                        />
-                      ))}
-                    </Grid>
-                  ) : (
-                    <Typography variant="body2" sx={{ color: "#999" }}>
-                      No must-have preferences found.
+                        <Grid container spacing={2} sx={{ mb: 4 }}>
+                          {mustHaves.map((criterion, index) => (
+                            <PreferenceItem
+                              key={index}
+                              icon={criterion.icon}
+                              label={criterion.label}
+                              preference={criterion.userPreference}
+                              actual={criterion.matchValue}
+                              match={criterion.match}
+                            />
+                          ))}
+                        </Grid>
+                      </>
+                    )}
+
+                    {goodToHaves.length > 0 && (
+                      <>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 700,
+                            mb: 2,
+                            color: PRIMARY_COLOR,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <FavoriteBorderIcon sx={{ color: PRIMARY_COLOR }} />
+                          Good-to-Have Preferences
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#666", mb: 3 }}
+                        >
+                          These preferences are desirable but flexible for
+                          compatibility.
+                        </Typography>
+
+                        <Grid container spacing={2}>
+                          {goodToHaves.map((pref, index) => (
+                            <GoodToHaveItem
+                              key={index}
+                              icon={pref.icon}
+                              label={pref.label}
+                              value={pref.value}
+                            />
+                          ))}
+                        </Grid>
+                      </>
+                    )}
+
+                    {allCriteriaList.length === 0 &&
+                      goodToHaves.length === 0 && (
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#999", textAlign: "center" }}
+                        >
+                          No preference matching data available.
+                        </Typography>
+                      )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card
+                  sx={{
+                    borderRadius: 3,
+                    boxShadow: "0 8px 24px rgba(81, 54, 95, 0.12)",
+                  }}
+                >
+                  <CardContent sx={{ p: 3, textAlign: "center" }}>
+                    <Typography variant="body1" sx={{ color: "#666" }}>
+                      No preference matching information available for this
+                      profile.
                     </Typography>
-                  )}
-
-                  {/* Good-to-Haves Section */}
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      mb: 2,
-                      color: PRIMARY_COLOR,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <FavoriteBorderIcon sx={{ color: PRIMARY_COLOR }} />{" "}
-                    Good-to-Have Preferences
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-                    These preferences are desirable but flexible for
-                    compatibility.
-                  </Typography>
-
-                  {goodToHaves.length > 0 ? (
-                    <Grid container spacing={2}>
-                      {goodToHaves.map((criterion, index) => (
-                        <PreferenceItem
-                          key={index}
-                          icon={criterion.icon}
-                          label={criterion.label}
-                          preference={criterion.userValue}
-                          actual={criterion.matchValue}
-                          match={criterion.match}
-                        />
-                      ))}
-                    </Grid>
-                  ) : (
-                    <Typography variant="body2" sx={{ color: "#999" }}>
-                      No good-to-have preferences found.
-                    </Typography>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
             </>
           )}
         </Stack>
