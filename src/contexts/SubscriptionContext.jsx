@@ -44,6 +44,7 @@ export const SubscriptionProvider = ({ children }) => {
   const [state, dispatch] = useReducer(subscriptionReducer, initialState);
   const reduxDispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const reduxSubscription = useSelector((state) => state.subscription);
 
   // Load subscription plans and current subscription
   useEffect(() => {
@@ -57,6 +58,10 @@ export const SubscriptionProvider = ({ children }) => {
         reduxDispatch(getSubscriptionPlans({ duration: "quarterly" })),
         reduxDispatch(getSubscriptionStatus()),
       ]);
+      
+      // Sync Redux state to local state
+      dispatch({ type: "SET_PLANS", payload: reduxSubscription.plans || [] });
+      dispatch({ type: "SET_CURRENT_SUBSCRIPTION", payload: reduxSubscription.currentSubscription || null });
     } catch (error) {
       dispatch({ type: "SET_ERROR", payload: error.message });
     } finally {
@@ -64,75 +69,95 @@ export const SubscriptionProvider = ({ children }) => {
     }
   };
 
+  // Sync Redux subscription state to context when it changes
+  useEffect(() => {
+    if (reduxSubscription.plans && reduxSubscription.plans.length > 0) {
+      dispatch({ type: "SET_PLANS", payload: reduxSubscription.plans });
+    }
+    if (reduxSubscription.currentSubscription !== undefined) {
+      dispatch({ type: "SET_CURRENT_SUBSCRIPTION", payload: reduxSubscription.currentSubscription });
+    }
+  }, [reduxSubscription.plans, reduxSubscription.currentSubscription]);
+
   const checkProfileAccess = (profile) => {
-    if (!user || !state.currentSubscription) {
-      return false;
+    // Use Redux state if available, fallback to context state
+    const currentSubscription = reduxSubscription.currentSubscription || state.currentSubscription;
+    const plans = reduxSubscription.plans.length > 0 ? reduxSubscription.plans : state.plans;
+    
+    if (!user || !currentSubscription) {
+      return true; // Allow access if no subscription info (free users)
     }
 
-    const currentPlan = state.plans.find(
-      (plan) => plan._id === state.currentSubscription.plan
+    const currentPlan = plans.find(
+      (plan) => plan._id === currentSubscription.plan
     );
 
     if (!currentPlan) {
-      return false;
+      return true; // Default to allowing access
     }
 
     // Check if profile requires subscription
-    if (profile.requiresSubscription) {
+    if (profile && profile.requiresSubscription) {
       return currentPlan.planType === "paid";
     }
 
-    // Check profile views limit
-    if (currentPlan.profileViews !== -1) {
-      return (
-        state.currentSubscription.profileViewsUsed < currentPlan.profileViews
-      );
+    // Check profile views limit (if plan has limits)
+    if (currentPlan.profileViews !== undefined && currentPlan.profileViews !== -1) {
+      const viewsUsed = currentSubscription.profileViewsUsed || 0;
+      return viewsUsed < currentPlan.profileViews;
     }
 
-    return true;
+    return true; // Default to allowing access
   };
 
   const canSendInterest = () => {
-    if (!user || !state.currentSubscription) {
-      return false;
+    // Use Redux state if available, fallback to context state
+    const currentSubscription = reduxSubscription.currentSubscription || state.currentSubscription;
+    const plans = reduxSubscription.plans.length > 0 ? reduxSubscription.plans : state.plans;
+    
+    if (!user || !currentSubscription) {
+      return true; // Default to allowing (free users have limits enforced by API)
     }
 
-    const currentPlan = state.plans.find(
-      (plan) => plan._id === state.currentSubscription.plan
+    const currentPlan = plans.find(
+      (plan) => plan._id === currentSubscription.plan
     );
 
     if (!currentPlan) {
-      return false;
+      return true; // Default to allowing
     }
 
     if (currentPlan.interests === -1) {
       return true; // Unlimited
     }
 
-    return state.currentSubscription.interestsUsed < currentPlan.interests;
+    const interestsUsed = currentSubscription.interestsUsed || 0;
+    return interestsUsed < currentPlan.interests;
   };
 
   const getRemainingInterests = () => {
-    if (!user || !state.currentSubscription) {
-      return 0;
+    // Use Redux state if available, fallback to context state
+    const currentSubscription = reduxSubscription.currentSubscription || state.currentSubscription;
+    const plans = reduxSubscription.plans.length > 0 ? reduxSubscription.plans : state.plans;
+    
+    if (!user || !currentSubscription) {
+      return 5; // Default free limit
     }
 
-    const currentPlan = state.plans.find(
-      (plan) => plan._id === state.currentSubscription.plan
+    const currentPlan = plans.find(
+      (plan) => plan._id === currentSubscription.plan
     );
 
     if (!currentPlan) {
-      return 0;
+      return 5; // Default free limit
     }
 
     if (currentPlan.interests === -1) {
       return -1; // Unlimited
     }
 
-    return Math.max(
-      0,
-      currentPlan.interests - state.currentSubscription.interestsUsed
-    );
+    const interestsUsed = currentSubscription.interestsUsed || 0;
+    return Math.max(0, currentPlan.interests - interestsUsed);
   };
 
   const getInterestLimit = () => {

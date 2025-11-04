@@ -368,7 +368,7 @@ const Footer = () => {
                                         {[
                                             { icon: <PhoneIcon />, text: '+1 (800) 123-4567' },
                                             { icon: <EmailIcon />, text: 'info@bandhnammatch.com' },
-                                            { icon: <LocationIcon />, text: '123 Love Street, Relationship City' }
+                                            { icon: <LocationIcon />, text: '502, 5th floor, Sethi Bhawan, Rajendra Place, New Delhi, Delhi - 11008' }
                                         ].map((item, index) => (
                                             <Box
                                                 key={index}

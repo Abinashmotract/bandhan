@@ -4,13 +4,16 @@ import jsPDF from 'jspdf';
 import { Box, Typography, Button, Container, Paper, CircularProgress, Alert } from '@mui/material';
 import { CheckCircle, ArrowForward, Download } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
-import { getSubscriptionStatus } from '../store/slices/subscriptionSlice';
+import { getSubscriptionStatus, getSubscriptionPlans } from '../store/slices/subscriptionSlice';
+import { subscriptionAPI } from '../services/apiService';
+import { useSubscription } from '../hooks/useSubscription';
 
 const PaymentSuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentSubscription, plans, loading } = useSelector(state => state.subscription);
+  const { loadSubscriptionData } = useSubscription();
   const [paymentData, setPaymentData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -36,6 +39,25 @@ const PaymentSuccessPage = () => {
           if (response.data.success) {
             const sessionData = response.data.data;
             
+            // Extract amount from session or transaction
+            let paymentAmount = sessionData.amount;
+            if (!paymentAmount || paymentAmount === 0) {
+              // Try to get from transaction
+              if (sessionData.transaction?.amount) {
+                paymentAmount = sessionData.transaction.amount;
+              } else if (sessionData.plan?.price) {
+                paymentAmount = sessionData.plan.price;
+              }
+            }
+            
+            // Get payment date from transaction or session
+            let paymentDate = new Date();
+            let paymentTime = new Date();
+            if (sessionData.transaction?.createdAt) {
+              paymentDate = new Date(sessionData.transaction.createdAt);
+              paymentTime = new Date(sessionData.transaction.createdAt);
+            }
+            
             // If payment is completed but no transaction exists, try to process it
             if (sessionData.paymentStatus === 'paid' && !sessionData.transaction) {
               try {
@@ -45,16 +67,43 @@ const PaymentSuccessPage = () => {
                 const updatedResponse = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
                 if (updatedResponse.data.success) {
                   const updatedSessionData = updatedResponse.data.data;
+                  
+                  // Extract amount again after processing
+                  let updatedAmount = updatedSessionData.amount;
+                  if (!updatedAmount || updatedAmount === 0) {
+                    if (updatedSessionData.transaction?.amount) {
+                      updatedAmount = updatedSessionData.transaction.amount;
+                    } else if (updatedSessionData.plan?.price) {
+                      updatedAmount = updatedSessionData.plan.price;
+                    }
+                  }
+                  
+                  // Get payment date from transaction
+                  let updatedDate = new Date();
+                  let updatedTime = new Date();
+                  if (updatedSessionData.transaction?.createdAt) {
+                    updatedDate = new Date(updatedSessionData.transaction.createdAt);
+                    updatedTime = new Date(updatedSessionData.transaction.createdAt);
+                  }
+                  
                   setPaymentData({
-                    amount: updatedSessionData.amount,
+                    amount: updatedAmount || paymentAmount || 0,
                     transactionId: sessionId,
-                    date: new Date().toLocaleDateString(),
-                    time: new Date().toLocaleTimeString(),
+                    date: updatedDate.toLocaleDateString(),
+                    time: updatedTime.toLocaleTimeString(),
                     product: `${updatedSessionData.plan?.name || 'Subscription'} Plan`,
                     plan: updatedSessionData.plan,
                     receiptUrl: updatedSessionData.receiptUrl,
                     paymentStatus: updatedSessionData.paymentStatus
                   });
+                  
+                  // Refresh subscription status after payment
+                  dispatch(getSubscriptionStatus());
+                  dispatch(getSubscriptionPlans({ duration: "quarterly" }));
+                  // Also refresh subscription context
+                  if (loadSubscriptionData) {
+                    loadSubscriptionData();
+                  }
                 } else {
                   throw new Error('Failed to process payment');
                 }
@@ -62,10 +111,10 @@ const PaymentSuccessPage = () => {
                 console.error('Error processing payment:', processError);
                 // Still show the session data even if processing failed
                 setPaymentData({
-                  amount: sessionData.amount,
+                  amount: paymentAmount || 0,
                   transactionId: sessionId,
-                  date: new Date().toLocaleDateString(),
-                  time: new Date().toLocaleTimeString(),
+                  date: paymentDate.toLocaleDateString(),
+                  time: paymentTime.toLocaleTimeString(),
                   product: `${sessionData.plan?.name || 'Subscription'} Plan`,
                   plan: sessionData.plan,
                   receiptUrl: sessionData.receiptUrl,
@@ -75,15 +124,23 @@ const PaymentSuccessPage = () => {
             } else {
               // Payment data is ready
               setPaymentData({
-                amount: sessionData.amount,
+                amount: paymentAmount || 0,
                 transactionId: sessionId,
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString(),
+                date: paymentDate.toLocaleDateString(),
+                time: paymentTime.toLocaleTimeString(),
                 product: `${sessionData.plan?.name || 'Subscription'} Plan`,
                 plan: sessionData.plan,
                 receiptUrl: sessionData.receiptUrl,
                 paymentStatus: sessionData.paymentStatus
               });
+              
+              // Refresh subscription status after payment
+              dispatch(getSubscriptionStatus());
+              dispatch(getSubscriptionPlans({ duration: "quarterly" }));
+              // Also refresh subscription context
+              if (loadSubscriptionData) {
+                loadSubscriptionData();
+              }
             }
           } else {
             // Fallback if session details not found
@@ -98,14 +155,16 @@ const PaymentSuccessPage = () => {
           }
         } catch (error) {
           console.error('Error fetching checkout session details:', error);
-          // Fallback
+          console.error('Error details:', error.response?.data);
+          // Fallback - try to get from plan if available
+          const fallbackAmount = plans?.find(p => p._id === location.state?.planId)?.price || 0;
           setPaymentData({
-            amount: 0,
+            amount: fallbackAmount,
             transactionId: sessionId,
             date: new Date().toLocaleDateString(),
             time: new Date().toLocaleTimeString(),
             product: 'Subscription Plan',
-            plan: null
+            plan: plans?.find(p => p._id === location.state?.planId) || null
           });
         }
       } else if (paymentIntentId && planId) {
@@ -148,11 +207,15 @@ const PaymentSuccessPage = () => {
     doc.text('Payment Receipt', 20, 20);
     doc.setFontSize(12);
     doc.text(`Product: ${paymentData.product}`, 20, 40);
-    doc.text(`Amount: ₹${paymentData.amount}`, 20, 50);
+    doc.text(`Amount: ₹${paymentData.amount ? paymentData.amount.toLocaleString('en-IN') : '0'}`, 20, 50);
     doc.text(`Transaction ID: ${paymentData.transactionId}`, 20, 60);
     doc.text(`Date: ${paymentData.date}`, 20, 70);
     doc.text(`Time: ${paymentData.time}`, 20, 80);
-    doc.save(`receipt-${paymentData.transactionId}.pdf`);
+    
+    // Generate a safe filename (remove special characters)
+    const safeTransactionId = paymentData.transactionId.replace(/[^a-zA-Z0-9]/g, '_');
+    const fileName = `receipt-${safeTransactionId.substring(0, 20)}.pdf`;
+    doc.save(fileName);
   };
 
   const handleContinue = () => {
@@ -265,7 +328,7 @@ const PaymentSuccessPage = () => {
                     Amount Paid
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    ₹{paymentData.amount}
+                    ₹{paymentData.amount ? paymentData.amount.toLocaleString('en-IN') : '0'}
                   </Typography>
                 </div>
                 <div className="col-md-6 mb-3">

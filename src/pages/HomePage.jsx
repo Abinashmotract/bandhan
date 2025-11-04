@@ -21,11 +21,12 @@ import {
   ArrowForward,
 } from "@mui/icons-material";
 import "../styles/HomePage.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import FeaturedProfiles from "./FeaturedProfiles";
 import apiClient from "../services/apiService";
+import { searchAPI } from "../services/apiService";
 
 // Animation variants
 const fadeInUp = {
@@ -79,7 +80,11 @@ const AnimatedSection = ({ children, variant = fadeInUp, threshold = 0.1 }) => {
 };
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [successStories, setSuccessStories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  
   useEffect(() => {
     const loadFeatured = async () => {
       try {
@@ -105,6 +110,25 @@ const HomePage = () => {
     };
     loadFeatured();
   }, []);
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      // Navigate to matches page with search query
+      // The matches page will handle the search functionality
+      navigate(`/matches?search=${encodeURIComponent(searchQuery.trim())}`);
+    } catch (error) {
+      console.error("Error navigating to search:", error);
+      // Fallback: just navigate to matches page
+      navigate("/matches");
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const features = [
     {
@@ -253,6 +277,13 @@ const HomePage = () => {
                     placeholder="Search by profession, interest, or community..."
                     variant="outlined"
                     size="small"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleSearch();
+                      }
+                    }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -274,6 +305,8 @@ const HomePage = () => {
                   />
                   <Button
                     variant="contained"
+                    onClick={handleSearch}
+                    disabled={isSearching || !searchQuery.trim()}
                     sx={{
                       borderRadius: "50px",
                       px: 3,
@@ -291,9 +324,13 @@ const HomePage = () => {
                         background:
                           "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
                       },
+                      "&:disabled": {
+                        opacity: 0.6,
+                        transform: "none",
+                      },
                     }}
                   >
-                    Search
+                    {isSearching ? "Searching..." : "Search"}
                   </Button>
                 </Box>
               </AnimatedSection>

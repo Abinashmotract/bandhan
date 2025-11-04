@@ -34,6 +34,9 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { showSuccess, showError } from "../utils/toast";
+import { useSubscription } from "../hooks/useSubscription";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const MatchCard = ({
   match,
@@ -44,6 +47,8 @@ const MatchCard = ({
   onChatClick,
   getAge,
   getHeight,
+  variant = "horizontal", // "horizontal" for matches page, "vertical" for featured profiles
+  compact = false, // Smaller card for carousel
 }) => {
   const [showInterestInput, setShowInterestInput] = useState(false);
   const [interestMessage, setInterestMessage] = useState("");
@@ -54,6 +59,25 @@ const MatchCard = ({
   const [hasShownSuperInterest, setHasShownSuperInterest] = useState(match.hasShownSuperInterest || false);
   const [processingSuperInterest, setProcessingSuperInterest] = useState(false);
   const [processingShortlist, setProcessingShortlist] = useState(false);
+  const [photoRequestSent, setPhotoRequestSent] = useState(false);
+  
+  const { canSendInterest, checkProfileAccess, openUpgradeModal, getRemainingInterests } = useSubscription();
+  const subscription = useSelector((state) => state.subscription);
+  const navigate = useNavigate();
+  
+  // Check if user has premium subscription
+  const isPremium = () => {
+    if (!subscription.currentSubscription || !subscription.plans.length) return false;
+    const currentPlan = subscription.plans.find(
+      (plan) => plan._id === subscription.currentSubscription.plan
+    );
+    return currentPlan && currentPlan.planType === 'paid';
+  };
+
+  const hasPremium = isPremium();
+  const canViewProfile = checkProfileAccess ? checkProfileAccess(match) : true;
+  const canSendInterestCheck = canSendInterest ? canSendInterest() : true;
+  const remainingInterests = getRemainingInterests ? getRemainingInterests() : null;
 
   const handleShortlistClick = async (e) => {
     e.preventDefault();
@@ -147,6 +171,14 @@ const MatchCard = ({
     if (interestSent) {
       return;
     }
+    
+    // Check if user can send interest (premium check)
+    if (!canSendInterestCheck) {
+      showError("You've reached your daily interest limit. Upgrade to Premium for unlimited interests!");
+      openUpgradeModal();
+      return;
+    }
+    
     setShowInterestInput(true);
   };
 
@@ -220,6 +252,7 @@ const MatchCard = ({
   const handleRequestPhoto = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    
     try {
       const { API_BASE_URL } = await import("../utils/api");
       const Cookies = (await import("js-cookie")).default;
@@ -241,34 +274,29 @@ const MatchCard = ({
         }),
       });
 
-      // Check if response is HTML (404 error page) or not found
+      // Check for 404 or non-JSON responses first
       if (response.status === 404) {
         showError("Photo request feature is not available yet");
         return;
       }
 
-      // Check content type
       const contentType = response.headers.get("content-type");
-      if (contentType && !contentType.includes("application/json")) {
+      if (!contentType || !contentType.includes("application/json")) {
         showError("Photo request feature is not available yet");
         return;
       }
 
-      try {
-        const data = await response.json();
+      const data = await response.json();
 
-        if (response.ok && data.success) {
-          showSuccess("Photo request sent successfully!");
-        } else {
-          showError(data.message || "Failed to request photo");
-        }
-      } catch (parseError) {
-        // If JSON parsing fails, it's likely an HTML error page
-        showError("Photo request feature is not available yet");
+      if (response.ok && data.success) {
+        setPhotoRequestSent(true);
+        showSuccess(`Photo request sent to ${match.name} successfully!`);
+      } else {
+        showError(data.message || "Failed to request photo");
       }
     } catch (error) {
       console.error("Error requesting photo:", error);
-      showError("Photo request feature is not available yet");
+      showError("Failed to request photo. Please try again.");
     }
   };
 
@@ -294,7 +322,7 @@ const MatchCard = ({
           width: "100%",
           maxWidth: "100%",
           display: "flex",
-          flexDirection: "row",
+          flexDirection: variant === "vertical" ? "column" : "row",
           borderRadius: 3,
           overflow: "hidden",
           transition: "all 0.3s ease",
@@ -306,17 +334,18 @@ const MatchCard = ({
           },
         }}
       >
-        {/* Left Section - Profile Image */}
+        {/* Image Section - Top for vertical, Left for horizontal */}
         <Box
           sx={{
             position: "relative",
-            width: "33%",
+            width: variant === "vertical" ? "100%" : "33%",
             flexShrink: 0,
             backgroundColor: "#1a1a2e",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: "260px",
+            minHeight: variant === "vertical" ? (compact ? "220px" : "280px") : "260px",
+            maxHeight: variant === "vertical" ? (compact ? "220px" : "280px") : "none",
           }}
         >
           {hasImage && match.profileImage ? (
@@ -336,10 +365,17 @@ const MatchCard = ({
                   objectPosition: "top",
                   height: "100%",
                   width: "100%",
-                  maxHeight: "260px",
+                  maxHeight: variant === "vertical" ? (compact ? "220px" : "280px") : "260px",
                   transition: "transform 0.3s ease",
                 }}
-                onClick={() => onViewProfile(match)}
+                onClick={() => {
+                  if (!canViewProfile) {
+                    showError("This profile requires Premium membership to view");
+                    openUpgradeModal();
+                    return;
+                  }
+                  onViewProfile(match);
+                }}
               />
               {/* Photo Count Badge */}
               <Box
@@ -392,10 +428,11 @@ const MatchCard = ({
                 <Button
                   variant="contained"
                   onClick={handleRequestPhoto}
+                  disabled={photoRequestSent}
                   sx={{
                     mt: 2,
-                    backgroundColor: "white",
-                    color: "#333",
+                    backgroundColor: photoRequestSent ? "#4caf50" : "white",
+                    color: photoRequestSent ? "white" : "#333",
                     textTransform: "none",
                     fontWeight: 600,
                     px: 3,
@@ -403,27 +440,32 @@ const MatchCard = ({
                     borderRadius: 2,
                     border: "1px solid rgba(255, 255, 255, 0.3)",
                     "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      backgroundColor: photoRequestSent ? "#4caf50" : "rgba(255, 255, 255, 0.9)",
+                    },
+                    "&.Mui-disabled": {
+                      backgroundColor: "#4caf50",
+                      color: "white",
                     },
                   }}
                 >
-                  Request photo
+                  {photoRequestSent ? "Sent" : "Request photo"}
                 </Button>
               </Box>
             </>
           )}
         </Box>
 
-        {/* Right Section - Profile Details */}
+        {/* Content Section - Profile Details */}
         <Box
           sx={{
             flex: 1,
-            px: 2,
-            pt: 2,
-            pb: 3,
+            px: variant === "vertical" ? (compact ? 2 : 2.5) : 2,
+            pt: variant === "vertical" ? (compact ? 2 : 2.5) : 2,
+            pb: variant === "vertical" ? (compact ? 2.5 : 3) : 3,
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            minHeight: variant === "vertical" ? "auto" : "260px",
           }}
         >
           {/* Top Section - Status and Name */}
@@ -451,7 +493,7 @@ const MatchCard = ({
                 sx={{
                   fontWeight: 700,
                   color: "#1976d2",
-                  fontSize: "1.4rem",
+                  fontSize: compact ? "1.1rem" : "1.4rem",
                   lineHeight: 1.2,
                   cursor:"pointer"
                 }}
@@ -474,7 +516,7 @@ const MatchCard = ({
                 variant="body2"
                 sx={{
                   color: "#666",
-                  fontSize: "0.9rem",
+                  fontSize: compact ? "0.8rem" : "0.9rem",
                   fontWeight: 500,
                   mb: 0.5,
                   display: "flex",
@@ -705,6 +747,13 @@ const MatchCard = ({
                     return;
                   }
 
+                  // Check premium subscription for super interest
+                  if (!hasPremium) {
+                    showError("Super Interest is a Premium feature. Upgrade now!");
+                    openUpgradeModal();
+                    return;
+                  }
+
                   try {
                     setProcessingSuperInterest(true);
                     const { API_BASE_URL } = await import("../utils/api");
@@ -740,6 +789,7 @@ const MatchCard = ({
                       if (data.code === "SUPER_INTEREST_LIMIT_REACHED" || 
                           (data.message && data.message.includes("limit"))) {
                         showError("Daily super interest limit reached. Upgrade to premium for unlimited super interests.");
+                        openUpgradeModal();
                       } else {
                         showError(data.message || "Failed to send super interest");
                       }
@@ -820,6 +870,14 @@ const MatchCard = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  
+                  // Check premium for chat access
+                  if (!hasPremium) {
+                    showError("Chat is a Premium feature. Upgrade now to start conversations!");
+                    openUpgradeModal();
+                    return;
+                  }
+                  
                   if (onChatClick) {
                     onChatClick(match);
                   }

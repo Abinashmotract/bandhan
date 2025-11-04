@@ -5,19 +5,26 @@ import {
   Typography,
   Button,
   Skeleton,
+  IconButton,
 } from "@mui/material";
 import {
   ArrowForward as ArrowForwardIcon,
+  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useAnimation } from "framer-motion";
 import { useEffect as useEffectReact } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { fetchMatches, showSuperInterest, addToShortlist, removeFromShortlist, updateShortlistStatus } from "../store/slices/matchesSlice";
 import { showSuccess, showError } from "../utils/toast";
 import MatchCard from "../components/MatchCard";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, A11y } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 // Animation variants
 const fadeInUp = {
@@ -92,12 +99,13 @@ const FeaturedProfiles = () => {
       setLoading(true);
       setError(null);
       const result = await dispatch(
-        fetchMatches({ page: 1, limit: 4, sortBy: "matchScore" })
+        fetchMatches({ page: 1, limit: 6, sortBy: "matchScore" })
       );
 
       if (fetchMatches.fulfilled.match(result)) {
         const matches = result.payload?.data || result.payload || [];
-        setFeaturedMatches(Array.isArray(matches) ? matches.slice(0, 4) : []);
+        // Only show 6 profiles in the carousel
+        setFeaturedMatches(Array.isArray(matches) ? matches.slice(0, 6) : []);
       } else {
         setError(result.payload || "Failed to fetch featured profiles");
       }
@@ -227,17 +235,29 @@ const FeaturedProfiles = () => {
       </AnimatedSection>
 
       {loading ? (
-        <Grid container spacing={3}>
-          {[...Array(4)].map((_, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Skeleton
-                variant="rectangular"
-                height={300}
-                sx={{ borderRadius: 2 }}
-              />
-            </Grid>
-          ))}
-        </Grid>
+        <Box sx={{ px: { xs: 2, md: 0 } }}>
+          <Swiper
+            modules={[Navigation, Pagination, A11y]}
+            spaceBetween={20}
+            slidesPerView={1}
+            breakpoints={{
+              600: { slidesPerView: 2 },
+              900: { slidesPerView: 3 },
+              1200: { slidesPerView: 4 },
+            }}
+            style={{ padding: "20px 0" }}
+          >
+            {[...Array(4)].map((_, index) => (
+              <SwiperSlide key={index}>
+                <Skeleton
+                  variant="rectangular"
+                  height={450}
+                  sx={{ borderRadius: 2, maxWidth: "320px", mx: "auto" }}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Box>
       ) : error ? (
         <Box sx={{ textAlign: "center", py: 4 }}>
           <Typography color="error">{error}</Typography>
@@ -256,50 +276,109 @@ const FeaturedProfiles = () => {
           </Typography>
         </Box>
       ) : (
-        <Grid container spacing={3}>
-          {featuredMatches.map((match) => (
-            <Grid item xs={12} sm={6} md={3} key={match._id}>
-              <MatchCard
-                match={match}
-                onShowInterest={handleShowInterest}
-                onShowSuperInterest={handleShowSuperInterest}
-                onViewProfile={handleViewProfile}
-                onToggleShortlist={handleToggleShortlist}
-                onChatClick={handleChatClick}
-                getAge={getAge}
-                getHeight={getHeight}
-              />
-            </Grid>
-          ))}
-        </Grid>
+        <Box
+          sx={{
+            position: "relative",
+            px: { xs: 2, md: 0 },
+            "& .swiper-button-next, & .swiper-button-prev": {
+              color: "#51365F",
+              backgroundColor: "white",
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              "&:after": {
+                fontSize: "18px",
+                fontWeight: "bold",
+              },
+              "&:hover": {
+                backgroundColor: "#51365F",
+                color: "white",
+              },
+            },
+            "& .swiper-button-next": {
+              right: "10px",
+            },
+            "& .swiper-button-prev": {
+              left: "10px",
+            },
+            "& .swiper-pagination-bullet": {
+              backgroundColor: "#51365F",
+              opacity: 0.5,
+              "&.swiper-pagination-bullet-active": {
+                opacity: 1,
+              },
+            },
+          }}
+        >
+          <Swiper
+            modules={[Navigation, Pagination, A11y]}
+            spaceBetween={20}
+            slidesPerView={1}
+            navigation={true}
+            pagination={{ clickable: true, dynamicBullets: true }}
+            breakpoints={{
+              600: { slidesPerView: 2 },
+              900: { slidesPerView: 3 },
+              1200: { slidesPerView: 4 },
+            }}
+            style={{ padding: "20px 0 50px" }}
+          >
+            {featuredMatches.map((match) => (
+              <SwiperSlide key={match._id}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    height: "100%",
+                  }}
+                >
+                  <Box sx={{ maxWidth: "320px", width: "100%" }}>
+                    <MatchCard
+                      match={match}
+                      onShowInterest={handleShowInterest}
+                      onShowSuperInterest={handleShowSuperInterest}
+                      onViewProfile={handleViewProfile}
+                      onToggleShortlist={handleToggleShortlist}
+                      onChatClick={handleChatClick}
+                      getAge={getAge}
+                      getHeight={getHeight}
+                      variant="vertical"
+                      compact={true}
+                    />
+                  </Box>
+                </Box>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </Box>
       )}
 
       <AnimatedSection>
         <Box sx={{ textAlign: "center", mt: 6 }}>
-          <Link to="/matches" style={{ textDecoration: "none" }}>
-            <Button
-              variant="contained"
-              endIcon={<ArrowForwardIcon />}
-              sx={{
-                borderRadius: "50px",
-                px: 5,
-                py: 1.5,
-                background: "#51365F",
-                fontWeight: "bold",
-                fontSize: "1.1rem",
-                boxShadow: "0 8px 25px rgba(136, 14, 79, 0.3)",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  boxShadow: "0 12px 30px rgba(136, 14, 79, 0.4)",
-                  background:
-                    "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
-                },
-              }}
-            >
-              View More Profiles
-            </Button>
-          </Link>
+          <Button
+            variant="contained"
+            endIcon={<ArrowForwardIcon />}
+            onClick={() => navigate("/matches")}
+            sx={{
+              borderRadius: "50px",
+              px: 5,
+              py: 1.5,
+              background: "#51365F",
+              fontWeight: "bold",
+              fontSize: "1.1rem",
+              boxShadow: "0 8px 25px rgba(136, 14, 79, 0.3)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "scale(1.05)",
+                boxShadow: "0 12px 30px rgba(136, 14, 79, 0.4)",
+                background:
+                  "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
+              },
+            }}
+          >
+            View More Profiles
+          </Button>
         </Box>
       </AnimatedSection>
     </Box>

@@ -6,14 +6,19 @@ import {
   Card,
   CardContent,
   Skeleton,
-  CircularProgress
+  CircularProgress,
+  Tooltip
 } from '@mui/material';
 import {
   FilterList as FilterIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  Lock as LockIcon
 } from '@mui/icons-material';
 import MatchCard from './MatchCard';
 import FilterDialog from './FilterDialog';
+import { useSubscription } from '../hooks/useSubscription';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 
 const MatchesList = ({
@@ -35,6 +40,29 @@ const MatchesList = ({
   hasMoreMatches
 }) => {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const { openUpgradeModal } = useSubscription();
+  const subscription = useSelector((state) => state.subscription);
+  const navigate = useNavigate();
+  
+  // Check if user has premium subscription
+  const isPremium = () => {
+    if (!subscription.currentSubscription || !subscription.plans.length) return false;
+    const currentPlan = subscription.plans.find(
+      (plan) => plan._id === subscription.currentSubscription.plan
+    );
+    return currentPlan && currentPlan.planType === 'paid';
+  };
+
+  const hasPremium = isPremium();
+  
+  // Handle filter button click - redirect to subscription page if not premium
+  const handleFilterClick = (filterType, currentValue) => {
+    if (!hasPremium && !currentValue) {
+      navigate('/membership');
+      return;
+    }
+    onFilterChange(filterType, !currentValue);
+  };
 
   const handleFilterApply = (filterData) => {
     // Map filter dialog data to filter state format
@@ -136,7 +164,8 @@ const MatchesList = ({
           </Button>
           <Button
             variant={filters?.verified ? "contained" : "outlined"}
-            onClick={() => onFilterChange('verified', !filters?.verified)}
+            onClick={() => handleFilterClick('verified', filters?.verified)}
+            startIcon={!hasPremium && !filters?.verified ? <LockIcon sx={{ fontSize: 16 }} /> : null}
             sx={{
               borderColor: filters?.verified ? '#51365F' : '#e0e0e0',
               backgroundColor: filters?.verified ? '#51365F' : 'transparent',
@@ -146,14 +175,15 @@ const MatchesList = ({
               '&:hover': {
                 backgroundColor: filters?.verified ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
                 borderColor: '#51365F'
-              }
+              },
             }}
           >
             Verified
           </Button>
           <Button
             variant={filters?.justJoined ? "contained" : "outlined"}
-            onClick={() => onFilterChange('justJoined', !filters?.justJoined)}
+            onClick={() => handleFilterClick('justJoined', filters?.justJoined)}
+            startIcon={!hasPremium && !filters?.justJoined ? <LockIcon sx={{ fontSize: 16 }} /> : null}
             sx={{
               borderColor: filters?.justJoined ? '#51365F' : '#e0e0e0',
               backgroundColor: filters?.justJoined ? '#51365F' : 'transparent',
@@ -163,14 +193,15 @@ const MatchesList = ({
               '&:hover': {
                 backgroundColor: filters?.justJoined ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
                 borderColor: '#51365F'
-              }
+              },
             }}
           >
             Just Joined
           </Button>
           <Button
             variant={filters?.nearby ? "contained" : "outlined"}
-            onClick={() => onFilterChange('nearby', !filters?.nearby)}
+            onClick={() => handleFilterClick('nearby', filters?.nearby)}
+            startIcon={!hasPremium && !filters?.nearby ? <LockIcon sx={{ fontSize: 16 }} /> : null}
             sx={{
               borderColor: filters?.nearby ? '#51365F' : '#e0e0e0',
               backgroundColor: filters?.nearby ? '#51365F' : 'transparent',
@@ -180,7 +211,7 @@ const MatchesList = ({
               '&:hover': {
                 backgroundColor: filters?.nearby ? '#c2185b' : 'rgba(233, 30, 99, 0.1)',
                 borderColor: '#51365F'
-              }
+              },
             }}
           >
             Nearby

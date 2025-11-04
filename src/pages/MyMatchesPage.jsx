@@ -11,9 +11,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { showSuccess, showError } from "../utils/toast";
 import { authAPI } from "../services/apiService";
 import { setUser, fetchUserDetails } from "../store/slices/authSlice";
+import { getSubscriptionStatus, getSubscriptionPlans } from "../store/slices/subscriptionSlice";
 import {
   fetchMatches,
   showInterest,
@@ -67,6 +69,7 @@ import {
 
 const MyMatchesPage = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { user } = useSelector((state) => state.auth);
   const {
     matches,
@@ -135,18 +138,27 @@ const MyMatchesPage = () => {
   };
 
   useEffect(() => {
-    loadMatches();
+    // Check for search query in URL
+    const searchParams = new URLSearchParams(location.search);
+    const searchQuery = searchParams.get("search");
+    
+    // Load matches with search query if present
+    loadMatches(searchQuery);
     loadInterestLimits();
     loadSearchCriteria();
     
     // Always ensure user data is loaded
     loadUserProfile();
     
+    // Load subscription status and plans for premium features
+    dispatch(getSubscriptionStatus());
+    dispatch(getSubscriptionPlans({ duration: "quarterly" }));
+    
     // Also fetch via Redux if user not available
     if (!user) {
       dispatch(fetchUserDetails());
     }
-  }, []);
+  }, [location.search]);
 
   // Update local state when Redux user changes
   useEffect(() => {
@@ -252,7 +264,7 @@ const MyMatchesPage = () => {
     }
   }, [middleSectionView, hasMoreMatches, isLoadingMore, currentPage]);
 
-  const loadMatches = async (page = 1, reset = true) => {
+  const loadMatches = async (searchQueryParam = null, page = 1, reset = true) => {
     try {
       if (reset) {
         setCurrentPage(1);
@@ -268,7 +280,7 @@ const MyMatchesPage = () => {
 
       // Use real API call to fetch matches with pagination
       const result = await dispatch(
-        fetchMatches({ ...filters, page, limit: 10 })
+        fetchMatches({ ...filters, search: searchQueryParam || searchTerm || "", page, limit: 10 })
       );
       console.log("API result:", result);
 

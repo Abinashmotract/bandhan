@@ -23,14 +23,32 @@ import {
   ListItemButton,
   ListItemText,
   Slider,
+  Tooltip,
+  Alert,
 } from "@mui/material";
 import { Lock as LockIcon } from "@mui/icons-material";
 import CloseIcon from '@mui/icons-material/Close';
 import { useSelector } from "react-redux";
+import { useSubscription } from "../hooks/useSubscription";
+import { useNavigate } from "react-router-dom";
 
 const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
   const user = useSelector((state) => state.auth.user);
+  const subscription = useSelector((state) => state.subscription);
+  const { openUpgradeModal } = useSubscription();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("typeOfMatches");
+  
+  // Check if user has premium subscription
+  const isPremium = () => {
+    if (!subscription.currentSubscription || !subscription.plans.length) return false;
+    const currentPlan = subscription.plans.find(
+      (plan) => plan._id === subscription.currentSubscription.plan
+    );
+    return currentPlan && currentPlan.planType === 'paid';
+  };
+
+  const hasPremium = isPremium();
   const [localFilters, setLocalFilters] = useState({
     typeOfMatch: "all", // all, verified, justJoined, nearbyMe
     ageRange: [18, 60],
@@ -43,6 +61,9 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
     occupation: "",
     location: "",
     annualIncome: "",
+    familyBasedOutOf: "",
+    profilePostedBy: "",
+    activityOnSite: "",
     ...filters,
   });
 
@@ -66,27 +87,33 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
         occupation: filters.occupation || "",
         location: filters.location || "",
         annualIncome: filters.annualIncome || "",
+        familyBasedOutOf: filters.familyBasedOutOf || "",
+        profilePostedBy: filters.profilePostedBy || "",
+        activityOnSite: filters.activityOnSite || "",
       });
     }
   }, [open, filters]);
 
+  // Define premium filters - these require premium subscription
+  const premiumFilters = ['familyBasedOutOf', 'profilePostedBy', 'activityOnSite', 'motherTongue', 'casteGroup', 'casteSubcaste', 'city', 'income', 'height', 'education', 'occupation'];
+  
   const filterCategories = [
-    { id: "typeOfMatches", label: "Type of Matches" },
-    { id: "familyBasedOutOf", label: "Family based out of", locked: true },
-    { id: "profilePostedBy", label: "Profile posted by", locked: true },
-    { id: "activityOnSite", label: "Activity on site", locked: true },
-    { id: "religion", label: "Religion" },
-    { id: "motherTongue", label: "Mother Tongue" },
-    { id: "casteGroup", label: "Caste Group" },
-    { id: "casteSubcaste", label: "Caste Subcaste" },
-    { id: "country", label: "Country" },
-    { id: "city", label: "City" },
-    { id: "income", label: "Income" },
-    { id: "age", label: "Age" },
-    { id: "height", label: "Height" },
-    { id: "education", label: "Education" },
-    { id: "occupation", label: "Occupation" },
-    { id: "maritalStatus", label: "Marital Status" },
+    { id: "typeOfMatches", label: "Type of Matches", premium: false },
+    { id: "familyBasedOutOf", label: "Family based out of", premium: true },
+    { id: "profilePostedBy", label: "Profile posted by", premium: true },
+    { id: "activityOnSite", label: "Activity on site", premium: true },
+    { id: "religion", label: "Religion", premium: false },
+    { id: "motherTongue", label: "Mother Tongue", premium: false },
+    { id: "casteGroup", label: "Caste Group", premium: false },
+    { id: "casteSubcaste", label: "Caste Subcaste", premium: false },
+    { id: "country", label: "Country", premium: false },
+    { id: "city", label: "City", premium: false },
+    { id: "income", label: "Income", premium: false },
+    { id: "age", label: "Age", premium: false },
+    { id: "height", label: "Height", premium: false },
+    { id: "education", label: "Education", premium: false },
+    { id: "occupation", label: "Occupation", premium: false },
+    { id: "maritalStatus", label: "Marital Status", premium: false },
   ];
 
   const MARITAL_STATUS_OPTIONS = [
@@ -146,6 +173,36 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
 
   const COUNTRY_OPTIONS = ["India", "USA", "UK", "Canada", "Australia"];
 
+  const FAMILY_BASED_OUT_OF_OPTIONS = [
+    "India",
+    "USA",
+    "UK",
+    "Canada",
+    "Australia",
+    "UAE",
+    "Singapore",
+    "Germany",
+    "France",
+    "Other"
+  ];
+
+  const PROFILE_POSTED_BY_OPTIONS = [
+    "Self",
+    "Parent",
+    "Sibling",
+    "Relative",
+    "Friend",
+    "Broker"
+  ];
+
+  const ACTIVITY_ON_SITE_OPTIONS = [
+    "Active Today",
+    "Active This Week",
+    "Active This Month",
+    "Active in Last 3 Months",
+    "Any Activity"
+  ];
+
   const handleChange = (field, value) => {
     setLocalFilters((prev) => ({
       ...prev,
@@ -185,6 +242,9 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
       occupation: "",
       location: "",
       annualIncome: "",
+      familyBasedOutOf: "",
+      profilePostedBy: "",
+      activityOnSite: "",
     });
   };
 
@@ -278,6 +338,7 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
                   onClick={() => handleMultiSelectChange("motherTongue", tongue.toLowerCase())}
                   color={localFilters.motherTongue.includes(tongue.toLowerCase()) ? "error" : "default"}
                   variant={localFilters.motherTongue.includes(tongue.toLowerCase()) ? "filled" : "outlined"}
+                  sx={{ cursor: "pointer" }}
                 />
               ))}
             </Box>
@@ -396,6 +457,7 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
                 value={localFilters.annualIncome}
                 onChange={(e) => handleChange("annualIncome", e.target.value)}
                 displayEmpty
+                disabled={false}
               >
                 <MenuItem value="">Any</MenuItem>
                 {INCOME_OPTIONS.map((income) => (
@@ -466,6 +528,7 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
                         localFilters.heightRange[1],
                       ])
                     }
+                    disabled={false}
                   >
                     <MenuItem value="">Any</MenuItem>
                     <MenuItem value="4ft_6in">4'6"</MenuItem>
@@ -505,6 +568,7 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
                         e.target.value,
                       ])
                     }
+                    disabled={false}
                   >
                     <MenuItem value="">Any</MenuItem>
                     <MenuItem value="4ft_6in">4'6"</MenuItem>
@@ -553,6 +617,7 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
                 value={localFilters.education}
                 onChange={(e) => handleChange("education", e.target.value)}
                 displayEmpty
+                disabled={false}
               >
                 <MenuItem value="">Any</MenuItem>
                 {EDUCATION_OPTIONS.map((edu) => (
@@ -582,6 +647,7 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
                 value={localFilters.occupation}
                 onChange={(e) => handleChange("occupation", e.target.value)}
                 displayEmpty
+                disabled={false}
               >
                 <MenuItem value="">Any</MenuItem>
                 {OCCUPATION_OPTIONS.map((occ) => (
@@ -629,6 +695,96 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
           </Box>
         );
 
+      case "familyBasedOutOf":
+        return (
+          <Box>
+            <FormControl fullWidth size="small">
+              <Select
+                value={localFilters.familyBasedOutOf}
+                onChange={(e) => handleChange("familyBasedOutOf", e.target.value)}
+                displayEmpty
+                disabled={!hasPremium}
+              >
+                <MenuItem value="">Any</MenuItem>
+                {FAMILY_BASED_OUT_OF_OPTIONS.map((location) => (
+                  <MenuItem key={location} value={location.toLowerCase().replace(" ", "_")}>
+                    {location}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {localFilters.familyBasedOutOf && (
+              <Button
+                size="small"
+                onClick={() => handleClear("familyBasedOutOf")}
+                sx={{ mt: 1, textTransform: "none", color: "#666" }}
+              >
+                Clear
+              </Button>
+            )}
+          </Box>
+        );
+
+      case "profilePostedBy":
+        return (
+          <Box>
+            <FormControl fullWidth size="small">
+              <Select
+                value={localFilters.profilePostedBy}
+                onChange={(e) => handleChange("profilePostedBy", e.target.value)}
+                displayEmpty
+                disabled={!hasPremium}
+              >
+                <MenuItem value="">Any</MenuItem>
+                {PROFILE_POSTED_BY_OPTIONS.map((postedBy) => (
+                  <MenuItem key={postedBy} value={postedBy.toLowerCase().replace(" ", "_")}>
+                    {postedBy}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {localFilters.profilePostedBy && (
+              <Button
+                size="small"
+                onClick={() => handleClear("profilePostedBy")}
+                sx={{ mt: 1, textTransform: "none", color: "#666" }}
+              >
+                Clear
+              </Button>
+            )}
+          </Box>
+        );
+
+      case "activityOnSite":
+        return (
+          <Box>
+            <FormControl fullWidth size="small">
+              <Select
+                value={localFilters.activityOnSite}
+                onChange={(e) => handleChange("activityOnSite", e.target.value)}
+                displayEmpty
+                disabled={!hasPremium}
+              >
+                <MenuItem value="">Any</MenuItem>
+                {ACTIVITY_ON_SITE_OPTIONS.map((activity) => (
+                  <MenuItem key={activity} value={activity.toLowerCase().replace(/\s+/g, "_")}>
+                    {activity}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {localFilters.activityOnSite && (
+              <Button
+                size="small"
+                onClick={() => handleClear("activityOnSite")}
+                sx={{ mt: 1, textTransform: "none", color: "#666" }}
+              >
+                Clear
+              </Button>
+            )}
+          </Box>
+        );
+
       default:
         return (
           <Box>
@@ -658,44 +814,60 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
         {/* Left Sidebar */}
         <Box sx={{ width: "280px", borderRight: 1, borderColor: "divider", bgcolor: "#fafafa", }}>
           <List sx={{ p: 0 }}>
-            {filterCategories.map((category) => (
-              <ListItem key={category.id} disablePadding>
-                <ListItemButton
-                  onClick={() => !category.locked && setActiveCategory(category.id)}
-                  selected={activeCategory === category.id}
-                  disabled={category.locked}
-                  sx={{
-                    py: 1.5,
-                    px: 2,
-                    "&.Mui-selected": {
-                      bgcolor: "#f0f0f0",
-                      borderLeft: "3px solid #dc2626",
-                      "&:hover": {
-                        bgcolor: "#f0f0f0",
-                      },
-                    },
-                    "&:hover": {
-                      bgcolor: category.locked ? "transparent" : "#f5f5f5",
-                    },
-                    "&.Mui-disabled": {
-                      opacity: 0.6,
-                    },
-                  }}
-                >
-                  <ListItemText
-                    primary={category.label}
-                    primaryTypographyProps={{
-                      fontSize: "14px",
-                      fontWeight: activeCategory === category.id ? 600 : 400,
-                      color: activeCategory === category.id ? "#1a1a1a" : "#666",
-                    }}
-                  />
-                  {category.locked && (
-                    <LockIcon sx={{ fontSize: 16, color: "#999", ml: 1 }} />
-                  )}
-                </ListItemButton>
-              </ListItem>
-            ))}
+            {filterCategories.map((category) => {
+              const isLocked = category.premium && !hasPremium;
+              return (
+                <ListItem key={category.id} disablePadding>
+                  <Tooltip 
+                    title={isLocked ? "Premium feature - Upgrade to unlock" : ""}
+                    placement="right"
+                  >
+                    <ListItemButton
+                      onClick={() => {
+                        if (isLocked) {
+                          navigate('/membership');
+                          onClose();
+                          return;
+                        }
+                        setActiveCategory(category.id);
+                      }}
+                      selected={activeCategory === category.id && !isLocked}
+                      disabled={false}
+                      sx={{
+                        py: 1.5,
+                        px: 2,
+                        "&.Mui-selected": {
+                          bgcolor: "#f0f0f0",
+                          borderLeft: "3px solid #dc2626",
+                          "&:hover": {
+                            bgcolor: "#f0f0f0",
+                          },
+                        },
+                        "&:hover": {
+                          bgcolor: isLocked ? "transparent" : "#f5f5f5",
+                          cursor: isLocked ? "not-allowed" : "pointer",
+                        },
+                        "&.Mui-disabled": {
+                          opacity: 0.6,
+                        },
+                      }}
+                    >
+                      <ListItemText
+                        primary={category.label}
+                        primaryTypographyProps={{
+                          fontSize: "14px",
+                          fontWeight: activeCategory === category.id ? 600 : 400,
+                          color: activeCategory === category.id ? "#1a1a1a" : "#666",
+                        }}
+                      />
+                      {isLocked && (
+                        <LockIcon sx={{ fontSize: 16, color: "#999", ml: 1 }} />
+                      )}
+                    </ListItemButton>
+                  </Tooltip>
+                </ListItem>
+              );
+            })}
           </List>
         </Box>
 
@@ -704,7 +876,34 @@ const FilterDialog = ({ open, onClose, onApply, filters = {} }) => {
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: "#1a1a1a" }}>
             {filterCategories.find((c) => c.id === activeCategory)?.label}
           </Typography>
-          {renderFilterContent()}
+          {filterCategories.find((c) => c.id === activeCategory)?.premium && !hasPremium ? (
+            <Box>
+              <Alert 
+                severity="info" 
+                sx={{ mb: 2 }}
+                action={
+                  <Button 
+                    color="inherit" 
+                    size="small" 
+                    onClick={() => {
+                      navigate('/membership');
+                      onClose();
+                    }}
+                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                  >
+                    Upgrade Now
+                  </Button>
+                }
+              >
+                This filter is available for Premium members only
+              </Alert>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                Upgrade to Premium to access advanced filters like {filterCategories.find((c) => c.id === activeCategory)?.label}
+              </Typography>
+            </Box>
+          ) : (
+            renderFilterContent()
+          )}
         </Box>
       </DialogContent>
 
