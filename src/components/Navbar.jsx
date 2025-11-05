@@ -378,18 +378,6 @@ const Navbar = () => {
                   marginLeft: "15px",
                 }}
               >
-                <Chip
-                  label={currentPlan.name}
-                  sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    color: "white",
-                    fontWeight: "600",
-                    border: "1px solid rgba(255, 255, 255, 0.3)",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.3)",
-                    },
-                  }}
-                />
                 <Link to="/membership" style={{ textDecoration: "none" }}>
                   <button
                     style={{

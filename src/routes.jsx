@@ -30,7 +30,7 @@ import VideoCallPage from "./pages/VideoCallPage";
 import EventsPage from "./pages/EventsPage";
 import InterestsTabView from "./components/InterestsTabView"
 import MatchesList from "./components/MatchesList";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
+// import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Protected routes array - यहाँ सभी protected routes डालें
 const protectedRoutes = [
@@ -64,7 +64,7 @@ const publicRoutes = [
   { path: "/faq", component: FAQPage },
   { path: "/blog", component: BlogPage },
   { path: "/terms-condition", component: TermsConditions },
-  { path: "/privacy-policy", component: PrivacyPolicy },
+  // { path: "/privacy-policy", component: PrivacyPolicy },
 ];
 
 export default function AppRoutes() {

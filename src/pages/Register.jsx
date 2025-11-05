@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   TextField,
@@ -30,6 +31,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import { showSuccess, showError } from "../utils/toast";
 import {
   Person,
   Email,
@@ -51,9 +53,10 @@ import {
   AccountBalance,
   CheckCircle as CheckIcon,
 } from "@mui/icons-material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../utils/api";
 import axios from "axios";
+import axiosInstance from "../utils/axiosInterceptor";
 
 // Import all the options
 import {
@@ -177,9 +180,129 @@ const PET_PREFERENCES_OPTIONS = [
   { value: "no_preference", label: "No Preference" },
 ];
 
+const FAMILY_MEMBER_COUNT_OPTIONS = [
+  { value: 0, label: "0" },
+  { value: 1, label: "1" },
+  { value: 2, label: "2" },
+  { value: 3, label: "3" },
+  { value: 4, label: "4" },
+  { value: 5, label: "5" },
+  { value: 6, label: "6" },
+  { value: 7, label: "7" },
+  { value: 8, label: "8" },
+  { value: 9, label: "9" },
+  { value: 10, label: "10+" },
+];
+
 const Register = ({ onToggleForm }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const navigate = useNavigate();
+  // Static test data - uncomment to use for testing
+  const staticTestData = {
+    // Basic Info
+    name: "Rahul Sharma",
+    email: "rahul.sharma@yopmail.com",
+    password: "Test@12345",
+    confirmPassword: "Test@12345",
+    mobile: "9876412345",
+    profileFor: "self",
+    gender: "male",
+
+    // Personal Details
+    dob: "1990-05-15",
+    religion: "hindu",
+    caste: "brahmin",
+    subCaste: "kashyap",
+    motherTongue: ["hindi"],
+    maritalStatus: "never_married",
+
+    // Education & Career
+    highestQualification: "masters",
+    fieldOfStudy: "computer_science",
+    education: "masters",
+    occupation: "software_engineer",
+    industry: "information_technology",
+    annualIncome: "10_15_lakhs",
+
+    // Physical Attributes
+    height: "5ft_9in",
+    weight: "72",
+    bodyType: "slim",
+    complexion: "fair",
+
+    // Lifestyle
+    diet: "vegetarian",
+    drinkingHabits: "never",
+    smokingHabits: "never",
+    fitnessLevel: "active",
+    hobbies: ["reading", "traveling", "music"],
+    interests: ["technology", "business", "science"],
+    languagesKnown: ["hindi", "english"],
+    petPreferences: "love_pets",
+
+    // Family Details
+    fatherOccupation: "government_employee",
+    motherOccupation: "teacher",
+    brothers: 1,
+    brothersMarried: 1,
+    sisters: 1,
+    sistersMarried: 0,
+    familyType: "nuclear",
+    familyIncome: "15_25_lakhs",
+    nativePlace: "Delhi",
+    familyStatus: "upper_middle_class",
+
+    // Location
+    state: "delhi",
+    city: "new_delhi",
+    location: "South Delhi",
+
+    // Preferences
+    preferences: {
+      ageRange: { min: 25, max: 30 },
+      heightRange: { min: "5ft_2in", max: "5ft_8in" },
+      qualities: ["honest", "caring", "family_oriented"],
+      dealBreakers: ["smoking", "excessive_drinking"],
+      educationPref: "graduate",
+      occupationPref: ["software_engineer", "doctor", "teacher"],
+      annualIncomePref: "5_10_lakhs",
+      lifestyleExpectations: {
+        diet: "vegetarian",
+        drinking: "never",
+        smoking: "never",
+      },
+      religionCastePref: "same_religion",
+      locationPref: "same_city",
+      relocation: "maybe",
+      familyOrientation: "traditional",
+      maritalStatusPref: "never_married",
+    },
+
+    // Additional Info
+    about:
+      "I am a software engineer working in a multinational company. I enjoy reading, traveling, and spending time with family. Looking for a life partner who is understanding, caring, and family-oriented.",
+    photos: [],
+    profileImage: "",
+
+    agreeToTerms: true,
+  };
+
+  // To use this static data, replace your useState initialization with:
+  /*
+const [formData, setFormData] = useState(staticTestData);
+*/
+
+  // Or temporarily set it after component mount for testing:
+
+  useEffect(() => {
+    setFormData(staticTestData);
+  }, []);
+
   const [formData, setFormData] = useState({
     // Basic Info
     name: "",
@@ -266,8 +389,6 @@ const Register = ({ onToggleForm }) => {
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState({});
 
-  const navigate = useNavigate();
-
   const steps = [
     "Account Details",
     "Personal Info",
@@ -277,8 +398,18 @@ const Register = ({ onToggleForm }) => {
   ];
 
   const handleChange = (e) => {
-    const value =
+    let value =
       e.target.type === "checkbox" ? e.target.checked : e.target.value;
+
+    // Convert specific fields to numbers
+    if (
+      ["brothers", "brothersMarried", "sisters", "sistersMarried"].includes(
+        e.target.name
+      )
+    ) {
+      value = Number(value);
+    }
+
     setFormData({
       ...formData,
       [e.target.name]: value,
@@ -378,41 +509,80 @@ const Register = ({ onToggleForm }) => {
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
-
+  console.log(formData);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!validateStep(activeStep)) return;
-    setSubmitStatus({ loading: true, message: "" });
+    if (!validateStep(activeStep)) return;
+
+    if (activeStep !== steps.length - 1) {
+      handleNext();
+      return;
+    }
+
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/signup`,
-        formData
-      );
+      setSubmitStatus({ loading: true });
+      const response = await axiosInstance.post("/auth/signup", formData);
       if (response.data.success) {
+        setEmailSent(true);
+        showSuccess("Verification code sent to your email!");
         setSubmitStatus({
           loading: false,
           success: true,
           message:
-            response?.message ||
-            "Registration successful! Redirecting to login...",
-        });
-        navigate("/login");
-      } else {
-        setSubmitStatus({
-          loading: false,
-          success: false,
-          message: response.message || "Registration failed. Please try again.",
+            "Registration successful! Please check your email for verification code.",
         });
       }
     } catch (error) {
-      console.error("Registration error:", error);
       setSubmitStatus({
         loading: false,
         success: false,
-        message:
-          error.response?.data?.message ||
-          "Network error. Please check your connection and try again.",
+        message: error.response?.data?.message || "Registration failed",
       });
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    if (!verificationCode) {
+      setVerificationError("Please enter the verification code");
+      return;
+    }
+
+    try {
+      setIsVerifying(true);
+      const response = await axiosInstance.post("/auth/verify-email", {
+        email: formData.email,
+        code: verificationCode,
+      });
+
+      if (response.data.success) {
+        showSuccess("Email verified successfully!");
+        navigate("/login");
+      }
+    } catch (error) {
+      setVerificationError(
+        error.response?.data?.message || "Verification failed"
+      );
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    try {
+      setIsVerifying(true);
+      const response = await axiosInstance.post("/auth/resend-verification-otp", {
+        email: formData.email,
+      });
+
+      if (response.data.success) {
+        showSuccess("New verification code sent!");
+      }
+    } catch (error) {
+      setVerificationError(
+        error.response?.data?.message || "Failed to resend code"
+      );
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -1342,105 +1512,75 @@ const Register = ({ onToggleForm }) => {
               </Select>
             </FormControl>
 
-            <TextField
-              fullWidth
-              label="Number of Brothers"
-              name="brothers"
-              type="number"
-              value={formData.brothers}
-              onChange={handleChange}
-              margin="normal"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FamilyRestroom sx={{ color: "#51365F" }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#51365F",
-                  },
-                },
-              }}
-            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Number of Brothers</InputLabel>
+              <Select
+                name="brothers"
+                value={formData.brothers}
+                onChange={handleChange}
+                label="Number of Brothers"
+              >
+                {FAMILY_MEMBER_COUNT_OPTIONS.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-            <TextField
-              fullWidth
-              label="Number of Brothers Married"
-              name="brothersMarried"
-              type="number"
-              value={formData.brothersMarried}
-              onChange={handleChange}
-              margin="normal"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FamilyRestroom sx={{ color: "#51365F" }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#51365F",
-                  },
-                },
-              }}
-            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Number of Brothers Married</InputLabel>
+              <Select
+                name="brothersMarried"
+                value={formData.brothersMarried}
+                onChange={handleChange}
+                label="Number of Brothers Married"
+                disabled={formData.brothers === 0}
+              >
+                {FAMILY_MEMBER_COUNT_OPTIONS.filter(
+                  (option) => option.value <= formData.brothers
+                ).map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-            <TextField
-              fullWidth
-              label="Number of Sisters"
-              name="sisters"
-              type="number"
-              value={formData.sisters}
-              onChange={handleChange}
-              margin="normal"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FamilyRestroom sx={{ color: "#51365F" }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#51365F",
-                  },
-                },
-              }}
-            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Number of Sisters</InputLabel>
+              <Select
+                name="sisters"
+                value={formData.sisters}
+                onChange={handleChange}
+                label="Number of Sisters"
+              >
+                {FAMILY_MEMBER_COUNT_OPTIONS.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-            <TextField
-              fullWidth
-              label="Number of Sisters Married"
-              name="sistersMarried"
-              type="number"
-              value={formData.sistersMarried}
-              onChange={handleChange}
-              margin="normal"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FamilyRestroom sx={{ color: "#51365F" }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#51365F",
-                  },
-                },
-              }}
-            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Number of Sisters Married</InputLabel>
+              <Select
+                name="sistersMarried"
+                value={formData.sistersMarried}
+                onChange={handleChange}
+                label="Number of Sisters Married"
+                disabled={formData.sisters === 0}
+              >
+                {FAMILY_MEMBER_COUNT_OPTIONS.filter(
+                  (option) => option.value <= formData.sisters
+                ).map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             <FormControl
               fullWidth
@@ -2105,145 +2245,215 @@ const Register = ({ onToggleForm }) => {
                 Create your account to find your perfect life partner
               </Typography>
             </Box>
+            {!emailSent && (
+              <>
+                <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+                  {steps.map((label) => (
+                    <Step key={label}>
+                      <StepLabel>{label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
 
-            <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-              {steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-
-            {submitStatus.message && (
-              <Alert
-                severity={submitStatus.success ? "success" : "error"}
-                sx={{ mb: 3 }}
-              >
-                {submitStatus.message}
-              </Alert>
-            )}
-
-            <Box component="form" onSubmit={handleSubmit}>
-              {getStepContent(activeStep)}
-
-              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                {activeStep !== 0 && (
-                  <Button
-                    onClick={handleBack}
-                    sx={{ mr: 1, color: "#51365F", borderRadius: "8px", px: 3 }}
+                {submitStatus.message && (
+                  <Alert
+                    severity={submitStatus.success ? "success" : "error"}
+                    sx={{ mb: 3 }}
                   >
-                    Back
-                  </Button>
+                    {submitStatus.message}
+                  </Alert>
                 )}
-                <Box sx={{ flex: "1 1 auto" }} />
-                {activeStep < steps.length - 1 ? (
-                  <Button
-                    onClick={handleNext}
-                    variant="contained"
-                    sx={{
-                      borderRadius: "8px",
-                      px: 4,
-                      background: "#51365F",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
-                      },
-                    }}
-                  >
-                    Next
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={submitStatus.loading}
-                    sx={{
-                      borderRadius: "8px",
-                      px: 4,
-                      background: "#51365F",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
-                      },
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                    }}
-                  >
-                    {submitStatus.loading ? (
-                      <>
-                        <CircularProgress size={20} sx={{ color: "white" }} />
-                        Processing...
-                      </>
-                    ) : (
-                      "Complete Registration"
+
+                <Box component="form" onSubmit={handleSubmit}>
+                  {getStepContent(activeStep)}
+
+                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                    {activeStep !== 0 && (
+                      <Button
+                        onClick={handleBack}
+                        sx={{
+                          mr: 1,
+                          color: "#51365F",
+                          borderRadius: "8px",
+                          px: 3,
+                        }}
+                      >
+                        Back
+                      </Button>
                     )}
-                  </Button>
-                )}
-              </Box>
-
-              {activeStep === 0 && (
-                <>
-                  <Divider sx={{ my: 3 }}>
-                    <Typography variant="body2" sx={{ color: "#78909c" }}>
-                      Or sign up with
-                    </Typography>
-                  </Divider>
-
-                  <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      startIcon={<Google />}
-                      sx={{
-                        py: 1.5,
-                        borderRadius: "12px",
-                        borderColor: "#ddd",
-                        color: "#5f6368",
-                        "&:hover": { borderColor: "#51365F", color: "#51365F" },
-                      }}
-                    >
-                      Google
-                    </Button>
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      startIcon={<Facebook />}
-                      sx={{
-                        py: 1.5,
-                        borderRadius: "12px",
-                        borderColor: "#ddd",
-                        color: "#1877f2",
-                        "&:hover": {
-                          borderColor: "#1877f2",
-                          backgroundColor: "rgba(24, 119, 242, 0.04)",
-                        },
-                      }}
-                    >
-                      Facebook
-                    </Button>
+                    <Box sx={{ flex: "1 1 auto" }} />
+                    {activeStep < steps.length - 1 ? (
+                      <Button
+                        onClick={handleNext}
+                        variant="contained"
+                        sx={{
+                          borderRadius: "8px",
+                          px: 4,
+                          background: "#51365F",
+                          "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
+                          },
+                        }}
+                      >
+                        Next
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={submitStatus.loading}
+                        sx={{
+                          borderRadius: "8px",
+                          px: 4,
+                          background: "#51365F",
+                          "&:hover": {
+                            background:
+                              "linear-gradient(135deg, #c2185b 0%, #6a1b9a 100%)",
+                          },
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                        }}
+                      >
+                        {submitStatus.loading ? (
+                          <>
+                            <CircularProgress
+                              size={20}
+                              sx={{ color: "white" }}
+                            />
+                            Processing...
+                          </>
+                        ) : (
+                          "Complete Registration"
+                        )}
+                      </Button>
+                    )}
                   </Box>
 
-                  <Box sx={{ textAlign: "center" }}>
-                    <Typography variant="body2" sx={{ color: "#78909c" }}>
-                      Already have an account?{" "}
-                      <Link to="/login" style={{ textDecoration: "none" }}>
-                        <span
-                          onClick={onToggleForm}
-                          style={{
-                            color: "#51365F",
-                            cursor: "pointer",
-                            fontWeight: 600,
+                  {activeStep === 0 && (
+                    <>
+                      <Divider sx={{ my: 3 }}>
+                        <Typography variant="body2" sx={{ color: "#78909c" }}>
+                          Or sign up with
+                        </Typography>
+                      </Divider>
+
+                      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          startIcon={<Google />}
+                          sx={{
+                            py: 1.5,
+                            borderRadius: "12px",
+                            borderColor: "#ddd",
+                            color: "#5f6368",
+                            "&:hover": {
+                              borderColor: "#51365F",
+                              color: "#51365F",
+                            },
                           }}
                         >
-                          Sign In
-                        </span>
-                      </Link>
-                    </Typography>
-                  </Box>
-                </>
-              )}
-            </Box>
+                          Google
+                        </Button>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          startIcon={<Facebook />}
+                          sx={{
+                            py: 1.5,
+                            borderRadius: "12px",
+                            borderColor: "#ddd",
+                            color: "#1877f2",
+                            "&:hover": {
+                              borderColor: "#1877f2",
+                              backgroundColor: "rgba(24, 119, 242, 0.04)",
+                            },
+                          }}
+                        >
+                          Facebook
+                        </Button>
+                      </Box>
+
+                      <Box sx={{ textAlign: "center" }}>
+                        <Typography variant="body2" sx={{ color: "#78909c" }}>
+                          Already have an account?{" "}
+                          <Link to="/login" style={{ textDecoration: "none" }}>
+                            <span
+                              onClick={onToggleForm}
+                              style={{
+                                color: "#51365F",
+                                cursor: "pointer",
+                                fontWeight: 600,
+                              }}
+                            >
+                              Sign In
+                            </span>
+                          </Link>
+                        </Typography>
+                      </Box>
+                    </>
+                  )}
+                </Box>
+              </>
+            )}
+
+            {emailSent && (
+              <Box sx={{ mt: 2, mb: 2 }}>
+                <Typography variant="body1" sx={{ mb: 2, textAlign: "center" }}>
+                  Please enter the verification code sent to your email
+                </Typography>
+                <TextField
+                  fullWidth
+                  label="Verification Code"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  margin="normal"
+                  error={!!verificationError}
+                  helperText={verificationError}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                      "&.Mui-focused fieldset": { borderColor: "#51365F" },
+                    },
+                  }}
+                />
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={handleVerifyEmail}
+                  disabled={isVerifying || !verificationCode}
+                  startIcon={
+                    isVerifying && (
+                      <CircularProgress size={20} color="inherit" />
+                    )
+                  }
+                  sx={{
+                    mt: 2,
+                    py: 1.5,
+                    backgroundColor: "#51365F",
+                    borderRadius: "12px",
+                    "&:hover": { backgroundColor: "#422c4e" },
+                  }}
+                >
+                  Verify Email
+                </Button>
+                <Button
+                  fullWidth
+                  variant="text"
+                  onClick={handleResendCode}
+                  disabled={isVerifying}
+                  sx={{
+                    mt: 1,
+                    color: "#51365F",
+                    "&:hover": { backgroundColor: "rgba(81, 54, 95, 0.04)" },
+                  }}
+                >
+                  Resend Code
+                </Button>
+              </Box>
+            )}
           </Paper>
         </Container>
       </Box>

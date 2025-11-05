@@ -878,46 +878,58 @@ const ProfileDetails = ({
                   >
                     Personal Details 👤
                   </Typography>
-                  <Grid container spacing={3}>
-                    <DetailItem
-                      icon={<HeightIcon />}
-                      label="Height"
-                      value={formatHeight(selectedMatch.height)}
-                    />
-                    <DetailItem
-                      icon={<CakeIcon />}
-                      label="Age"
-                      value={`${
-                        selectedMatch.age || getAgeValue(selectedMatch.dob)
-                      } Years`}
-                    />
-                    <DetailItem
-                      icon={<LanguageIcon />}
-                      label="Mother Tongue"
-                      value={
-                        Array.isArray(selectedMatch.motherTongue)
-                          ? selectedMatch.motherTongue
-                              .map(formatText)
-                              .join(", ")
-                          : formatText(selectedMatch.motherTongue)
-                      }
-                    />
-                    <DetailItem
-                      icon={<WorkIcon />}
-                      label="Occupation"
-                      value={formatText(selectedMatch.occupation)}
-                    />
-                    <DetailItem
-                      icon={<SchoolIcon />}
-                      label="Education"
-                      value={formatText(selectedMatch.education)}
-                    />
-                    <DetailItem
-                      icon={<RestaurantIcon />}
-                      label="Diet"
-                      value={formatText(selectedMatch.diet)}
-                    />
-                  </Grid>
+                  <div className="row gy-4">
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<HeightIcon />}
+                        label="Height"
+                        value={formatHeight(selectedMatch.height)}
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<CakeIcon />}
+                        label="Age"
+                        value={`${
+                          selectedMatch.age || getAgeValue(selectedMatch.dob)
+                        } Years`}
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<LanguageIcon />}
+                        label="Mother Tongue"
+                        value={
+                          Array.isArray(selectedMatch.motherTongue)
+                            ? selectedMatch.motherTongue
+                                .map(formatText)
+                                .join(", ")
+                            : formatText(selectedMatch.motherTongue)
+                        }
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<WorkIcon />}
+                        label="Occupation"
+                        value={formatText(selectedMatch.occupation)}
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<SchoolIcon />}
+                        label="Education"
+                        value={formatText(selectedMatch.education)}
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<RestaurantIcon />}
+                        label="Diet"
+                        value={formatText(selectedMatch.diet)}
+                      />
+                    </div>
+                  </div>
                   <Divider sx={{ my: 3 }} />
                   <Typography
                     variant="h6"
@@ -925,30 +937,38 @@ const ProfileDetails = ({
                   >
                     Background 🕌
                   </Typography>
-                  <Grid container spacing={3}>
-                    <DetailItem
-                      icon={<FavoriteBorderIcon />}
-                      label="Marital Status"
-                      value={formatText(selectedMatch.maritalStatus)}
-                    />
-                    <DetailItem
-                      icon={<LocationOnIcon />}
-                      label="Location"
-                      value={`${selectedMatch.city || "N/A"}, ${
-                        selectedMatch.state || "N/A"
-                      }`}
-                    />
-                    <DetailItem
-                      icon={<VerifiedIcon />}
-                      label="Religion"
-                      value={formatText(selectedMatch.religion)}
-                    />
-                    <DetailItem
-                      icon={<VerifiedIcon />}
-                      label="Caste"
-                      value={formatText(selectedMatch.caste)}
-                    />
-                  </Grid>
+                  <div className="row gy-4">
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<FavoriteBorderIcon />}
+                        label="Marital Status"
+                        value={formatText(selectedMatch.maritalStatus)}
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<LocationOnIcon />}
+                        label="Location"
+                        value={`${selectedMatch.city || "N/A"}, ${
+                          selectedMatch.state || "N/A"
+                        }`}
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<VerifiedIcon />}
+                        label="Religion"
+                        value={formatText(selectedMatch.religion)}
+                      />
+                    </div>
+                    <div className="col-lg-6">
+                      <DetailItem
+                        icon={<VerifiedIcon />}
+                        label="Caste"
+                        value={formatText(selectedMatch.caste)}
+                      />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </>
