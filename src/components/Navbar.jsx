@@ -16,6 +16,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Chip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -24,6 +25,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
 import { getNotifications } from "../store/slices/notificationSlice";
+import { getSubscriptionStatus, getSubscriptionPlans } from "../store/slices/subscriptionSlice";
 import { showError, showSuccess } from "../utils/toast";
 import logo from "../assets/WhatsApp Image 2025-01-28 at 9.41.07 PM.png";
 
@@ -63,13 +65,18 @@ const Navbar = () => {
     (state) => state.auth
   );
   const { unreadCount } = useSelector((state) => state.notification);
+  const { currentSubscription, plans } = useSelector((state) => state.subscription);
   console.log("isInitialized", isInitialized, isAuthenticated);
 
-  // Fetch notifications when user is authenticated
+  // Fetch notifications and subscription status when user is authenticated
   useEffect(() => {
     if (isAuthenticated && isInitialized) {
       // Fetch notifications to get unread count (API returns unreadCount in response)
       dispatch(getNotifications({ page: 1, limit: 10 }));
+      
+      // Fetch subscription status and plans
+      dispatch(getSubscriptionStatus());
+      dispatch(getSubscriptionPlans({ duration: "quarterly" }));
       
       // Set up interval to refresh notifications every 30 seconds
       const interval = setInterval(() => {
@@ -79,6 +86,24 @@ const Navbar = () => {
       return () => clearInterval(interval);
     }
   }, [isAuthenticated, isInitialized, dispatch]);
+
+  // Get current plan name from subscription
+  // Handle both cases: plan could be populated (object) or just an ID
+  const currentPlan = currentSubscription 
+    ? (typeof currentSubscription.plan === 'object' && currentSubscription.plan !== null && currentSubscription.plan.name
+        ? currentSubscription.plan // Plan is already populated
+        : plans.length > 0 
+          ? plans.find(plan => {
+              const planId = String(plan._id || plan.id);
+              const subscriptionPlanId = String(
+                currentSubscription.plan?._id || 
+                currentSubscription.plan || 
+                ''
+              );
+              return planId === subscriptionPlanId;
+            })
+          : null)
+    : null;
 
   // Function to check if a route is active
   const isActiveRoute = (href) => {
@@ -210,7 +235,20 @@ const Navbar = () => {
           );
         })}
 
-        {/* Upgrade Button for Mobile */}
+        {/* Subscription Info and Upgrade Button for Mobile */}
+        {isAuthenticated && currentPlan && (
+          <Box sx={{ px: 2, py: 1, mb: 1, display: "flex", justifyContent: "center" }}>
+            <Chip
+              label={currentPlan.name}
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                color: "white",
+                fontWeight: "600",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+              }}
+            />
+          </Box>
+        )}
         <ListItem
           component={Link}
           to="/membership"
@@ -330,38 +368,93 @@ const Navbar = () => {
               );
             })}
 
-            {/* Upgrade Button - Always visible */}
-            <Link to="/membership" style={{ textDecoration: "none" }}>
-              <button
-                style={{
-                  background:
-                    "linear-gradient(135deg, #FFD700 0%, #F57F17 100%)",
-                  color: "#3A2640",
-                  border: "none",
-                  borderRadius: "25px",
-                  padding: "10px 25px",
+            {/* Subscription Info and Upgrade Button - Desktop */}
+            {isAuthenticated && currentPlan && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
                   marginLeft: "15px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  transition: "all 0.3s",
-                  boxShadow: "0 4px 8px rgba(255, 215, 0, 0.3)",
-                  textTransform: "uppercase",
-                  fontSize: "0.85rem",
-                  letterSpacing: "0.5px",
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.boxShadow =
-                    "0 6px 12px rgba(255, 215, 0, 0.4)";
-                  e.target.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.boxShadow = "0 4px 8px rgba(255, 215, 0, 0.3)";
-                  e.target.style.transform = "translateY(0)";
                 }}
               >
-                Upgrade
-              </button>
-            </Link>
+                <Chip
+                  label={currentPlan.name}
+                  sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                    color: "white",
+                    fontWeight: "600",
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.3)",
+                    },
+                  }}
+                />
+                <Link to="/membership" style={{ textDecoration: "none" }}>
+                  <button
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #FFD700 0%, #F57F17 100%)",
+                      color: "#3A2640",
+                      border: "none",
+                      borderRadius: "25px",
+                      padding: "10px 25px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      transition: "all 0.3s",
+                      boxShadow: "0 4px 8px rgba(255, 215, 0, 0.3)",
+                      textTransform: "uppercase",
+                      fontSize: "0.85rem",
+                      letterSpacing: "0.5px",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.boxShadow =
+                        "0 6px 12px rgba(255, 215, 0, 0.4)";
+                      e.target.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.boxShadow = "0 4px 8px rgba(255, 215, 0, 0.3)";
+                      e.target.style.transform = "translateY(0)";
+                    }}
+                  >
+                    Upgrade
+                  </button>
+                </Link>
+              </Box>
+            )}
+            {!isAuthenticated || !currentPlan ? (
+              <Link to="/membership" style={{ textDecoration: "none" }}>
+                <button
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #FFD700 0%, #F57F17 100%)",
+                    color: "#3A2640",
+                    border: "none",
+                    borderRadius: "25px",
+                    padding: "10px 25px",
+                    marginLeft: "15px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    transition: "all 0.3s",
+                    boxShadow: "0 4px 8px rgba(255, 215, 0, 0.3)",
+                    textTransform: "uppercase",
+                    fontSize: "0.85rem",
+                    letterSpacing: "0.5px",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.boxShadow =
+                      "0 6px 12px rgba(255, 215, 0, 0.4)";
+                    e.target.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.boxShadow = "0 4px 8px rgba(255, 215, 0, 0.3)";
+                    e.target.style.transform = "translateY(0)";
+                  }}
+                >
+                  Upgrade
+                </button>
+              </Link>
+            ) : null}
             {!isInitialized ? (
               <div
                 style={{

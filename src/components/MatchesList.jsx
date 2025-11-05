@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -17,8 +17,9 @@ import {
 import MatchCard from './MatchCard';
 import FilterDialog from './FilterDialog';
 import { useSubscription } from '../hooks/useSubscription';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { getSubscriptionStatus, getSubscriptionPlans } from '../store/slices/subscriptionSlice';
 
 
 const MatchesList = ({
@@ -42,22 +43,103 @@ const MatchesList = ({
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const { openUpgradeModal } = useSubscription();
   const subscription = useSelector((state) => state.subscription);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  // Check if user has premium subscription
-  const isPremium = () => {
-    if (!subscription.currentSubscription || !subscription.plans.length) return false;
-    const currentPlan = subscription.plans.find(
-      (plan) => plan._id === subscription.currentSubscription.plan
-    );
-    return currentPlan && currentPlan.planType === 'paid';
+  // Ensure subscription data is loaded when component mounts
+  useEffect(() => {
+    if (!subscription.currentSubscription && !subscription.loading) {
+      console.log('🔄 Loading subscription data...');
+      dispatch(getSubscriptionStatus());
+      dispatch(getSubscriptionPlans({ duration: "quarterly" }));
+    }
+  }, [dispatch, subscription.currentSubscription, subscription.loading]);
+  
+  // Check if user has access to premium features (Entry, Advanced, Premium, Elite plans)
+  // These filters (Verified, Just Joined, Nearby) should be available to all paid plans
+  const hasFilterAccess = () => {
+    // Debug logging
+    console.log('🔍 Checking filter access:', {
+      hasSubscription: !!subscription.currentSubscription,
+      subscription: subscription.currentSubscription,
+      plansCount: subscription.plans?.length || 0,
+      loading: subscription.loading,
+    });
+    
+    // Check if subscription exists
+    if (!subscription.currentSubscription) {
+      console.log('❌ No subscription found');
+      return false;
+    }
+    
+    // Check if subscription is active - handle both isActive and status fields
+    const isActive = subscription.currentSubscription.isActive !== undefined 
+      ? subscription.currentSubscription.isActive 
+      : subscription.currentSubscription.status === 'active';
+    
+    console.log('📊 Subscription active status:', isActive);
+    
+    if (!isActive) {
+      console.log('❌ Subscription is not active');
+      return false;
+    }
+    
+    // Handle both populated plan object and plan ID string
+    const subscriptionPlan = subscription.currentSubscription.plan;
+    console.log('📦 Subscription plan data:', subscriptionPlan);
+    
+    const planId = typeof subscriptionPlan === 'object' && subscriptionPlan !== null
+      ? String(subscriptionPlan._id || subscriptionPlan.id)
+      : String(subscriptionPlan || '');
+    
+    console.log('🆔 Extracted plan ID:', planId);
+    
+    if (!planId) {
+      console.log('❌ No plan ID found');
+      return false;
+    }
+    
+    // If we have plans loaded, check plan type
+    if (subscription.plans && subscription.plans.length > 0) {
+      const currentPlan = subscription.plans.find(
+        (plan) => String(plan._id) === planId
+      );
+      
+      console.log('📋 Found plan:', currentPlan);
+      
+      if (currentPlan) {
+        const hasAccess = currentPlan.planType === 'paid';
+        console.log(`✅ Plan type: ${currentPlan.planType}, Has access: ${hasAccess}`);
+        return hasAccess;
+      } else {
+        console.log('⚠️ Plan not found in plans array, checking if plan object has planType');
+        // If plan is populated, check its planType directly
+        if (typeof subscriptionPlan === 'object' && subscriptionPlan.planType) {
+          const hasAccess = subscriptionPlan.planType === 'paid';
+          console.log(`✅ Plan object type: ${subscriptionPlan.planType}, Has access: ${hasAccess}`);
+          return hasAccess;
+        }
+      }
+    } else {
+      console.log('⚠️ Plans not loaded yet, checking if plan object has planType');
+      // If plans aren't loaded yet but we have a populated plan object, check it directly
+      if (typeof subscriptionPlan === 'object' && subscriptionPlan.planType) {
+        const hasAccess = subscriptionPlan.planType === 'paid';
+        console.log(`✅ Plan object type: ${subscriptionPlan.planType}, Has access: ${hasAccess}`);
+        return hasAccess;
+      }
+    }
+    
+    console.log('❌ Could not determine plan type');
+    return false;
   };
 
-  const hasPremium = isPremium();
+  const hasAccess = hasFilterAccess();
+  console.log('🎯 Final access result:', hasAccess);
   
-  // Handle filter button click - redirect to subscription page if not premium
+  // Handle filter button click - redirect to subscription page if no access
   const handleFilterClick = (filterType, currentValue) => {
-    if (!hasPremium && !currentValue) {
+    if (!hasAccess && !currentValue) {
       navigate('/membership');
       return;
     }
@@ -165,7 +247,7 @@ const MatchesList = ({
           <Button
             variant={filters?.verified ? "contained" : "outlined"}
             onClick={() => handleFilterClick('verified', filters?.verified)}
-            startIcon={!hasPremium && !filters?.verified ? <LockIcon sx={{ fontSize: 16 }} /> : null}
+            startIcon={!hasAccess && !filters?.verified ? <LockIcon sx={{ fontSize: 16 }} /> : null}
             sx={{
               borderColor: filters?.verified ? '#51365F' : '#e0e0e0',
               backgroundColor: filters?.verified ? '#51365F' : 'transparent',
@@ -183,7 +265,7 @@ const MatchesList = ({
           <Button
             variant={filters?.justJoined ? "contained" : "outlined"}
             onClick={() => handleFilterClick('justJoined', filters?.justJoined)}
-            startIcon={!hasPremium && !filters?.justJoined ? <LockIcon sx={{ fontSize: 16 }} /> : null}
+            startIcon={!hasAccess && !filters?.justJoined ? <LockIcon sx={{ fontSize: 16 }} /> : null}
             sx={{
               borderColor: filters?.justJoined ? '#51365F' : '#e0e0e0',
               backgroundColor: filters?.justJoined ? '#51365F' : 'transparent',
@@ -201,7 +283,7 @@ const MatchesList = ({
           <Button
             variant={filters?.nearby ? "contained" : "outlined"}
             onClick={() => handleFilterClick('nearby', filters?.nearby)}
-            startIcon={!hasPremium && !filters?.nearby ? <LockIcon sx={{ fontSize: 16 }} /> : null}
+            startIcon={!hasAccess && !filters?.nearby ? <LockIcon sx={{ fontSize: 16 }} /> : null}
             sx={{
               borderColor: filters?.nearby ? '#51365F' : '#e0e0e0',
               backgroundColor: filters?.nearby ? '#51365F' : 'transparent',

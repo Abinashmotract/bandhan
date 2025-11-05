@@ -664,7 +664,7 @@ const HomePage = () => {
                   fontStyle: "italic",
                 }}
               >
-                Why Choose bandhnammatch?
+                Why Choose BandhanamMatch?
               </Typography>
               <Typography
                 variant="body1"
@@ -981,7 +981,7 @@ const HomePage = () => {
                 }}
               >
                 Join thousands of couples who found their life partners on
-                bandhnammatch
+                BandhanamMatch
               </Typography>
             </AnimatedSection>
             <AnimatedSection variant={scaleIn}>

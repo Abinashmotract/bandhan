@@ -119,7 +119,7 @@ const SuccessStories = () => {
                         fontSize: '1.2rem',
                         lineHeight: 1.6
                     }}>
-                        Real stories of love and companionship that began on bandhnammatch.
+                        Real stories of love and companionship that began on BandhanamMatch.
                         These couples found their perfect match and are now living their happily ever after.
                     </Typography>
                 </Box>
@@ -286,7 +286,7 @@ const SuccessStories = () => {
                         mb: 4,
                         fontSize: '1.1rem'
                     }}>
-                        Join thousands of couples who found their life partners on bandhnammatch
+                        Join thousands of couples who found their life partners on BandhanamMatch
                     </Typography>
                     <Link to="/register" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" endIcon={<ArrowForward />} sx={{

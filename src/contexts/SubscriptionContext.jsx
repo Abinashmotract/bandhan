@@ -84,30 +84,45 @@ export const SubscriptionProvider = ({ children }) => {
     const currentSubscription = reduxSubscription.currentSubscription || state.currentSubscription;
     const plans = reduxSubscription.plans.length > 0 ? reduxSubscription.plans : state.plans;
     
-    if (!user || !currentSubscription) {
-      return true; // Allow access if no subscription info (free users)
+    if (!user) {
+      return false; // Must be logged in
     }
 
-    const currentPlan = plans.find(
-      (plan) => plan._id === currentSubscription.plan
-    );
+    // If user has an active subscription, check plan permissions
+    if (currentSubscription && currentSubscription.isActive) {
+      const currentPlan = plans.find(
+        (plan) => {
+          const planId = String(plan._id);
+          const subscriptionPlanId = String(
+            currentSubscription.plan?._id || 
+            currentSubscription.plan || 
+            ''
+          );
+          return planId === subscriptionPlanId;
+        }
+      );
 
-    if (!currentPlan) {
-      return true; // Default to allowing access
+      if (!currentPlan) {
+        return true; // If plan not found, allow access (fallback)
+      }
+
+      // Check if profile requires subscription
+      if (profile && profile.requiresSubscription) {
+        return currentPlan.planType === "paid";
+      }
+
+      // Check profile views limit (if plan has limits)
+      if (currentPlan.profileViews !== undefined && currentPlan.profileViews !== -1) {
+        const viewsUsed = currentSubscription.profileViewsUsed || 0;
+        return viewsUsed < currentPlan.profileViews;
+      }
+
+      // If user has active subscription, allow access to profile sections
+      return true;
     }
 
-    // Check if profile requires subscription
-    if (profile && profile.requiresSubscription) {
-      return currentPlan.planType === "paid";
-    }
-
-    // Check profile views limit (if plan has limits)
-    if (currentPlan.profileViews !== undefined && currentPlan.profileViews !== -1) {
-      const viewsUsed = currentSubscription.profileViewsUsed || 0;
-      return viewsUsed < currentPlan.profileViews;
-    }
-
-    return true; // Default to allowing access
+    // Free users - allow basic access (API will enforce limits)
+    return true;
   };
 
   const canSendInterest = () => {
@@ -115,24 +130,38 @@ export const SubscriptionProvider = ({ children }) => {
     const currentSubscription = reduxSubscription.currentSubscription || state.currentSubscription;
     const plans = reduxSubscription.plans.length > 0 ? reduxSubscription.plans : state.plans;
     
-    if (!user || !currentSubscription) {
-      return true; // Default to allowing (free users have limits enforced by API)
+    if (!user) {
+      return false; // Must be logged in
     }
 
-    const currentPlan = plans.find(
-      (plan) => plan._id === currentSubscription.plan
-    );
+    // If user has subscription, check limits
+    if (currentSubscription && currentSubscription.isActive) {
+      const currentPlan = plans.find(
+        (plan) => {
+          const planId = String(plan._id);
+          const subscriptionPlanId = String(
+            currentSubscription.plan?._id || 
+            currentSubscription.plan || 
+            ''
+          );
+          return planId === subscriptionPlanId;
+        }
+      );
 
-    if (!currentPlan) {
-      return true; // Default to allowing
+      if (!currentPlan) {
+        return true; // Default to allowing if plan not found
+      }
+
+      if (currentPlan.interests === -1) {
+        return true; // Unlimited
+      }
+
+      const interestsUsed = currentSubscription.interestsUsed || 0;
+      return interestsUsed < currentPlan.interests;
     }
 
-    if (currentPlan.interests === -1) {
-      return true; // Unlimited
-    }
-
-    const interestsUsed = currentSubscription.interestsUsed || 0;
-    return interestsUsed < currentPlan.interests;
+    // Free users - allow with limits (API will enforce)
+    return true;
   };
 
   const getRemainingInterests = () => {
@@ -177,24 +206,49 @@ export const SubscriptionProvider = ({ children }) => {
   };
 
   const canSendMessage = () => {
-    if (!user || !state.currentSubscription) {
+    // Use Redux state if available, fallback to context state
+    const currentSubscription = reduxSubscription.currentSubscription || state.currentSubscription;
+    const plans = reduxSubscription.plans.length > 0 ? reduxSubscription.plans : state.plans;
+    
+    if (!user) {
       return false;
     }
 
-    const currentPlan = state.plans.find(
-      (plan) => plan._id === state.currentSubscription.plan
-    );
+    // If user has a subscription, check plan features
+    if (currentSubscription) {
+      const currentPlan = plans.find(
+        (plan) => {
+          const planId = String(plan._id);
+          const subscriptionPlanId = String(
+            currentSubscription.plan?._id || 
+            currentSubscription.plan || 
+            ''
+          );
+          return planId === subscriptionPlanId;
+        }
+      );
 
-    if (!currentPlan) {
-      return false;
+      if (!currentPlan) {
+        return false;
+      }
+
+      // Check if plan includes messaging - if plan is paid, assume messaging is allowed
+      // Also check features for messaging
+      if (currentPlan.planType === 'paid') {
+        return true; // Paid plans typically include messaging
+      }
+
+      // Check features for messaging
+      return currentPlan.features?.some(
+        (feature) =>
+          feature.toLowerCase().includes("messaging") ||
+          feature.toLowerCase().includes("message") ||
+          feature.toLowerCase().includes("chat")
+      ) || false;
     }
 
-    // Check if plan includes messaging
-    return currentPlan.features.some(
-      (feature) =>
-        feature.toLowerCase().includes("messaging") ||
-        feature.toLowerCase().includes("message")
-    );
+    // Free users may have limited messaging - default to allowing (API will enforce limits)
+    return true;
   };
 
   const openUpgradeModal = (plan = null) => {

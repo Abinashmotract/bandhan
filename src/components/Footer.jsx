@@ -142,7 +142,7 @@ const Footer = () => {
                                             WebkitTextFillColor: 'transparent'
                                         }}
                                     >
-                                        Bandhnam<span style={{ color: '#51365F' }}>Match</span>
+                                        Bandhanam<span style={{ color: '#51365F' }}>Match</span>
                                     </Typography>
                                     <Typography variant="body2" sx={{
                                         mb: 3,
@@ -360,14 +360,14 @@ const Footer = () => {
                                             borderRadius: '2px'
                                         }
                                     }}>
-                                       Important Info
+                                        Important Info
                                     </Typography>
 
                                     {/* Contact Info */}
                                     <Box sx={{ mt: 3 }}>
                                         {[
                                             { icon: <PhoneIcon />, text: '+1 (800) 123-4567' },
-                                            { icon: <EmailIcon />, text: 'info@bandhnammatch.com' },
+                                            { icon: <EmailIcon />, text: 'info@bandhanamMatch.com' },
                                             { icon: <LocationIcon />, text: '502, 5th floor, Sethi Bhawan, Rajendra Place, New Delhi, Delhi - 11008' }
                                         ].map((item, index) => (
                                             <Box
@@ -430,18 +430,25 @@ const Footer = () => {
                             </Box>
 
                             <Typography variant="body2" sx={{ color: '#e1bee7', mb: { xs: 2, sm: 0 } }}>
-                                © 2023 BhandhanMatch. All rights reserved.
+                                © 2023 BandhanamMatch. All rights reserved.
                             </Typography>
 
                             <Box sx={{ display: 'flex' }}>
-                                {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((item) => (
+                                {[
+                                    { name: 'Privacy Policy', path: '/privacy-policy' },
+                                    { name: 'Terms of Service', path: '/terms-condition' },
+                                    // { name: 'Cookie Policy', path: '/cookies' }
+                                ].map((item) => (
                                     <Typography
-                                        key={item}
+                                        key={item.name}
                                         variant="body2"
+                                        component={Link} 
+                                        to={item.path}
                                         sx={{
                                             ml: 3,
                                             color: '#e1bee7',
                                             cursor: 'pointer',
+                                            textDecoration: 'none',
                                             transition: 'all 0.3s ease',
                                             position: 'relative',
                                             '&::after': {
@@ -462,10 +469,11 @@ const Footer = () => {
                                             }
                                         }}
                                     >
-                                        {item}
+                                        {item.name}
                                     </Typography>
                                 ))}
                             </Box>
+
                         </Box>
                     </Container>
 

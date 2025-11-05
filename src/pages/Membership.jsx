@@ -167,29 +167,60 @@ const Membership = () => {
         setCancelDialogOpen(true);
     };
 
+    // Helper function to get plan ID from subscription (handles both populated and non-populated)
+    const getSubscriptionPlanId = () => {
+        if (!currentSubscription) return null;
+        if (typeof currentSubscription.plan === 'object' && currentSubscription.plan !== null) {
+            return String(currentSubscription.plan._id || currentSubscription.plan.id);
+        }
+        return String(currentSubscription.plan || currentSubscription.planId || '');
+    };
+
+    const getCurrentPlanName = () => {
+        if (!currentSubscription) return null;
+        // If plan is populated, use it directly
+        if (typeof currentSubscription.plan === 'object' && currentSubscription.plan !== null && currentSubscription.plan.name) {
+            return currentSubscription.plan.name;
+        }
+        // Otherwise, find it in plans array
+        const planId = getSubscriptionPlanId();
+        const plan = plans?.find(p => String(p._id) === planId);
+        return plan?.name || null;
+    };
+
     const getButtonText = (plan) => {
-        if (currentSubscription && currentSubscription.planId === plan._id) {
-            return currentSubscription.status === 'active' ? 'Current Plan' : 'Expired';
+        const subscriptionPlanId = getSubscriptionPlanId();
+        const planId = String(plan._id);
+        if (currentSubscription && subscriptionPlanId === planId) {
+            return currentSubscription.isActive ? 'Current Plan' : 'Expired';
         }
         const buttonTextMap = { Basic: "Get Started", Premium: "Choose Premium", Elite: "Go Elite" };
         return buttonTextMap[plan?.name] || "Subscribe";
     };
 
     const getButtonColor = (plan) => {
-        if (currentSubscription && currentSubscription.planId === plan._id) {
-            return currentSubscription.status === 'active' ? '#4caf50' : '#ff9800';
+        const subscriptionPlanId = getSubscriptionPlanId();
+        const planId = String(plan._id);
+        if (currentSubscription && subscriptionPlanId === planId) {
+            return currentSubscription.isActive ? '#4caf50' : '#ff9800';
         }
         const colorMap = { Basic: "#9c27b0", Premium: "#51365F", Elite: "#ff6f00" };
         return colorMap[plan?.name] || "#37474f";
     };
 
     const isCurrentPlan = (plan) => {
-        return currentSubscription && currentSubscription.planId === plan._id && currentSubscription.status === 'active';
+        if (!currentSubscription || !currentSubscription.isActive) return false;
+        const subscriptionPlanId = getSubscriptionPlanId();
+        const planId = String(plan._id);
+        return subscriptionPlanId === planId;
     };
 
     const canCancel = (plan) => {
-        return currentSubscription && currentSubscription.planId === plan._id && 
-               currentSubscription.status === 'active' && 
+        const subscriptionPlanId = getSubscriptionPlanId();
+        const planId = String(plan._id);
+        return currentSubscription && 
+               subscriptionPlanId === planId && 
+               currentSubscription.isActive && 
                currentSubscription.autoRenew === true;
     };
 
@@ -252,19 +283,19 @@ const Membership = () => {
                     </Box>
 
                     {/* Current Subscription Status */}
-                    {currentSubscription && (
+                    {currentSubscription && currentSubscription.isActive && (
                         <Box sx={{ mb: 4 }}>
                             <Alert 
-                                severity={currentSubscription.status === 'active' ? 'success' : 'warning'} 
+                                severity="success" 
                                 sx={{ mb: 2 }}
                             >
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <Box>
                                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                            Current Plan: {plans?.find(p => p._id === currentSubscription.planId)?.name || 'Unknown'}
+                                            Current Plan: {getCurrentPlanName() || 'Active Plan'}
                                         </Typography>
                                         <Typography variant="body2">
-                                            Status: {currentSubscription.status} | 
+                                            Status: Active | 
                                             Expires: {new Date(currentSubscription.endDate).toLocaleDateString()} |
                                             Auto-renewal: {currentSubscription.autoRenew ? 'Enabled' : 'Disabled'}
                                         </Typography>
@@ -328,9 +359,9 @@ const Membership = () => {
                                         )}
                                         
                                         {isCurrent && (
-                                            <Box sx={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', background: '#4caf50', color: 'white', px: 3, py: 0.5, borderRadius: 2, fontSize: '14px', fontWeight: 'bold' }}>
+                                            <Box sx={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', background: '#4caf50', color: 'white', px: 3, py: 0.5, borderRadius: 2, fontSize: '14px', fontWeight: 'bold', zIndex: 1 }}>
                                                 <ActiveIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                                                CURRENT
+                                                RUNNING
                                             </Box>
                                         )}
 
@@ -570,7 +601,7 @@ const Membership = () => {
                 <DialogContent>
                     <Typography variant="body1" sx={{ mb: 2 }}>
                         Are you sure you want to cancel your subscription to{' '}
-                        <strong>{plans?.find(p => p._id === selectedPlanForCancel?.planId)?.name || 'this plan'}</strong>?
+                        <strong>{getCurrentPlanName() || 'this plan'}</strong>?
                     </Typography>
                     <Alert severity="warning" sx={{ mb: 2 }}>
                         <Typography variant="body2">
