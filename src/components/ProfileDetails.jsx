@@ -1019,173 +1019,303 @@ const ProfileDetails = ({
 
           {activeTab === "looking" && (
             <>
+              {/* Her Favourites Section */}
               <Card
                 sx={{
                   borderRadius: 3,
-                  boxShadow: "0 8px 24px rgba(81, 54, 95, 0.12)",
+                  boxShadow: "0 4px 12px rgba(81, 54, 95, 0.08)",
+                  mb: 3,
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
                   <Typography
                     variant="h6"
-                    sx={{ fontWeight: 700, mb: 1, color: PRIMARY_COLOR }}
+                    sx={{
+                      fontWeight: 600,
+                      mb: 3,
+                      color: "#333",
+                      fontSize: "1.1rem",
+                    }}
                   >
-                    Compatibility Score 🎉
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-                    You meet{" "}
-                    <strong>
-                      {matchCount} out of {totalCriteria}
-                    </strong>{" "}
-                    of {selectedMatch.name}'s desired criteria.
+                    Her Favourites
                   </Typography>
 
-                  <Box>
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      mb={1}
-                    >
+                  {/* Favourites List */}
+                  <Stack spacing={2.5}>
+                    {Array.isArray(goodToHaves) && goodToHaves.length > 0 ? (
+                      goodToHaves.map((item, index) => (
+                        <Box key={index}>
+                          <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems="flex-start"
+                          >
+                            <Box
+                              sx={{
+                                minWidth: 28,
+                                height: 28,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "#888",
+                              }}
+                            >
+                              {/* ✅ Safe icon rendering */}
+                              {item.icon
+                                ? typeof item.icon === "string"
+                                  ? item.icon
+                                  : item.icon
+                                : "⭐"}
+                            </Box>
+
+                            <Box sx={{ flex: 1 }}>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontWeight: 600,
+                                  color: "#333",
+                                  mb: 0.5,
+                                  fontSize: "0.9rem",
+                                }}
+                              >
+                                {item.label}
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: "#888",
+                                  lineHeight: 1.6,
+                                  fontSize: "0.85rem",
+                                }}
+                              >
+                                {/* Handle array or object values gracefully */}
+                                {Array.isArray(item.value) ? (
+                                  item.value.map((val, i) => (
+                                    <Chip
+                                      key={i}
+                                      label={val}
+                                      size="small"
+                                      sx={{
+                                        mr: 1,
+                                        mb: 1,
+                                        backgroundColor: "#f5f5f5",
+                                      }}
+                                    />
+                                  ))
+                                ) : typeof item.value === "object" ? (
+                                  Object.entries(item.value)
+                                    .filter(([key]) => key !== "_id") // 🚫 remove _id
+                                    .map(([key, val], i) => (
+                                      <Chip
+                                        key={i}
+                                        label={`${key}: ${val}`}
+                                        size="small"
+                                        sx={{
+                                          mr: 1,
+                                          mb: 1,
+                                          backgroundColor: "#f5f5f5",
+                                        }}
+                                      />
+                                    ))
+                                ) : (
+                                  <Chip
+                                    label={item.value}
+                                    size="small"
+                                    sx={{
+                                      mr: 1,
+                                      mb: 1,
+                                      backgroundColor: "#f5f5f5",
+                                    }}
+                                  />
+                                )}
+                              </Typography>
+                            </Box>
+                          </Stack>
+                        </Box>
+                      ))
+                    ) : (
                       <Typography
                         variant="body2"
-                        sx={{ fontWeight: 600, color: PRIMARY_COLOR }}
+                        sx={{ color: "#999", textAlign: "center", py: 2 }}
                       >
-                        Match Progress
+                        No favourite details available.
                       </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ fontWeight: 600, color: PRIMARY_COLOR }}
-                      >
-                        {matchPercentage}%
-                      </Typography>
-                    </Stack>
-                    <LinearProgress
-                      variant="determinate"
-                      value={matchPercentage}
-                      sx={{
-                        height: 10,
-                        borderRadius: 5,
-                        backgroundColor: LIGHT_BACKGROUND,
-                        "& .MuiLinearProgress-bar": {
-                          backgroundColor: PRIMARY_COLOR,
-                          borderRadius: 5,
-                        },
-                      }}
-                    />
-                  </Box>
+                    )}
+                  </Stack>
                 </CardContent>
               </Card>
 
-              {allCriteriaList.length > 0 ? (
-                <Card
-                  sx={{
-                    borderRadius: 3,
-                    boxShadow: "0 8px 24px rgba(81, 54, 95, 0.12)",
-                  }}
-                >
-                  <CardContent sx={{ p: 3 }}>
-                    {mustHaves.length > 0 && (
-                      <>
+              {/* Who is she looking for section */}
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  boxShadow: "0 4px 12px rgba(81, 54, 95, 0.08)",
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 600,
+                      mb: 1,
+                      color: "#333",
+                      fontSize: "1.1rem",
+                    }}
+                  >
+                    Who is she looking for...
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "#888", mb: 3, fontSize: "0.85rem" }}
+                  >
+                    These are her desired partner qualities
+                  </Typography>
+
+                  {/* Match Score Header */}
+                  <Box
+                    sx={{
+                      backgroundColor: "#f8f9fa",
+                      borderRadius: 2,
+                      p: 2.5,
+                      mb: 3,
+                    }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                      <Box
+                        sx={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: "50%",
+                          backgroundColor: PRIMARY_COLOR,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
                         <Typography
-                          variant="h6"
                           sx={{
+                            color: "white",
                             fontWeight: 700,
-                            mb: 2,
-                            color: PRIMARY_COLOR,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
+                            fontSize: "0.9rem",
                           }}
                         >
-                          <StarIcon sx={{ color: ACCENT_COLOR }} /> Must-Have
-                          Preferences
+                          Her
                         </Typography>
+                      </Box>
+                      <Box sx={{ flex: 1, textAlign: "center" }}>
                         <Typography
                           variant="body2"
-                          sx={{ color: "#666", mb: 3 }}
+                          sx={{ color: "#666", fontSize: "0.85rem", mb: 0.5 }}
                         >
-                          These criteria are considered{" "}
-                          <strong>critical</strong> for a potential match.
+                          You match {matchCount}/{totalCriteria} of her
+                          preference
                         </Typography>
-
-                        <Grid container spacing={2} sx={{ mb: 4 }}>
-                          {mustHaves.map((criterion, index) => (
-                            <PreferenceItem
-                              key={index}
-                              icon={criterion.icon}
-                              label={criterion.label}
-                              preference={criterion.userPreference}
-                              actual={criterion.matchValue}
-                              match={criterion.match}
-                            />
-                          ))}
-                        </Grid>
-                      </>
-                    )}
-
-                    {goodToHaves.length > 0 && (
-                      <>
+                      </Box>
+                      <Box
+                        sx={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: "50%",
+                          backgroundColor: "#e0e0e0",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
                         <Typography
-                          variant="h6"
                           sx={{
+                            color: "#888",
                             fontWeight: 700,
-                            mb: 2,
-                            color: PRIMARY_COLOR,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
+                            fontSize: "0.9rem",
                           }}
                         >
-                          <FavoriteBorderIcon sx={{ color: PRIMARY_COLOR }} />
-                          Good-to-Have Preferences
+                          You
                         </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#666", mb: 3 }}
-                        >
-                          These preferences are desirable but flexible for
-                          compatibility.
-                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Box>
 
-                        <Grid container spacing={2}>
-                          {goodToHaves.map((pref, index) => (
-                            <GoodToHaveItem
-                              key={index}
-                              icon={pref.icon}
-                              label={pref.label}
-                              value={pref.value}
-                            />
-                          ))}
-                        </Grid>
-                      </>
-                    )}
+                  {/* Basic Details Section */}
+                  {allCriteriaList.length > 0 && (
+                    <>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 2,
+                          color: "#333",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        Basic Details
+                      </Typography>
 
-                    {allCriteriaList.length === 0 &&
-                      goodToHaves.length === 0 && (
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#999", textAlign: "center" }}
-                        >
-                          No preference matching data available.
-                        </Typography>
-                      )}
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card
-                  sx={{
-                    borderRadius: 3,
-                    boxShadow: "0 8px 24px rgba(81, 54, 95, 0.12)",
-                  }}
-                >
-                  <CardContent sx={{ p: 3, textAlign: "center" }}>
-                    <Typography variant="body1" sx={{ color: "#666" }}>
-                      No preference matching information available for this
-                      profile.
+                      <Stack spacing={2}>
+                        {mustHaves.map((criterion, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              py: 1.5,
+                              borderBottom:
+                                index < mustHaves.length - 1
+                                  ? "1px solid #f0f0f0"
+                                  : "none",
+                            }}
+                          >
+                            <Box sx={{ flex: 1 }}>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontWeight: 600,
+                                  color: "#333",
+                                  fontSize: "0.9rem",
+                                  mb: 0.3,
+                                }}
+                              >
+                                {criterion.label}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{ color: "#888", fontSize: "0.8rem" }}
+                              >
+                                {criterion.userPreference}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ textAlign: "right" }}>
+                              {criterion.match ? (
+                                <CheckCircleIcon
+                                  sx={{ color: "#4caf50", fontSize: 28 }}
+                                />
+                              ) : (
+                                <CheckCircleIcon
+                                  sx={{ color: "#e0e0e0", fontSize: 28 }}
+                                />
+                              )}
+                            </Box>
+                          </Box>
+                        ))}
+                      </Stack>
+                    </>
+                  )}
+
+                  {allCriteriaList.length === 0 && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#999",
+                        textAlign: "center",
+                        py: 3,
+                      }}
+                    >
+                      No preference matching data available.
                     </Typography>
-                  </CardContent>
-                </Card>
-              )}
+                  )}
+                </CardContent>
+              </Card>
             </>
           )}
         </Stack>
