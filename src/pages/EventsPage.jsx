@@ -95,70 +95,6 @@ const EventsPage = () => {
     'Fitness Group'
   ];
 
-  // Mock events data
-  const mockEvents = [
-    {
-      id: 1,
-      title: 'Virtual Speed Dating - Professionals',
-      description: 'Meet like-minded professionals in a fun virtual speed dating event. 5-minute conversations with potential matches.',
-      date: '2024-02-15',
-      time: '19:00',
-      location: 'Virtual - Zoom',
-      maxParticipants: 30,
-      currentParticipants: 18,
-      eventType: 'virtual',
-      category: 'speed-dating',
-      price: 0,
-      organizer: 'Bandhnam Events',
-      organizerImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
-      image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
-      isRegistered: false,
-      isBookmarked: false,
-      rating: 4.5,
-      tags: ['Professional', 'Virtual', 'Speed Dating']
-    },
-    {
-      id: 2,
-      title: 'Cultural Meet & Greet - Delhi',
-      description: 'Join us for an evening of cultural exchange, traditional food, and meaningful conversations.',
-      date: '2024-02-20',
-      time: '18:30',
-      location: 'India Habitat Centre, Delhi',
-      maxParticipants: 50,
-      currentParticipants: 32,
-      eventType: 'physical',
-      category: 'cultural',
-      price: 500,
-      organizer: 'Cultural Connect',
-      organizerImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
-      image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
-      isRegistered: true,
-      isBookmarked: true,
-      rating: 4.8,
-      tags: ['Cultural', 'Physical', 'Food']
-    },
-    {
-      id: 3,
-      title: 'Cooking Workshop - Couples',
-      description: 'Learn to cook together! Perfect for couples or singles looking to meet someone who shares their love for cooking.',
-      date: '2024-02-25',
-      time: '16:00',
-      location: 'Culinary Studio, Mumbai',
-      maxParticipants: 20,
-      currentParticipants: 15,
-      eventType: 'physical',
-      category: 'cooking',
-      price: 800,
-      organizer: 'Chef Priya',
-      organizerImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
-      image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
-      isRegistered: false,
-      isBookmarked: false,
-      rating: 4.7,
-      tags: ['Cooking', 'Workshop', 'Physical']
-    }
-  ];
-
   useEffect(() => {
     loadEvents();
   }, []);
@@ -166,10 +102,12 @@ const EventsPage = () => {
   const loadEvents = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setEvents(mockEvents);
-      setMyEvents(mockEvents.filter(event => event.isRegistered));
+      // TODO: Replace with actual API call
+      // const response = await eventsAPI.getEvents();
+      // setEvents(response.data);
+      // setMyEvents(response.data.filter(event => event.isRegistered));
+      setEvents([]);
+      setMyEvents([]);
     } catch (error) {
       showError('Failed to load events');
     } finally {

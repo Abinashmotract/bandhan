@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "../utils/toast";
 import { authAPI } from "../services/apiService";
 import { setUser, fetchUserDetails } from "../store/slices/authSlice";
@@ -70,6 +70,7 @@ import {
 const MyMatchesPage = () => {
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const {
     matches,
@@ -141,6 +142,7 @@ const MyMatchesPage = () => {
     // Check for search query in URL
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get("search");
+    const profileId = searchParams.get("profileId");
     
     // Load matches with search query if present
     loadMatches(searchQuery);
@@ -158,6 +160,9 @@ const MyMatchesPage = () => {
     if (!user) {
       dispatch(fetchUserDetails());
     }
+    
+    // If profileId is in URL, we'll handle it after matches are loaded
+    // (see useEffect below)
   }, [location.search]);
 
   // Update local state when Redux user changes
@@ -167,6 +172,48 @@ const MyMatchesPage = () => {
       setEditingProfile(user);
     }
   }, [user]);
+
+  // Handle profileId from URL query parameter (from Featured Profiles)
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const profileId = searchParams.get("profileId");
+    
+    if (profileId && !selectedMatch && !loading) {
+      // First, check if profile data was passed via navigation state
+      const profileFromState = location.state?.profileData;
+      if (profileFromState && profileFromState._id === profileId) {
+        setSelectedMatch(profileFromState);
+        setMiddleSectionView("profile-details");
+        
+        // Clean up URL and state
+        const newSearchParams = new URLSearchParams(location.search);
+        newSearchParams.delete("profileId");
+        const newSearch = newSearchParams.toString();
+        navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, { replace: true, state: {} });
+        return;
+      }
+      
+      // Try to find the profile in displayedMatches first
+      let foundProfile = displayedMatches.find(m => m._id === profileId);
+      
+      // If not found, try in Redux matches
+      if (!foundProfile && matches.length > 0) {
+        foundProfile = matches.find(m => m._id === profileId);
+      }
+      
+      // If found, open the profile details
+      if (foundProfile) {
+        setSelectedMatch(foundProfile);
+        setMiddleSectionView("profile-details");
+        
+        // Clean up URL by removing profileId parameter
+        const newSearchParams = new URLSearchParams(location.search);
+        newSearchParams.delete("profileId");
+        const newSearch = newSearchParams.toString();
+        navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, { replace: true });
+      }
+    }
+  }, [displayedMatches, matches, location.search, location.state, selectedMatch, loading, navigate]);
 
   // Load data when switching views
   useEffect(() => {

@@ -193,7 +193,8 @@ const FeaturedProfiles = () => {
   };
 
   const handleViewProfile = (match) => {
-    navigate(`/profile/${match._id}`);
+    // Navigate to matches page with profileId in URL and profile data in state
+    navigate(`/matches?profileId=${match._id}`, { state: { profileData: match } });
   };
 
   const handleChatClick = (match) => {

@@ -55,7 +55,6 @@ import axiosInstance from "../utils/axiosInterceptor";
 import { useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "../utils/toast";
 
-// Mock data based on the original imports
 const MARITAL_STATUS_OPTIONS = [
   "Never Married",
   "Divorced",

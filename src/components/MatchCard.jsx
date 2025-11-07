@@ -67,11 +67,53 @@ const MatchCard = ({
   
   // Check if user has premium subscription
   const isPremium = () => {
-    if (!subscription.currentSubscription || !subscription.plans.length) return false;
-    const currentPlan = subscription.plans.find(
-      (plan) => plan._id === subscription.currentSubscription.plan
-    );
-    return currentPlan && currentPlan.planType === 'paid';
+    // Check if subscription exists
+    if (!subscription.currentSubscription) {
+      return false;
+    }
+    
+    // Check if subscription is active - handle both isActive and status fields
+    const isActive = subscription.currentSubscription.isActive !== undefined 
+      ? subscription.currentSubscription.isActive 
+      : subscription.currentSubscription.status === 'active';
+    
+    if (!isActive) {
+      return false;
+    }
+    
+    // Handle both populated plan object and plan ID string
+    const subscriptionPlan = subscription.currentSubscription.plan;
+    
+    const planId = typeof subscriptionPlan === 'object' && subscriptionPlan !== null
+      ? String(subscriptionPlan._id || subscriptionPlan.id)
+      : String(subscriptionPlan || '');
+    
+    if (!planId) {
+      return false;
+    }
+    
+    // If we have plans loaded, check plan type
+    if (subscription.plans && subscription.plans.length > 0) {
+      const currentPlan = subscription.plans.find(
+        (plan) => String(plan._id) === planId
+      );
+      
+      if (currentPlan) {
+        return currentPlan.planType === 'paid';
+      } else {
+        // If plan is populated, check its planType directly
+        if (typeof subscriptionPlan === 'object' && subscriptionPlan.planType) {
+          return subscriptionPlan.planType === 'paid';
+        }
+      }
+    } else {
+      // If plans aren't loaded yet but we have a populated plan object, check it directly
+      if (typeof subscriptionPlan === 'object' && subscriptionPlan.planType) {
+        return subscriptionPlan.planType === 'paid';
+      }
+    }
+    
+    return false;
   };
 
   const hasPremium = isPremium();
