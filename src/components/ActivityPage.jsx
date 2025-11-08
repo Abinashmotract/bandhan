@@ -56,7 +56,7 @@ import {
   acceptInterest,
   declineInterest,
 } from "../store/slices/activitySlice";
-import { showSuccess , showError } from "../utils/toast";
+import { showSuccess, showError } from "../utils/toast";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
@@ -83,11 +83,14 @@ const ActivityPage = ({
     },
     error: activityErrors,
   } = useSelector((state) => state.activity);
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("received");
   const [selectedInterest, setSelectedInterest] = useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentInterest, setCurrentInterest] = useState(null);
+  const [isCurrentInterestReceived, setIsCurrentInterestReceived] =
+    useState(false);
   const [selectedCard, setSelectedCard] = useState(null); // Track which summary card is clicked
   const [activeProfileTab, setActiveProfileTab] = useState("about"); // Track active tab in profile detail view
 
@@ -110,7 +113,7 @@ const navigate = useNavigate();
     loadActivityData();
   }, [dispatch]);
 
-  const handleInterestAction = async (interestId, action) => {
+  const handleInterestAction = async (interestId, action, isReceived = true) => {
     try {
       if (action === "accept") {
         await dispatch(acceptInterest(interestId)).unwrap();
@@ -158,7 +161,8 @@ const navigate = useNavigate();
 
       if (diffMins < 1) return "Just now";
       if (diffMins < 60) return `${diffMins} min ago`;
-      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+      if (diffHours < 24)
+        return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
       if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
       return formatDate(lastSeen);
     } catch {
@@ -184,9 +188,9 @@ const navigate = useNavigate();
       maritalStatus: user?.maritalStatus || "N/A",
       religion: user?.religion || "N/A",
       caste: user?.caste || "N/A",
-      motherTongue: Array.isArray(user?.motherTongue) 
-        ? user.motherTongue.join(", ") 
-        : (user?.motherTongue || "N/A"),
+      motherTongue: Array.isArray(user?.motherTongue)
+        ? user.motherTongue.join(", ")
+        : user?.motherTongue || "N/A",
       annualIncome: user?.annualIncome || "N/A",
       about: user?.about || "",
       dob: user?.dob,
@@ -215,12 +219,16 @@ const navigate = useNavigate();
 
   // Map received interests from API
   const receivedInterests = Array.isArray(interestsReceived)
-    ? interestsReceived.map((interest) => mapInterestToComponentFormat(interest, true))
+    ? interestsReceived.map((interest) =>
+        mapInterestToComponentFormat(interest, true)
+      )
     : [];
 
   // Map sent interests from API
   const sentInterests = Array.isArray(interestsSent)
-    ? interestsSent.map((interest) => mapInterestToComponentFormat(interest, false))
+    ? interestsSent.map((interest) =>
+        mapInterestToComponentFormat(interest, false)
+      )
     : [];
 
   // Handle card click to show/hide data
@@ -236,7 +244,7 @@ const navigate = useNavigate();
   const getCardData = (cardType) => {
     switch (cardType) {
       case "accepted":
-        return receivedInterests.filter(i => i.status === "accepted");
+        return receivedInterests.filter((i) => i.status === "accepted");
       case "received":
         return receivedInterests;
       case "sent":
@@ -244,126 +252,12 @@ const navigate = useNavigate();
       case "shortlisted":
         return shortlistedProfiles;
       case "declined":
-        return receivedInterests.filter(i => i.status === "declined");
+        return receivedInterests.filter((i) => i.status === "declined");
       default:
         return [];
     }
   };
-
-  // Static data (to be removed after full migration)
-  const activityData = {
-    summary: {
-      acceptedInterests: 3,
-      interestsReceived: 12,
-      interestsSent: 8,
-      shortlistedProfiles: 5,
-      declinedInterests: 2,
-    },
-    receivedInterests: [
-      {
-        id: 1,
-        name: "Priyanka Singh",
-        age: 26,
-        profileId: "TXYVVH7",
-        lastSeen: "7:32 AM",
-        profileImage:
-          "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-        height: "5.2",
-        city: "Nashik",
-        caste: "Rajput",
-        occupation: "Clerk",
-        annualIncome: "2-5 Lakh",
-        education: "MBA",
-        maritalStatus: "Never Married",
-        religion: "Hindu",
-        motherTongue: "Hindi",
-        isEmailVerified: true,
-        isPhoneVerified: true,
-        isIdVerified: true,
-        isPhotoVerified: true,
-        status: "received", // received, accepted, declined
-        receivedDate: "2024-01-15",
-        matchPercentage: 89,
-      },
-      {
-        id: 2,
-        name: "Kavya Iyer",
-        age: 28,
-        profileId: "TXYVVH8",
-        lastSeen: "2 hours ago",
-        profileImage:
-          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-        height: "5.4",
-        city: "Mumbai",
-        caste: "Iyer",
-        occupation: "Software Engineer",
-        annualIncome: "8-12 Lakh",
-        education: "B.Tech",
-        maritalStatus: "Never Married",
-        religion: "Hindu",
-        motherTongue: "Tamil",
-        isEmailVerified: true,
-        isPhoneVerified: false,
-        isIdVerified: true,
-        isPhotoVerified: true,
-        status: "accepted",
-        receivedDate: "2024-01-14",
-        matchPercentage: 92,
-      },
-    ],
-    sentInterests: [
-      {
-        id: 3,
-        name: "Anjali Patel",
-        age: 25,
-        profileId: "TXYVVH9",
-        lastSeen: "1 day ago",
-        profileImage:
-          "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-        height: "5.6",
-        city: "Ahmedabad",
-        caste: "Patel",
-        occupation: "Doctor",
-        annualIncome: "12-18 Lakh",
-        education: "MBBS",
-        maritalStatus: "Never Married",
-        religion: "Hindu",
-        motherTongue: "Gujarati",
-        isEmailVerified: true,
-        isPhoneVerified: true,
-        isIdVerified: true,
-        isPhotoVerified: true,
-        status: "sent", // sent, accepted, declined
-        sentDate: "2024-01-13",
-        matchPercentage: 85,
-      },
-      {
-        id: 4,
-        name: "Sneha Reddy",
-        age: 27,
-        profileId: "TXYVVH10",
-        lastSeen: "3 days ago",
-        profileImage:
-          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-        height: "5.3",
-        city: "Hyderabad",
-        caste: "Reddy",
-        occupation: "Teacher",
-        annualIncome: "4-8 Lakh",
-        education: "M.Ed",
-        maritalStatus: "Never Married",
-        religion: "Hindu",
-        motherTongue: "Telugu",
-        isEmailVerified: true,
-        isPhoneVerified: false,
-        isIdVerified: false,
-        isPhotoVerified: true,
-        status: "accepted",
-        sentDate: "2024-01-12",
-        matchPercentage: 78,
-      },
-    ],
-  };
+  console.log("shortlistedProfiles", shortlistedProfiles);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -454,7 +348,10 @@ const navigate = useNavigate();
                       textAlign: "center",
                       borderRadius: 3,
                       cursor: "pointer",
-                      border: selectedCard === item.type ? `2px solid ${item.color}` : "2px solid transparent",
+                      border:
+                        selectedCard === item.type
+                          ? `2px solid ${item.color}`
+                          : "2px solid transparent",
                       transition: "all 0.3s ease",
                       "&:hover": {
                         transform: "translateY(-4px)",
@@ -497,9 +394,16 @@ const navigate = useNavigate();
           <Box sx={{ mt: 3 }}>
             <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
               <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {summaryCards.find(c => c.type === selectedCard)?.title}
+                    {summaryCards.find((c) => c.type === selectedCard)?.title}
                   </Typography>
                   <Button
                     onClick={() => setSelectedCard(null)}
@@ -514,13 +418,19 @@ const navigate = useNavigate();
                     {getCardData(selectedCard).map((item) =>
                       selectedCard === "shortlisted"
                         ? renderShortlistedCard(item)
-                        : renderInterestCard(item, selectedCard === "received" || selectedCard === "accepted" || selectedCard === "declined")
+                        : renderInterestCard(
+                            item,
+                            selectedCard === "received" ||
+                              selectedCard === "accepted" ||
+                              selectedCard === "declined"
+                          )
                     )}
                   </Box>
                 ) : (
                   <Box sx={{ textAlign: "center", py: 4 }}>
                     <Typography variant="body1" sx={{ color: "#666" }}>
-                      No data available for {summaryCards.find(c => c.type === selectedCard)?.title}
+                      No data available for{" "}
+                      {summaryCards.find((c) => c.type === selectedCard)?.title}
                     </Typography>
                   </Box>
                 )}
@@ -542,14 +452,18 @@ const navigate = useNavigate();
       setAnchorEl(null);
     };
 
-    const handleDialogOpen = () => {
+    const handleDialogOpen = (interest, isReceived) => {
+      setCurrentInterest(interest);
+      setIsCurrentInterestReceived(isReceived);
       setDialogOpen(true);
       handleMenuClose();
     };
 
-    const handleDialogClose = () => {
-      setDialogOpen(false);
-    };
+  const handleDialogClose = () => {
+  setDialogOpen(false);
+  setCurrentInterest(null);
+  setIsCurrentInterestReceived(false);
+};
 
     const handleChat = () => {
       // Handle chat logic here
@@ -643,8 +557,8 @@ const navigate = useNavigate();
                     {/* Three-dot Menu Button */}
                     <IconButton
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent card click
-                        handleDialogOpen();
+                        e.stopPropagation();
+                        handleDialogOpen(interest, isReceived); // Pass both interest and isReceived
                       }}
                       sx={{
                         color: "#666",
@@ -675,50 +589,59 @@ const navigate = useNavigate();
           </DialogContent>
           <DialogActions sx={{ flexDirection: "column", gap: 1, p: 2 }}>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-              {isReceived && interest.status === "received" && (
-                <>
-                  <Button
-                    variant="contained"
-                    startIcon={<CheckCircle />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleInterestAction(interest.id, "accept");
-                    }}
-                    className="w-100"
-                    sx={{
-                      backgroundColor: "#4caf50",
-                      "&:hover": { backgroundColor: "#45a049" },
-                      textTransform: "none",
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    startIcon={<Cancel />}
-                    className="w-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleInterestAction(interest.id, "decline");
-                    }}
-                    sx={{
-                      borderColor: "#f44336",
-                      color: "#f44336",
-                      "&:hover": {
-                        borderColor: "#d32f2f",
-                        backgroundColor: "rgba(244, 67, 54, 0.04)",
-                      },
-                      textTransform: "none",
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    Decline
-                  </Button>
-                </>
-              )}
+              {isCurrentInterestReceived &&
+                currentInterest?.status === "sent" && (
+                  <>
+                    <Button
+                      variant="contained"
+                      startIcon={<CheckCircle />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleInterestAction(
+                          currentInterest.id,
+                          "accept",
+                          true
+                        );
+                      }}
+                      className="w-100"
+                      sx={{
+                        backgroundColor: "#4caf50",
+                        "&:hover": { backgroundColor: "#45a049" },
+                        textTransform: "none",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Cancel />}
+                      className="w-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleInterestAction(
+                          currentInterest.id,
+                          "decline",
+                          true
+                        );
+                      }}
+                      sx={{
+                        borderColor: "#f44336",
+                        color: "#f44336",
+                        "&:hover": {
+                          borderColor: "#d32f2f",
+                          backgroundColor: "rgba(244, 67, 54, 0.04)",
+                        },
+                        textTransform: "none",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      Decline
+                    </Button>
+                  </>
+                )}
 
-              {interest.status === "accepted" && (
+              {currentInterest?.status === "accepted" && (
                 <>
                   <Button
                     variant="contained"
@@ -760,6 +683,34 @@ const navigate = useNavigate();
                   </Button>
                 </>
               )}
+
+              {/* For sent interests that are still pending */}
+              {isCurrentInterestReceived &&
+                currentInterest?.status === "sent" && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<Cancel />}
+                    className="w-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Handle cancel sent interest logic
+                      console.log("Cancel sent interest:", currentInterest.id);
+                      handleDialogClose();
+                    }}
+                    sx={{
+                      borderColor: "#f44336",
+                      color: "#f44336",
+                      "&:hover": {
+                        borderColor: "#d32f2f",
+                        backgroundColor: "rgba(244, 67, 54, 0.04)",
+                      },
+                      textTransform: "none",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    Cancel Request
+                  </Button>
+                )}
             </Box>
             <Button
               fullWidth
@@ -797,11 +748,13 @@ const navigate = useNavigate();
       photos: user?.photos || [],
     };
   };
-
+  console.log("mapShortlistedProfile", mapShortlistedProfile);
   // Map shortlisted profiles
   const mappedShortlistedProfiles = Array.isArray(shortlistedProfiles)
     ? shortlistedProfiles.map(mapShortlistedProfile)
     : [];
+
+  console.log("mappedShortlistedProfiles", mappedShortlistedProfiles);
 
   const renderShortlistedCard = (profile) => {
     return (
@@ -844,7 +797,6 @@ const navigate = useNavigate();
   };
 
   const ProfileCard = () => {
-
     return (
       <>
         <div className="container pt-4">
@@ -855,13 +807,18 @@ const navigate = useNavigate();
                 style={{ fontWeight: "600", color: "#2d3436" }}
               >
                 Shortlisted Profiles{" "}
-                <span style={{ color: "#636e72", fontWeight: "400" }}>({mappedShortlistedProfiles.length})</span>
+                <span style={{ color: "#636e72", fontWeight: "400" }}>
+                  ({shortlistedProfiles?.profiles?.length})
+                </span>
               </h5>
               <p className="text-muted mb-0" style={{ fontSize: "14px" }}>
                 Move ahead with your decision by sending an interest!
               </p>
             </div>
-            <ArrowForward style={{ color: "#636e72", cursor: "pointer" }} onClick={() => navigate("/shortlisted")}/>
+            <ArrowForward
+              style={{ color: "#636e72", cursor: "pointer" }}
+              onClick={() => navigate("/shortlisted")}
+            />
           </div>
         </div>
         <Swiper
@@ -881,8 +838,8 @@ const navigate = useNavigate();
             1200: { slidesPerView: 2 },
           }}
         >
-          {mappedShortlistedProfiles.length > 0 ? (
-            mappedShortlistedProfiles.map((profile, index) => (
+          {shortlistedProfiles?.profiles?.length > 0 ? (
+            shortlistedProfiles?.profiles?.map((profile, index) => (
               <SwiperSlide key={profile.id || index}>
                 <Card
                   className="border-0 shadow-sm overflow-hidden"
@@ -890,141 +847,151 @@ const navigate = useNavigate();
                 >
                   <div style={{ position: "relative", height: "450px" }}>
                     <img
-                      src={profile.profileImage || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=450&fit=crop"}
+                      src={
+                        profile.profileImage ||
+                        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=450&fit=crop"
+                      }
                       alt={profile.name}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
 
-                {/* Gradient Overlay */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: "60%",
-                    background:
-                      "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
-                  }}
-                />
+                    {/* Gradient Overlay */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: "60%",
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+                      }}
+                    />
 
-                {/* Top Badges */}
-                <div
-                  style={{ position: "absolute", top: "12px", left: "12px" }}
-                >
-                  <Badge
-                    bg="dark"
-                    className="px-3 py-2"
-                    style={{ fontSize: "12px", fontWeight: "500" }}
-                  >
-                    Shortlisted
-                    <br />
-                    <span style={{ fontSize: "11px" }}>
-                      on {profile.shortlistedDate}
-                    </span>
-                  </Badge>
-                </div>
+                    {/* Top Badges */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "12px",
+                        left: "12px",
+                      }}
+                    >
+                      <Badge
+                        bg="dark"
+                        className="px-3 py-2"
+                        style={{ fontSize: "12px", fontWeight: "500" }}
+                      >
+                        Shortlisted
+                        <br />
+                        <span style={{ fontSize: "11px" }}>
+                          on {profile.shortlistedDate}
+                        </span>
+                      </Badge>
+                    </div>
 
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "12px",
-                    right: "12px",
-                    display: "flex",
-                    gap: "8px",
-                  }}
-                >
-                  <Badge
-                    bg="dark"
-                    className="d-flex align-items-center gap-1 px-2 py-2"
-                  >
-                    <CameraAlt style={{ fontSize: "14px" }} />
-                    <span>{profile.photos?.length || 0}</span>
-                  </Badge>
-                </div>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "12px",
+                        right: "12px",
+                        display: "flex",
+                        gap: "8px",
+                      }}
+                    >
+                      <Badge
+                        bg="dark"
+                        className="d-flex align-items-center gap-1 px-2 py-2"
+                      >
+                        <CameraAlt style={{ fontSize: "14px" }} />
+                        <span>{profile.photos?.length || 0}</span>
+                      </Badge>
+                    </div>
 
-                {/* Profile Info */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "60px",
-                    left: "16px",
-                    right: "16px",
-                    color: "white",
-                  }}
-                >
-                  <p
-                    className="mb-1"
-                    style={{ fontSize: "12px", opacity: 0.9 }}
-                  >
-                    {profile.lastSeen ? `Last seen ${formatLastSeen(profile.lastSeen)}` : ""}
-                  </p>
-                  <h3
-                    className="mb-2"
-                    style={{ fontWeight: "700", fontSize: "28px" }}
-                  >
-                    {profile.name}{profile.age ? `, ${profile.age}` : ""}
-                  </h3>
-                  <p
-                    className="mb-1"
-                    style={{ fontSize: "13px", lineHeight: "1.6" }}
-                  >
-                    {profile.height} • {profile.location} • {profile.caste}
-                  </p>
-                  <p
-                    className="mb-1"
-                    style={{ fontSize: "13px", lineHeight: "1.6" }}
-                  >
-                    {profile.occupation} • {profile.education}
-                  </p>
-                  <p className="mb-2" style={{ fontSize: "13px" }}>
-                    ID: {profile.customId}
-                  </p>
-                </div>
+                    {/* Profile Info */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: "60px",
+                        left: "16px",
+                        right: "16px",
+                        color: "white",
+                      }}
+                    >
+                      <p
+                        className="mb-1"
+                        style={{ fontSize: "12px", opacity: 0.9 }}
+                      >
+                        {profile.lastSeen
+                          ? `Last seen ${formatLastSeen(profile.lastSeen)}`
+                          : ""}
+                      </p>
+                      <h3
+                        className="mb-2"
+                        style={{ fontWeight: "700", fontSize: "28px" }}
+                      >
+                        {profile.name}
+                        {profile.age ? `, ${profile.age}` : ""}
+                      </h3>
+                      <p
+                        className="mb-1"
+                        style={{ fontSize: "13px", lineHeight: "1.6" }}
+                      >
+                        {profile.height} • {profile.location} • {profile.caste}
+                      </p>
+                      <p
+                        className="mb-1"
+                        style={{ fontSize: "13px", lineHeight: "1.6" }}
+                      >
+                        {profile.occupation} • {profile.education}
+                      </p>
+                      <p className="mb-2" style={{ fontSize: "13px" }}>
+                        ID: {profile.customId}
+                      </p>
+                    </div>
 
-                {/* Action Buttons */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "10px",
-                    left: "0",
-                    right: "0",
-                    display: "flex",
-                    background: "rgba(0,0,0,0.6)",
-                    backdropFilter: "blur(10px)",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <Tooltip title="Interest">
-                    <IconButton>
-                      <FavoriteBorder style={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Super Interest">
-                    <IconButton>
-                      <Favorite style={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
+                    {/* Action Buttons */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: "10px",
+                        left: "0",
+                        right: "0",
+                        display: "flex",
+                        background: "rgba(0,0,0,0.6)",
+                        backdropFilter: "blur(10px)",
+                        justifyContent: "space-around",
+                      }}
+                    >
+                      <Tooltip title="Interest">
+                        <IconButton>
+                          <FavoriteBorder style={{ color: "white" }} />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Super Interest">
+                        <IconButton>
+                          <Favorite style={{ color: "white" }} />
+                        </IconButton>
+                      </Tooltip>
 
-                  <Tooltip title="Shortlisted">
-                    <IconButton>
-                      <Star style={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
+                      <Tooltip title="Shortlisted">
+                        <IconButton>
+                          <Star style={{ color: "white" }} />
+                        </IconButton>
+                      </Tooltip>
 
-                  <Tooltip title="Chat">
-                    <IconButton>
-                      <Chat style={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
-                </div>
-              </div>
-            </Card>
-          </SwiperSlide>
+                      <Tooltip title="Chat">
+                        <IconButton>
+                          <Chat style={{ color: "white" }} />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
+                  </div>
+                </Card>
+              </SwiperSlide>
             ))
           ) : (
             <SwiperSlide>
@@ -1076,7 +1043,8 @@ const navigate = useNavigate();
             }}
           >
             <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              {interest.name}{interest.age ? `, ${interest.age}` : ""}
+              {interest.name}
+              {interest.age ? `, ${interest.age}` : ""}
             </Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>
               ID: {interest.profileId} • Last seen {interest.lastSeen}
@@ -1090,8 +1058,8 @@ const navigate = useNavigate();
         <CardContent sx={{ p: 3 }}>
           {/* Tabs */}
           <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-            <Tabs 
-              value={activeProfileTab} 
+            <Tabs
+              value={activeProfileTab}
               onChange={(e, newValue) => setActiveProfileTab(newValue)}
               sx={{ minHeight: "auto" }}
             >
@@ -1115,97 +1083,106 @@ const navigate = useNavigate();
 
           {/* About Me Content */}
           {activeProfileTab === "about" && (
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Basic Information
-            </Typography>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              {interest.religion && interest.religion !== "N/A" && interest.caste && interest.caste !== "N/A" && (
-                <Grid item xs={6}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
-                    {interest.religion} - {interest.caste}
-                  </Typography>
-                </Grid>
-              )}
-              {interest.height && interest.height !== "N/A" && (
-                <Grid item xs={6}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
-                    Height: {getHeight(interest.height)}
-                  </Typography>
-                </Grid>
-              )}
-              {interest.annualIncome && interest.annualIncome !== "N/A" && (
-                <Grid item xs={6}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
-                    Annual Income: {interest.annualIncome}
-                  </Typography>
-                </Grid>
-              )}
-              {interest.motherTongue && interest.motherTongue !== "N/A" && (
-                <Grid item xs={6}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
-                    Mother tongue: {interest.motherTongue}
-                  </Typography>
-                </Grid>
-              )}
-              {interest.maritalStatus && interest.maritalStatus !== "N/A" && (
-                <Grid item xs={6}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
-                    Marital Status: {interest.maritalStatus}
-                  </Typography>
-                </Grid>
-              )}
-              {interest.city && interest.city !== "N/A" && (
-                <Grid item xs={6}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
-                    Location: {interest.city}{interest.state && interest.state !== "N/A" ? `, ${interest.state}` : ""}
-                  </Typography>
-                </Grid>
-              )}
-            </Grid>
-
-            {interest.about ? (
-              <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.6 }}>
-                {interest.about}
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Basic Information
               </Typography>
-            ) : (
-              <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.6 }}>
-                {interest.name}{interest.age ? `, ${interest.age}` : ""}
-                {interest.education && interest.education !== "N/A" 
-                  ? `, ${interest.education} graduate` 
-                  : ""}
-                {interest.occupation && interest.occupation !== "N/A" 
-                  ? ` working as ${interest.occupation}` 
-                  : ""}
-                {interest.city && interest.city !== "N/A" 
-                  ? ` in ${interest.city}` 
-                  : ""}
-              </Typography>
-            )}
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                {interest.religion &&
+                  interest.religion !== "N/A" &&
+                  interest.caste &&
+                  interest.caste !== "N/A" && (
+                    <Grid item xs={6}>
+                      <Typography variant="body2" sx={{ color: "#666" }}>
+                        {interest.religion} - {interest.caste}
+                      </Typography>
+                    </Grid>
+                  )}
+                {interest.height && interest.height !== "N/A" && (
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: "#666" }}>
+                      Height: {getHeight(interest.height)}
+                    </Typography>
+                  </Grid>
+                )}
+                {interest.annualIncome && interest.annualIncome !== "N/A" && (
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: "#666" }}>
+                      Annual Income: {interest.annualIncome}
+                    </Typography>
+                  </Grid>
+                )}
+                {interest.motherTongue && interest.motherTongue !== "N/A" && (
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: "#666" }}>
+                      Mother tongue: {interest.motherTongue}
+                    </Typography>
+                  </Grid>
+                )}
+                {interest.maritalStatus && interest.maritalStatus !== "N/A" && (
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: "#666" }}>
+                      Marital Status: {interest.maritalStatus}
+                    </Typography>
+                  </Grid>
+                )}
+                {interest.city && interest.city !== "N/A" && (
+                  <Grid item xs={6}>
+                    <Typography variant="body2" sx={{ color: "#666" }}>
+                      Location: {interest.city}
+                      {interest.state && interest.state !== "N/A"
+                        ? `, ${interest.state}`
+                        : ""}
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
 
-            {interest.education && interest.education !== "N/A" && (
-              <>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  Education
+              {interest.about ? (
+                <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.6 }}>
+                  {interest.about}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-                  {interest.education}
+              ) : (
+                <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.6 }}>
+                  {interest.name}
+                  {interest.age ? `, ${interest.age}` : ""}
+                  {interest.education && interest.education !== "N/A"
+                    ? `, ${interest.education} graduate`
+                    : ""}
+                  {interest.occupation && interest.occupation !== "N/A"
+                    ? ` working as ${interest.occupation}`
+                    : ""}
+                  {interest.city && interest.city !== "N/A"
+                    ? ` in ${interest.city}`
+                    : ""}
                 </Typography>
-              </>
-            )}
+              )}
 
-            {interest.occupation && interest.occupation !== "N/A" && (
-              <>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  Career
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
-                  {interest.occupation}
-                  {interest.city && interest.city !== "N/A" ? ` in ${interest.city}` : ""}
-                </Typography>
-              </>
-            )}
-          </Box>
+              {interest.education && interest.education !== "N/A" && (
+                <>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                    Education
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
+                    {interest.education}
+                  </Typography>
+                </>
+              )}
+
+              {interest.occupation && interest.occupation !== "N/A" && (
+                <>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                    Career
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#666", mb: 3 }}>
+                    {interest.occupation}
+                    {interest.city && interest.city !== "N/A"
+                      ? ` in ${interest.city}`
+                      : ""}
+                  </Typography>
+                </>
+              )}
+            </Box>
           )}
 
           {/* Family Content */}
@@ -1214,7 +1191,7 @@ const navigate = useNavigate();
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                 Family Background
               </Typography>
-              
+
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 {interest.familyType && interest.familyType !== "N/A" && (
                   <Grid item xs={12} sm={6}>
@@ -1222,11 +1199,12 @@ const navigate = useNavigate();
                       Family Type
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                      {interest.familyType.charAt(0).toUpperCase() + interest.familyType.slice(1)}
+                      {interest.familyType.charAt(0).toUpperCase() +
+                        interest.familyType.slice(1)}
                     </Typography>
                   </Grid>
                 )}
-                
+
                 {interest.nativePlace && interest.nativePlace !== "N/A" && (
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
@@ -1237,7 +1215,7 @@ const navigate = useNavigate();
                     </Typography>
                   </Grid>
                 )}
-                
+
                 {interest.familyIncome && interest.familyIncome !== "N/A" && (
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
@@ -1248,14 +1226,15 @@ const navigate = useNavigate();
                     </Typography>
                   </Grid>
                 )}
-                
+
                 {interest.familyStatus && interest.familyStatus !== "N/A" && (
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
                       Family Status
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                      {interest.familyStatus.charAt(0).toUpperCase() + interest.familyStatus.slice(1).replace(/_/g, " ")}
+                      {interest.familyStatus.charAt(0).toUpperCase() +
+                        interest.familyStatus.slice(1).replace(/_/g, " ")}
                     </Typography>
                   </Grid>
                 )}
@@ -1266,29 +1245,39 @@ const navigate = useNavigate();
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                 Parents Information
               </Typography>
-              
+
               <Grid container spacing={2} sx={{ mb: 3 }}>
-                {interest.fatherOccupation && interest.fatherOccupation !== "N/A" && (
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
-                      Father's Occupation
-                    </Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                      {interest.fatherOccupation.charAt(0).toUpperCase() + interest.fatherOccupation.slice(1).replace(/_/g, " ")}
-                    </Typography>
-                  </Grid>
-                )}
-                
-                {interest.motherOccupation && interest.motherOccupation !== "N/A" && (
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
-                      Mother's Occupation
-                    </Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                      {interest.motherOccupation.charAt(0).toUpperCase() + interest.motherOccupation.slice(1).replace(/_/g, " ")}
-                    </Typography>
-                  </Grid>
-                )}
+                {interest.fatherOccupation &&
+                  interest.fatherOccupation !== "N/A" && (
+                    <Grid item xs={12} sm={6}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "#666", mb: 0.5 }}
+                      >
+                        Father's Occupation
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.fatherOccupation.charAt(0).toUpperCase() +
+                          interest.fatherOccupation.slice(1).replace(/_/g, " ")}
+                      </Typography>
+                    </Grid>
+                  )}
+
+                {interest.motherOccupation &&
+                  interest.motherOccupation !== "N/A" && (
+                    <Grid item xs={12} sm={6}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "#666", mb: 0.5 }}
+                      >
+                        Mother's Occupation
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {interest.motherOccupation.charAt(0).toUpperCase() +
+                          interest.motherOccupation.slice(1).replace(/_/g, " ")}
+                      </Typography>
+                    </Grid>
+                  )}
               </Grid>
 
               <Divider sx={{ my: 3 }} />
@@ -1296,7 +1285,7 @@ const navigate = useNavigate();
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                 Siblings Information
               </Typography>
-              
+
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
@@ -1304,25 +1293,39 @@ const navigate = useNavigate();
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
                     {interest.brothers || 0}
-                    {interest.brothers > 0 && interest.brothersMarried !== undefined && (
-                      <span style={{ color: "#666", fontSize: "0.875rem", marginLeft: "8px" }}>
-                        ({interest.brothersMarried ? "Married" : "Unmarried"})
-                      </span>
-                    )}
+                    {interest.brothers > 0 &&
+                      interest.brothersMarried !== undefined && (
+                        <span
+                          style={{
+                            color: "#666",
+                            fontSize: "0.875rem",
+                            marginLeft: "8px",
+                          }}
+                        >
+                          ({interest.brothersMarried ? "Married" : "Unmarried"})
+                        </span>
+                      )}
                   </Typography>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
                     Sisters
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
                     {interest.sisters || 0}
-                    {interest.sisters > 0 && interest.sistersMarried !== undefined && (
-                      <span style={{ color: "#666", fontSize: "0.875rem", marginLeft: "8px" }}>
-                        ({interest.sistersMarried ? "Married" : "Unmarried"})
-                      </span>
-                    )}
+                    {interest.sisters > 0 &&
+                      interest.sistersMarried !== undefined && (
+                        <span
+                          style={{
+                            color: "#666",
+                            fontSize: "0.875rem",
+                            marginLeft: "8px",
+                          }}
+                        >
+                          ({interest.sistersMarried ? "Married" : "Unmarried"})
+                        </span>
+                      )}
                   </Typography>
                 </Grid>
               </Grid>
@@ -1335,8 +1338,9 @@ const navigate = useNavigate();
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                 Partner Preferences
               </Typography>
-              
-              {interest.preferences && Object.keys(interest.preferences).length > 0 ? (
+
+              {interest.preferences &&
+              Object.keys(interest.preferences).length > 0 ? (
                 <>
                   {/* Age Range */}
                   {interest.preferences.ageRange && (
@@ -1345,7 +1349,8 @@ const navigate = useNavigate();
                         Age Range
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.ageRange.min || "N/A"} - {interest.preferences.ageRange.max || "N/A"} years
+                        {interest.preferences.ageRange.min || "N/A"} -{" "}
+                        {interest.preferences.ageRange.max || "N/A"} years
                       </Typography>
                     </Box>
                   )}
@@ -1357,7 +1362,8 @@ const navigate = useNavigate();
                         Height Preference
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.heightRange.min || "N/A"} - {interest.preferences.heightRange.max || "N/A"}
+                        {interest.preferences.heightRange.min || "N/A"} -{" "}
+                        {interest.preferences.heightRange.max || "N/A"}
                       </Typography>
                     </Box>
                   )}
@@ -1369,24 +1375,38 @@ const navigate = useNavigate();
                         Education Preference
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.educationPref.charAt(0).toUpperCase() + interest.preferences.educationPref.slice(1).replace(/_/g, " ")}
+                        {interest.preferences.educationPref
+                          .charAt(0)
+                          .toUpperCase() +
+                          interest.preferences.educationPref
+                            .slice(1)
+                            .replace(/_/g, " ")}
                       </Typography>
                     </Box>
                   )}
 
                   {/* Occupation Preference */}
-                  {interest.preferences.occupationPref && Array.isArray(interest.preferences.occupationPref) && interest.preferences.occupationPref.length > 0 && (
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
-                        Occupation Preference
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.occupationPref.map(occ => 
-                          occ.charAt(0).toUpperCase() + occ.slice(1).replace(/_/g, " ")
-                        ).join(", ")}
-                      </Typography>
-                    </Box>
-                  )}
+                  {interest.preferences.occupationPref &&
+                    Array.isArray(interest.preferences.occupationPref) &&
+                    interest.preferences.occupationPref.length > 0 && (
+                      <Box sx={{ mb: 3 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#666", mb: 1 }}
+                        >
+                          Occupation Preference
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          {interest.preferences.occupationPref
+                            .map(
+                              (occ) =>
+                                occ.charAt(0).toUpperCase() +
+                                occ.slice(1).replace(/_/g, " ")
+                            )
+                            .join(", ")}
+                        </Typography>
+                      </Box>
+                    )}
 
                   {/* Annual Income Preference */}
                   {interest.preferences.annualIncomePref && (
@@ -1395,7 +1415,12 @@ const navigate = useNavigate();
                         Annual Income Preference
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.annualIncomePref.charAt(0).toUpperCase() + interest.preferences.annualIncomePref.slice(1).replace(/_/g, " ")}
+                        {interest.preferences.annualIncomePref
+                          .charAt(0)
+                          .toUpperCase() +
+                          interest.preferences.annualIncomePref
+                            .slice(1)
+                            .replace(/_/g, " ")}
                       </Typography>
                     </Box>
                   )}
@@ -1419,7 +1444,12 @@ const navigate = useNavigate();
                         Marital Status Preference
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.maritalStatusPref.charAt(0).toUpperCase() + interest.preferences.maritalStatusPref.slice(1).replace(/_/g, " ")}
+                        {interest.preferences.maritalStatusPref
+                          .charAt(0)
+                          .toUpperCase() +
+                          interest.preferences.maritalStatusPref
+                            .slice(1)
+                            .replace(/_/g, " ")}
                       </Typography>
                     </Box>
                   )}
@@ -1431,7 +1461,12 @@ const navigate = useNavigate();
                         Religion/Caste Preference
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.religionCastePref.charAt(0).toUpperCase() + interest.preferences.religionCastePref.slice(1).replace(/_/g, " ")}
+                        {interest.preferences.religionCastePref
+                          .charAt(0)
+                          .toUpperCase() +
+                          interest.preferences.religionCastePref
+                            .slice(1)
+                            .replace(/_/g, " ")}
                       </Typography>
                     </Box>
                   )}
@@ -1443,7 +1478,10 @@ const navigate = useNavigate();
                         Open to Relocation
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.relocation.charAt(0).toUpperCase() + interest.preferences.relocation.slice(1)}
+                        {interest.preferences.relocation
+                          .charAt(0)
+                          .toUpperCase() +
+                          interest.preferences.relocation.slice(1)}
                       </Typography>
                     </Box>
                   )}
@@ -1455,7 +1493,12 @@ const navigate = useNavigate();
                         Family Orientation
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                        {interest.preferences.familyOrientation.charAt(0).toUpperCase() + interest.preferences.familyOrientation.slice(1).replace(/_/g, " ")}
+                        {interest.preferences.familyOrientation
+                          .charAt(0)
+                          .toUpperCase() +
+                          interest.preferences.familyOrientation
+                            .slice(1)
+                            .replace(/_/g, " ")}
                       </Typography>
                     </Box>
                   )}
@@ -1466,20 +1509,45 @@ const navigate = useNavigate();
                       <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
                         Lifestyle Expectations
                       </Typography>
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                        }}
+                      >
                         {interest.preferences.lifestyleExpectations.diet && (
                           <Typography variant="body2">
-                            <strong>Diet:</strong> {interest.preferences.lifestyleExpectations.diet.charAt(0).toUpperCase() + interest.preferences.lifestyleExpectations.diet.slice(1).replace(/_/g, " ")}
+                            <strong>Diet:</strong>{" "}
+                            {interest.preferences.lifestyleExpectations.diet
+                              .charAt(0)
+                              .toUpperCase() +
+                              interest.preferences.lifestyleExpectations.diet
+                                .slice(1)
+                                .replace(/_/g, " ")}
                           </Typography>
                         )}
-                        {interest.preferences.lifestyleExpectations.drinking && (
+                        {interest.preferences.lifestyleExpectations
+                          .drinking && (
                           <Typography variant="body2">
-                            <strong>Drinking:</strong> {interest.preferences.lifestyleExpectations.drinking.charAt(0).toUpperCase() + interest.preferences.lifestyleExpectations.drinking.slice(1).replace(/_/g, " ")}
+                            <strong>Drinking:</strong>{" "}
+                            {interest.preferences.lifestyleExpectations.drinking
+                              .charAt(0)
+                              .toUpperCase() +
+                              interest.preferences.lifestyleExpectations.drinking
+                                .slice(1)
+                                .replace(/_/g, " ")}
                           </Typography>
                         )}
                         {interest.preferences.lifestyleExpectations.smoking && (
                           <Typography variant="body2">
-                            <strong>Smoking:</strong> {interest.preferences.lifestyleExpectations.smoking.charAt(0).toUpperCase() + interest.preferences.lifestyleExpectations.smoking.slice(1).replace(/_/g, " ")}
+                            <strong>Smoking:</strong>{" "}
+                            {interest.preferences.lifestyleExpectations.smoking
+                              .charAt(0)
+                              .toUpperCase() +
+                              interest.preferences.lifestyleExpectations.smoking
+                                .slice(1)
+                                .replace(/_/g, " ")}
                           </Typography>
                         )}
                       </Box>
@@ -1487,45 +1555,65 @@ const navigate = useNavigate();
                   )}
 
                   {/* Qualities */}
-                  {interest.preferences.qualities && Array.isArray(interest.preferences.qualities) && interest.preferences.qualities.length > 0 && (
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
-                        Desired Qualities
-                      </Typography>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {interest.preferences.qualities.map((quality, index) => (
-                          <Chip 
-                            key={index} 
-                            label={quality} 
-                            size="small" 
-                            sx={{ backgroundColor: "#e3f2fd", color: "#1976d2" }}
-                          />
-                        ))}
+                  {interest.preferences.qualities &&
+                    Array.isArray(interest.preferences.qualities) &&
+                    interest.preferences.qualities.length > 0 && (
+                      <Box sx={{ mb: 3 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#666", mb: 1 }}
+                        >
+                          Desired Qualities
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                          {interest.preferences.qualities.map(
+                            (quality, index) => (
+                              <Chip
+                                key={index}
+                                label={quality}
+                                size="small"
+                                sx={{
+                                  backgroundColor: "#e3f2fd",
+                                  color: "#1976d2",
+                                }}
+                              />
+                            )
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  )}
+                    )}
 
                   {/* Deal Breakers */}
-                  {interest.preferences.dealBreakers && Array.isArray(interest.preferences.dealBreakers) && interest.preferences.dealBreakers.length > 0 && (
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
-                        Deal Breakers
-                      </Typography>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {interest.preferences.dealBreakers.map((breaker, index) => (
-                          <Chip 
-                            key={index} 
-                            label={breaker} 
-                            size="small" 
-                            color="error"
-                          />
-                        ))}
+                  {interest.preferences.dealBreakers &&
+                    Array.isArray(interest.preferences.dealBreakers) &&
+                    interest.preferences.dealBreakers.length > 0 && (
+                      <Box sx={{ mb: 3 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "#666", mb: 1 }}
+                        >
+                          Deal Breakers
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                          {interest.preferences.dealBreakers.map(
+                            (breaker, index) => (
+                              <Chip
+                                key={index}
+                                label={breaker}
+                                size="small"
+                                color="error"
+                              />
+                            )
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  )}
+                    )}
                 </>
               ) : (
-                <Typography variant="body1" sx={{ color: "#666", textAlign: "center", py: 4 }}>
+                <Typography
+                  variant="body1"
+                  sx={{ color: "#666", textAlign: "center", py: 4 }}
+                >
                   No preferences set yet
                 </Typography>
               )}

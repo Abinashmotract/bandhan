@@ -203,6 +203,106 @@ const Register = ({ onToggleForm }) => {
   const [emailSent, setEmailSent] = useState(false);
   const navigate = useNavigate();
 
+  const staticTestData = {
+    // Basic Info
+    name: "divya jaiswal",
+    email: "divya.jaiswal@yopmail.com",
+    password: "Test@12345",
+    confirmPassword: "Test@12345",
+    mobile: "4545787899",
+    profileFor: "self",
+    gender:"female",
+
+    // Personal Details
+    dob: "1990-05-15",
+    religion: "hindu",
+    caste: "brahmin",
+    subCaste: "kashyap",
+    motherTongue: ["hindi"],
+    maritalStatus: "never_married",
+
+    // Education & Career
+    highestQualification: "masters",
+    fieldOfStudy: "computer_science",
+    education: "masters",
+    occupation: "software_engineer",
+    industry: "information_technology",
+    annualIncome: "10_15_lakhs",
+
+    // Physical Attributes
+    height: "5ft_9in",
+    weight: "72",
+    bodyType: "slim",
+    complexion: "fair",
+
+    // Lifestyle
+    diet: "vegetarian",
+    drinkingHabits: "never",
+    smokingHabits: "never",
+    fitnessLevel: "active",
+    hobbies: ["reading", "traveling", "music"],
+    interests: ["technology", "business", "science"],
+    languagesKnown: ["hindi", "english"],
+    petPreferences: "love_pets",
+
+    // Family Details
+    fatherOccupation: "government_employee",
+    motherOccupation: "teacher",
+    brothers: 1,
+    brothersMarried: 1,
+    sisters: 1,
+    sistersMarried: 0,
+    familyType: "nuclear",
+    familyIncome: "15_25_lakhs",
+    nativePlace: "Delhi",
+    familyStatus: "upper_middle_class",
+
+    // Location
+    state: "delhi",
+    city: "new_delhi",
+    location: "South Delhi",
+
+    // Preferences
+    preferences: {
+      ageRange: { min: 25, max: 30 },
+      heightRange: { min: "5ft_2in", max: "5ft_8in" },
+      qualities: ["honest", "caring", "family_oriented"],
+      dealBreakers: ["smoking", "excessive_drinking"],
+      educationPref: "graduate",
+      occupationPref: ["software_engineer", "doctor", "teacher"],
+      annualIncomePref: "5_10_lakhs",
+      lifestyleExpectations: {
+        diet: "vegetarian",
+        drinking: "never",
+        smoking: "never",
+      },
+      religionCastePref: "same_religion",
+      locationPref: "same_city",
+      relocation: "maybe",
+      familyOrientation: "traditional",
+      maritalStatusPref: "never_married",
+    },
+
+    // Additional Info
+    about:
+      "I am a software engineer working in a multinational company. I enjoy reading, traveling, and spending time with family. Looking for a life partner who is understanding, caring, and family-oriented.",
+    photos: [],
+    profileImage: "",
+
+    agreeToTerms: true,
+  };
+
+  // To use this static data, replace your useState initialization with:
+  /*
+const [formData, setFormData] = useState(staticTestData);
+*/
+
+  // Or temporarily set it after component mount for testing:
+
+  // useEffect(() => {
+  //   setFormData(staticTestData);
+  // }, []);
+
   const [formData, setFormData] = useState({
     // Basic Info
     name: "",
@@ -470,9 +570,12 @@ const Register = ({ onToggleForm }) => {
   const handleResendCode = async () => {
     try {
       setIsVerifying(true);
-      const response = await axiosInstance.post("/auth/resend-verification-otp", {
-        email: formData.email,
-      });
+      const response = await axiosInstance.post(
+        "/auth/resend-verification-otp",
+        {
+          email: formData.email,
+        }
+      );
 
       if (response.data.success) {
         showSuccess("New verification code sent!");
