@@ -67,6 +67,9 @@ const ActivityPage = ({
   onViewProfile,
   getAge,
   getHeight,
+  onShowInterest,
+  onShowSuperInterest,
+  onChatClick,
 }) => {
   const dispatch = useDispatch();
   const {
@@ -93,7 +96,61 @@ const ActivityPage = ({
     useState(false);
   const [selectedCard, setSelectedCard] = useState(null); // Track which summary card is clicked
   const [activeProfileTab, setActiveProfileTab] = useState("about"); // Track active tab in profile detail view
+  const [unshortlistDialogOpen, setUnshortlistDialogOpen] = useState(false);
+  const [profileToUnshortlist, setProfileToUnshortlist] = useState(null);
 
+  const handleUnshortlist = async (profileId) => {
+    try {
+      const Cookies = (await import("js-cookie")).default;
+      const token = Cookies.get("accessToken");
+      const { API_BASE_URL } = await import("../utils/api");
+      const response = await fetch(`${API_BASE_URL}/matches/shortlist/${profileId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+       
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to unshortlist profile");
+      }
+
+      const result = await response.json();
+      showSuccess("Profile removed from shortlist");
+
+      await dispatch(getShortlistedProfiles());
+      dispatch(updateActivitySummary());
+
+      return result;
+    } catch (error) {
+      showError(error.message || "Failed to unshortlist profile");
+      throw error;
+    }
+  };
+
+  const handleUnshortlistClick = (profile) => {
+    setProfileToUnshortlist(profile);
+    setUnshortlistDialogOpen(true);
+  };
+
+  const handleConfirmUnshortlist = async () => {
+    if (profileToUnshortlist) {
+      try {
+        await handleUnshortlist(profileToUnshortlist.id);
+        setUnshortlistDialogOpen(false);
+        setProfileToUnshortlist(null);
+      } catch (error) {
+        // Error is already handled in handleUnshortlist
+      }
+    }
+  };
+
+  const handleCancelUnshortlist = () => {
+    setUnshortlistDialogOpen(false);
+    setProfileToUnshortlist(null);
+  };
   useEffect(() => {
     const loadActivityData = async () => {
       try {
@@ -113,9 +170,13 @@ const ActivityPage = ({
     loadActivityData();
   }, [dispatch]);
 
-  const handleInterestAction = async (interestId, action, isReceived = true) => {
+  const handleInterestAction = async (
+    interestId,
+    action,
+    isReceived = true
+  ) => {
     try {
-      if (action === "accept") {
+      if (action === "approved") {
         await dispatch(acceptInterest(interestId)).unwrap();
         showSuccess("Interest accepted successfully");
       } else if (action === "decline") {
@@ -459,12 +520,11 @@ const ActivityPage = ({
       handleMenuClose();
     };
 
-  const handleDialogClose = () => {
-  setDialogOpen(false);
-  setCurrentInterest(null);
-  setIsCurrentInterestReceived(false);
-};
-
+    const handleDialogClose = () => {
+      setDialogOpen(false);
+      setCurrentInterest(null);
+      setIsCurrentInterestReceived(false);
+    };
     const handleChat = () => {
       // Handle chat logic here
       console.log("Chat with:", interest.id);
@@ -589,6 +649,7 @@ const ActivityPage = ({
           </DialogContent>
           <DialogActions sx={{ flexDirection: "column", gap: 1, p: 2 }}>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {/* Accept/Decline buttons for RECEIVED interests with status "sent" */}
               {isCurrentInterestReceived &&
                 currentInterest?.status === "sent" && (
                   <>
@@ -599,9 +660,10 @@ const ActivityPage = ({
                         e.stopPropagation();
                         handleInterestAction(
                           currentInterest.id,
-                          "accept",
+                          "approved",
                           true
                         );
+                        handleDialogClose();
                       }}
                       className="w-100"
                       sx={{
@@ -624,6 +686,7 @@ const ActivityPage = ({
                           "decline",
                           true
                         );
+                        handleDialogClose();
                       }}
                       sx={{
                         borderColor: "#f44336",
@@ -641,6 +704,7 @@ const ActivityPage = ({
                   </>
                 )}
 
+              {/* Chat/Call buttons for ACCEPTED interests */}
               {currentInterest?.status === "accepted" && (
                 <>
                   <Button
@@ -650,6 +714,7 @@ const ActivityPage = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       // Handle chat logic
+                      handleDialogClose();
                     }}
                     sx={{
                       backgroundColor: "#e91e63",
@@ -667,6 +732,7 @@ const ActivityPage = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       // Handle call logic
+                      handleDialogClose();
                     }}
                     sx={{
                       borderColor: "#4caf50",
@@ -684,8 +750,8 @@ const ActivityPage = ({
                 </>
               )}
 
-              {/* For sent interests that are still pending */}
-              {isCurrentInterestReceived &&
+              {/* Cancel Request button for SENT interests (not received) */}
+              {!isCurrentInterestReceived &&
                 currentInterest?.status === "sent" && (
                   <Button
                     variant="outlined"
@@ -748,13 +814,10 @@ const ActivityPage = ({
       photos: user?.photos || [],
     };
   };
-  console.log("mapShortlistedProfile", mapShortlistedProfile);
   // Map shortlisted profiles
   const mappedShortlistedProfiles = Array.isArray(shortlistedProfiles)
     ? shortlistedProfiles.map(mapShortlistedProfile)
     : [];
-
-  console.log("mappedShortlistedProfiles", mappedShortlistedProfiles);
 
   const renderShortlistedCard = (profile) => {
     return (
@@ -815,10 +878,6 @@ const ActivityPage = ({
                 Move ahead with your decision by sending an interest!
               </p>
             </div>
-            <ArrowForward
-              style={{ color: "#636e72", cursor: "pointer" }}
-              onClick={() => navigate("/shortlisted")}
-            />
           </div>
         </div>
         <Swiper
@@ -878,6 +937,7 @@ const ActivityPage = ({
                         position: "absolute",
                         top: "12px",
                         left: "12px",
+                        color: "white",
                       }}
                     >
                       <Badge
@@ -887,8 +947,17 @@ const ActivityPage = ({
                       >
                         Shortlisted
                         <br />
-                        <span style={{ fontSize: "11px" }}>
-                          on {profile.shortlistedDate}
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            lineHeight: "15px",
+                            marginLeft: "6px",
+                          }}
+                        >
+                          on{" "}
+                          {new Date(
+                            profile?.shortlistedAt
+                          ).toLocaleDateString()}
                         </span>
                       </Badge>
                     </div>
@@ -904,9 +973,11 @@ const ActivityPage = ({
                     >
                       <Badge
                         bg="dark"
-                        className="d-flex align-items-center gap-1 px-2 py-2"
+                        className="d-flex align-items-center gap-1 px-2 py-2 text-light"
                       >
-                        <CameraAlt style={{ fontSize: "14px" }} />
+                        <CameraAlt
+                          style={{ fontSize: "14px", color: "white" }}
+                        />
                         <span>{profile.photos?.length || 0}</span>
                       </Badge>
                     </div>
@@ -967,24 +1038,28 @@ const ActivityPage = ({
                       }}
                     >
                       <Tooltip title="Interest">
-                        <IconButton>
+                        <IconButton onClick={() => onShowInterest(profile.id)}>
                           <FavoriteBorder style={{ color: "white" }} />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Super Interest">
-                        <IconButton>
+                        <IconButton
+                          onClick={() => onShowSuperInterest(profile.id)}
+                        >
                           <Favorite style={{ color: "white" }} />
                         </IconButton>
                       </Tooltip>
 
-                      <Tooltip title="Shortlisted">
-                        <IconButton>
-                          <Star style={{ color: "white" }} />
+                      <Tooltip title="Remove from Shortlist">
+                        <IconButton
+                          onClick={() => handleUnshortlistClick(profile)}
+                        >
+                          <Star style={{ color: "gold" }} />
                         </IconButton>
                       </Tooltip>
 
                       <Tooltip title="Chat">
-                        <IconButton>
+                        <IconButton onClick={() => onChatClick(profile)}>
                           <Chat style={{ color: "white" }} />
                         </IconButton>
                       </Tooltip>
@@ -1749,6 +1824,40 @@ const ActivityPage = ({
           )}
         </CardContent>
       </Card>
+
+      {/* Unshortlist Confirmation Dialog */}
+      <Dialog
+        open={unshortlistDialogOpen}
+        onClose={handleCancelUnshortlist}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 600 }}>
+          Remove from Shortlist
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to remove {profileToUnshortlist?.name} from
+            your shortlist?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button
+            onClick={handleCancelUnshortlist}
+            sx={{ textTransform: "none" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmUnshortlist}
+            variant="contained"
+            color="error"
+            sx={{ textTransform: "none" }}
+          >
+            Remove from Shortlist
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

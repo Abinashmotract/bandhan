@@ -15,7 +15,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "../utils/toast";
 import { authAPI } from "../services/apiService";
 import { setUser, fetchUserDetails } from "../store/slices/authSlice";
-import { getSubscriptionStatus, getSubscriptionPlans } from "../store/slices/subscriptionSlice";
+import {
+  getSubscriptionStatus,
+  getSubscriptionPlans,
+} from "../store/slices/subscriptionSlice";
 import {
   fetchMatches,
   showInterest,
@@ -43,7 +46,7 @@ import {
   conversationAPI,
   searchAPI,
 } from "../services/apiService";
-import  MessengerView from "./MessengerView";
+import MessengerView from "./MessengerView";
 // Import components
 import Sidebar from "../components/Sidebar";
 import RightSidebar from "../components/RightSidebar";
@@ -143,24 +146,24 @@ const MyMatchesPage = () => {
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get("search");
     const profileId = searchParams.get("profileId");
-    
+
     // Load matches with search query if present
     loadMatches(searchQuery);
     loadInterestLimits();
     loadSearchCriteria();
-    
+
     // Always ensure user data is loaded
     loadUserProfile();
-    
+
     // Load subscription status and plans for premium features
     dispatch(getSubscriptionStatus());
     dispatch(getSubscriptionPlans({ duration: "quarterly" }));
-    
+
     // Also fetch via Redux if user not available
     if (!user) {
       dispatch(fetchUserDetails());
     }
-    
+
     // If profileId is in URL, we'll handle it after matches are loaded
     // (see useEffect below)
   }, [location.search]);
@@ -177,43 +180,56 @@ const MyMatchesPage = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const profileId = searchParams.get("profileId");
-    
+
     if (profileId && !selectedMatch && !loading) {
       // First, check if profile data was passed via navigation state
       const profileFromState = location.state?.profileData;
       if (profileFromState && profileFromState._id === profileId) {
         setSelectedMatch(profileFromState);
         setMiddleSectionView("profile-details");
-        
+
         // Clean up URL and state
         const newSearchParams = new URLSearchParams(location.search);
         newSearchParams.delete("profileId");
         const newSearch = newSearchParams.toString();
-        navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, { replace: true, state: {} });
+        navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, {
+          replace: true,
+          state: {},
+        });
         return;
       }
-      
+
       // Try to find the profile in displayedMatches first
-      let foundProfile = displayedMatches.find(m => m._id === profileId);
-      
+      let foundProfile = displayedMatches.find((m) => m._id === profileId);
+
       // If not found, try in Redux matches
       if (!foundProfile && matches.length > 0) {
-        foundProfile = matches.find(m => m._id === profileId);
+        foundProfile = matches.find((m) => m._id === profileId);
       }
-      
+
       // If found, open the profile details
       if (foundProfile) {
         setSelectedMatch(foundProfile);
         setMiddleSectionView("profile-details");
-        
+
         // Clean up URL by removing profileId parameter
         const newSearchParams = new URLSearchParams(location.search);
         newSearchParams.delete("profileId");
         const newSearch = newSearchParams.toString();
-        navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, { replace: true });
+        navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, {
+          replace: true,
+        });
       }
     }
-  }, [displayedMatches, matches, location.search, location.state, selectedMatch, loading, navigate]);
+  }, [
+    displayedMatches,
+    matches,
+    location.search,
+    location.state,
+    selectedMatch,
+    loading,
+    navigate,
+  ]);
 
   // Load data when switching views
   useEffect(() => {
@@ -311,7 +327,11 @@ const MyMatchesPage = () => {
     }
   }, [middleSectionView, hasMoreMatches, isLoadingMore, currentPage]);
 
-  const loadMatches = async (searchQueryParam = null, page = 1, reset = true) => {
+  const loadMatches = async (
+    searchQueryParam = null,
+    page = 1,
+    reset = true
+  ) => {
     try {
       if (reset) {
         setCurrentPage(1);
@@ -327,7 +347,12 @@ const MyMatchesPage = () => {
 
       // Use real API call to fetch matches with pagination
       const result = await dispatch(
-        fetchMatches({ ...filters, search: searchQueryParam || searchTerm || "", page, limit: 10 })
+        fetchMatches({
+          ...filters,
+          search: searchQueryParam || searchTerm || "",
+          page,
+          limit: 10,
+        })
       );
       console.log("API result:", result);
 
@@ -432,8 +457,6 @@ const MyMatchesPage = () => {
       console.error("Failed to load interest limits:", error);
     }
   };
-
-
 
   // Load conversations
   const loadConversations = async (tab = "acceptances") => {
@@ -547,15 +570,15 @@ const MyMatchesPage = () => {
   };
 
   const handleToggleShortlist = async (profileId, isShortlisted = null) => {
-    const matchToUpdate = matches.find(m => m._id === profileId);
+    const matchToUpdate = matches.find((m) => m._id === profileId);
     if (matchToUpdate) {
       // If isShortlisted is provided, just update the local state without making API call
       // This is used when MatchCard has already handled the API call
       if (isShortlisted !== null) {
         // Update displayedMatches if it exists
         if (displayedMatches.length > 0) {
-          setDisplayedMatches(prevMatches =>
-            prevMatches.map(m =>
+          setDisplayedMatches((prevMatches) =>
+            prevMatches.map((m) =>
               m._id === profileId ? { ...m, isShortlisted } : m
             )
           );
@@ -593,7 +616,7 @@ const MyMatchesPage = () => {
     const newFilters = { ...filters };
 
     // Handle batch filter update from FilterDialog
-    if (filterName === 'applyAllFilters' && typeof value === 'object') {
+    if (filterName === "applyAllFilters" && typeof value === "object") {
       // Replace all filters with the provided filter object
       // Keep verified, justJoined, nearby values if they're already set
       Object.keys(value).forEach((key) => {
@@ -652,9 +675,12 @@ const MyMatchesPage = () => {
       const formatMotherTongue = (mt) => {
         if (!mt) return [];
         if (Array.isArray(mt)) return mt;
-        if (typeof mt === 'string') {
+        if (typeof mt === "string") {
           // Split by comma and trim
-          return mt.split(',').map(item => item.trim()).filter(item => item);
+          return mt
+            .split(",")
+            .map((item) => item.trim())
+            .filter((item) => item);
         }
         return [];
       };
@@ -662,43 +688,71 @@ const MyMatchesPage = () => {
       // Map editingProfile fields to API format
       // Backend accepts: name, email, phoneNumber, dob, occupation, location, education, motherTongue, religion, caste, about, interests, preferences
       const profileUpdateData = {};
-      
+
       // Always include these fields if they exist in editingProfile (even if empty)
-      if (editingProfile.name !== undefined) profileUpdateData.name = editingProfile.name || "";
-      if (editingProfile.email !== undefined) profileUpdateData.email = editingProfile.email || "";
-      if (editingProfile.phoneNumber !== undefined) profileUpdateData.phoneNumber = editingProfile.phoneNumber || "";
-      if (editingProfile.dob !== undefined) profileUpdateData.dob = editingProfile.dob || "";
-      if (editingProfile.occupation !== undefined) profileUpdateData.occupation = editingProfile.occupation || "";
-      if (editingProfile.location !== undefined || editingProfile.city !== undefined) {
-        profileUpdateData.location = editingProfile.location || editingProfile.city || "";
+      if (editingProfile.name !== undefined)
+        profileUpdateData.name = editingProfile.name || "";
+      if (editingProfile.email !== undefined)
+        profileUpdateData.email = editingProfile.email || "";
+      if (editingProfile.phoneNumber !== undefined)
+        profileUpdateData.phoneNumber = editingProfile.phoneNumber || "";
+      if (editingProfile.dob !== undefined)
+        profileUpdateData.dob = editingProfile.dob || "";
+      if (editingProfile.occupation !== undefined)
+        profileUpdateData.occupation = editingProfile.occupation || "";
+      if (
+        editingProfile.location !== undefined ||
+        editingProfile.city !== undefined
+      ) {
+        profileUpdateData.location =
+          editingProfile.location || editingProfile.city || "";
       }
-      if (editingProfile.education !== undefined || editingProfile.highestQualification !== undefined) {
-        profileUpdateData.education = editingProfile.education || editingProfile.highestQualification || "";
+      if (
+        editingProfile.education !== undefined ||
+        editingProfile.highestQualification !== undefined
+      ) {
+        profileUpdateData.education =
+          editingProfile.education || editingProfile.highestQualification || "";
       }
       // Always include motherTongue if it exists in editingProfile
       // It can be a string (from UI) or array (from API), we'll format it
       // Backend expects an array, so we always send it as an array (even if empty)
-      if (editingProfile.motherTongue !== undefined && editingProfile.motherTongue !== null) {
-        const formattedMotherTongue = formatMotherTongue(editingProfile.motherTongue);
+      if (
+        editingProfile.motherTongue !== undefined &&
+        editingProfile.motherTongue !== null
+      ) {
+        const formattedMotherTongue = formatMotherTongue(
+          editingProfile.motherTongue
+        );
         // Always send motherTongue as array - empty array is valid (means clearing the field)
         // Backend uses: motherTongue || user.motherTongue, so we must send even empty arrays
         profileUpdateData.motherTongue = formattedMotherTongue;
       }
-      if (editingProfile.religion !== undefined) profileUpdateData.religion = editingProfile.religion || "";
-      if (editingProfile.caste !== undefined) profileUpdateData.caste = editingProfile.caste || "";
+      if (editingProfile.religion !== undefined)
+        profileUpdateData.religion = editingProfile.religion || "";
+      if (editingProfile.caste !== undefined)
+        profileUpdateData.caste = editingProfile.caste || "";
       // About can be empty string, so check for !== undefined
-      if (editingProfile.about !== undefined) profileUpdateData.about = editingProfile.about || "";
+      if (editingProfile.about !== undefined)
+        profileUpdateData.about = editingProfile.about || "";
       // Interests should be an array
       if (editingProfile.interests !== undefined) {
-        profileUpdateData.interests = Array.isArray(editingProfile.interests) 
-          ? editingProfile.interests 
-          : (editingProfile.interests ? [editingProfile.interests] : []);
+        profileUpdateData.interests = Array.isArray(editingProfile.interests)
+          ? editingProfile.interests
+          : editingProfile.interests
+          ? [editingProfile.interests]
+          : [];
       }
-      
+
       // Include preferences if they were updated
-      if (editingProfile.preferences && Object.keys(editingProfile.preferences).length > 0) {
+      if (
+        editingProfile.preferences &&
+        Object.keys(editingProfile.preferences).length > 0
+      ) {
         // Backend expects preferences as JSON string or object
-        profileUpdateData.preferences = JSON.stringify(editingProfile.preferences);
+        profileUpdateData.preferences = JSON.stringify(
+          editingProfile.preferences
+        );
       }
 
       console.log("Saving profile with data:", profileUpdateData);
@@ -714,7 +768,7 @@ const MyMatchesPage = () => {
           const updatedUserData = updatedUserResponse.data.data;
           setProfileData(updatedUserData);
           setEditingProfile(updatedUserData);
-          
+
           // Update user data in Redux store
           dispatch(setUser(updatedUserData));
         } else {
@@ -1044,17 +1098,16 @@ const MyMatchesPage = () => {
     return criteria;
   };
 
-
-    const matchHourData = {
-    title: 'UP Match Hour',
-    date: '12 Oct, Sun',
-    time: '08:00 PM - 09:00 PM',
-    registered: '13127',
+  const matchHourData = {
+    title: "UP Match Hour",
+    date: "12 Oct, Sun",
+    time: "08:00 PM - 09:00 PM",
+    registered: "13127",
     avatars: [
-      { letter: 'A', color: '#51365F' },
-      { letter: 'B', color: '#2196f3' },
-      { letter: 'C', color: '#4caf50' }
-    ]
+      { letter: "A", color: "#51365F" },
+      { letter: "B", color: "#2196f3" },
+      { letter: "C", color: "#4caf50" },
+    ],
   };
 
   // Main component return
@@ -1282,6 +1335,13 @@ const MyMatchesPage = () => {
               <ActivityPage
                 onBackToMatches={() => setMiddleSectionView("matches")}
                 onViewProfile={handleViewProfile}
+                onShowInterest={(profileId) => {
+                  handleShowInterest(profileId);
+                  handleInterestSentFromCard(profileId);
+                }}
+                onShowSuperInterest={handleShowSuperInterest}
+                onToggleShortlist={handleToggleShortlist}
+                onChatClick={handleChatClick}
                 getAge={getAge}
                 getHeight={getHeight}
               />
@@ -1318,10 +1378,10 @@ const MyMatchesPage = () => {
                 conversations={conversations}
                 loading={loadingConversations}
                 initialTab={activeMessengerTab}
-                onRegisterClick={() => console.log('Register clicked')}
-                onViewAllOnline={() => console.log('View all online clicked')}
+                onRegisterClick={() => console.log("Register clicked")}
+                onViewAllOnline={() => console.log("View all online clicked")}
                 onConversationClick={(conv) => {
-                  console.log('Conversation clicked:', conv);
+                  console.log("Conversation clicked:", conv);
                 }}
                 onTabChange={(tab) => {
                   setActiveMessengerTab(tab);
@@ -1470,7 +1530,6 @@ const MyMatchesPage = () => {
           </Card>
         </Grid>
       </Grid>
-
     </Container>
   );
 };

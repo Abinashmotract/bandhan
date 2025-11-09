@@ -70,7 +70,7 @@ export const acceptInterest = createAsyncThunk(
     try {
       const token = Cookies.get('accessToken');
       const response = await axios.post(
-        `${API_BASE_URL}/activity/interests/${interestId}/accept`,
+        `${API_BASE_URL}/activity/interests/${interestId}/approved`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
