@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import { Box, Typography, Button, Container, Paper, CircularProgress, Alert } from '@mui/material';
@@ -16,100 +16,111 @@ const PaymentSuccessPage = () => {
   const { loadSubscriptionData } = useSubscription();
   const [paymentData, setPaymentData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const hasProcessedPayment = useRef(false);
 
   const gradientStyle = {
     background: 'linear-gradient(135deg, rgb(216, 27, 96) 0%, rgb(136, 14, 79) 100%)',
   };
 
   useEffect(() => {
+    // Prevent multiple executions
+    if (hasProcessedPayment.current) {
+      return;
+    }
+
     const fetchPaymentData = async () => {
-      // Get subscription status to fetch latest data
-      dispatch(getSubscriptionStatus());
+      hasProcessedPayment.current = true;
       
-      // Get payment data from URL params or state
-      const urlParams = new URLSearchParams(location.search);
-      const sessionId = urlParams.get('session_id');
-      const paymentIntentId = urlParams.get('payment_intent') || location.state?.paymentIntentId;
-      const planId = urlParams.get('plan_id') || location.state?.planId;
-      
-      if (sessionId) {
-        // Payment completed via Stripe checkout - fetch session details
-        try {
-          const response = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
-          if (response.data.success) {
-            const sessionData = response.data.data;
-            
-            // Extract amount from session or transaction
-            let paymentAmount = sessionData.amount;
-            if (!paymentAmount || paymentAmount === 0) {
-              // Try to get from transaction
-              if (sessionData.transaction?.amount) {
-                paymentAmount = sessionData.transaction.amount;
-              } else if (sessionData.plan?.price) {
-                paymentAmount = sessionData.plan.price;
-              }
-            }
-            
-            // Get payment date from transaction or session
-            let paymentDate = new Date();
-            let paymentTime = new Date();
-            if (sessionData.transaction?.createdAt) {
-              paymentDate = new Date(sessionData.transaction.createdAt);
-              paymentTime = new Date(sessionData.transaction.createdAt);
-            }
-            
-            // If payment is completed but no transaction exists, try to process it
-            if (sessionData.paymentStatus === 'paid' && !sessionData.transaction) {
-              try {
-                console.log('Payment completed but not processed, attempting to process...');
-                await subscriptionAPI.processPaymentManually(sessionId);
-                // Refetch session details after processing
-                const updatedResponse = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
-                if (updatedResponse.data.success) {
-                  const updatedSessionData = updatedResponse.data.data;
-                  
-                  // Extract amount again after processing
-                  let updatedAmount = updatedSessionData.amount;
-                  if (!updatedAmount || updatedAmount === 0) {
-                    if (updatedSessionData.transaction?.amount) {
-                      updatedAmount = updatedSessionData.transaction.amount;
-                    } else if (updatedSessionData.plan?.price) {
-                      updatedAmount = updatedSessionData.plan.price;
-                    }
-                  }
-                  
-                  // Get payment date from transaction
-                  let updatedDate = new Date();
-                  let updatedTime = new Date();
-                  if (updatedSessionData.transaction?.createdAt) {
-                    updatedDate = new Date(updatedSessionData.transaction.createdAt);
-                    updatedTime = new Date(updatedSessionData.transaction.createdAt);
-                  }
-                  
-                  setPaymentData({
-                    amount: updatedAmount || paymentAmount || 0,
-                    transactionId: sessionId,
-                    date: updatedDate.toLocaleDateString(),
-                    time: updatedTime.toLocaleTimeString(),
-                    product: `${updatedSessionData.plan?.name || 'Subscription'} Plan`,
-                    plan: updatedSessionData.plan,
-                    receiptUrl: updatedSessionData.receiptUrl,
-                    paymentStatus: updatedSessionData.paymentStatus
-                  });
-                  
-                  // Refresh subscription status after payment
-                  dispatch(getSubscriptionStatus());
-                  dispatch(getSubscriptionPlans({ duration: "quarterly" }));
-                  // Also refresh subscription context
-                  if (loadSubscriptionData) {
-                    loadSubscriptionData();
-                  }
-                } else {
-                  throw new Error('Failed to process payment');
+      try {
+        // Get payment data from URL params or state
+        const urlParams = new URLSearchParams(location.search);
+        const sessionId = urlParams.get('session_id');
+        const paymentIntentId = urlParams.get('payment_intent') || location.state?.paymentIntentId;
+        const planId = urlParams.get('plan_id') || location.state?.planId;
+        
+        if (sessionId) {
+          // Payment completed via Stripe checkout - fetch session details
+          try {
+            const response = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
+            if (response.data.success) {
+              const sessionData = response.data.data;
+              
+              // Extract amount from session or transaction
+              let paymentAmount = sessionData.amount;
+              if (!paymentAmount || paymentAmount === 0) {
+                // Try to get from transaction
+                if (sessionData.transaction?.amount) {
+                  paymentAmount = sessionData.transaction.amount;
+                } else if (sessionData.plan?.price) {
+                  paymentAmount = sessionData.plan.price;
                 }
-              } catch (processError) {
-                console.error('Error processing payment:', processError);
-                // Still show the session data even if processing failed
+              }
+              
+              // Get payment date from transaction or session
+              let paymentDate = new Date();
+              let paymentTime = new Date();
+              if (sessionData.transaction?.createdAt) {
+                paymentDate = new Date(sessionData.transaction.createdAt);
+                paymentTime = new Date(sessionData.transaction.createdAt);
+              }
+              
+              // If payment is completed but no transaction exists, try to process it
+              if (sessionData.paymentStatus === 'paid' && !sessionData.transaction) {
+                try {
+                  console.log('Payment completed but not processed, attempting to process...');
+                  await subscriptionAPI.processPaymentManually(sessionId);
+                  // Refetch session details after processing
+                  const updatedResponse = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
+                  if (updatedResponse.data.success) {
+                    const updatedSessionData = updatedResponse.data.data;
+                    
+                    // Extract amount again after processing
+                    let updatedAmount = updatedSessionData.amount;
+                    if (!updatedAmount || updatedAmount === 0) {
+                      if (updatedSessionData.transaction?.amount) {
+                        updatedAmount = updatedSessionData.transaction.amount;
+                      } else if (updatedSessionData.plan?.price) {
+                        updatedAmount = updatedSessionData.plan.price;
+                      }
+                    }
+                    
+                    // Get payment date from transaction
+                    let updatedDate = new Date();
+                    let updatedTime = new Date();
+                    if (updatedSessionData.transaction?.createdAt) {
+                      updatedDate = new Date(updatedSessionData.transaction.createdAt);
+                      updatedTime = new Date(updatedSessionData.transaction.createdAt);
+                    }
+                    
+                    setPaymentData({
+                      amount: updatedAmount || paymentAmount || 0,
+                      transactionId: sessionId,
+                      date: updatedDate.toLocaleDateString(),
+                      time: updatedTime.toLocaleTimeString(),
+                      product: `${updatedSessionData.plan?.name || 'Subscription'} Plan`,
+                      plan: updatedSessionData.plan,
+                      receiptUrl: updatedSessionData.receiptUrl,
+                      paymentStatus: updatedSessionData.paymentStatus
+                    });
+                  } else {
+                    throw new Error('Failed to process payment');
+                  }
+                } catch (processError) {
+                  console.error('Error processing payment:', processError);
+                  // Still show the session data even if processing failed
+                  setPaymentData({
+                    amount: paymentAmount || 0,
+                    transactionId: sessionId,
+                    date: paymentDate.toLocaleDateString(),
+                    time: paymentTime.toLocaleTimeString(),
+                    product: `${sessionData.plan?.name || 'Subscription'} Plan`,
+                    plan: sessionData.plan,
+                    receiptUrl: sessionData.receiptUrl,
+                    paymentStatus: sessionData.paymentStatus
+                  });
+                }
+              } else {
+                // Payment data is ready
                 setPaymentData({
                   amount: paymentAmount || 0,
                   transactionId: sessionId,
@@ -121,83 +132,80 @@ const PaymentSuccessPage = () => {
                   paymentStatus: sessionData.paymentStatus
                 });
               }
-            } else {
-              // Payment data is ready
-              setPaymentData({
-                amount: paymentAmount || 0,
-                transactionId: sessionId,
-                date: paymentDate.toLocaleDateString(),
-                time: paymentTime.toLocaleTimeString(),
-                product: `${sessionData.plan?.name || 'Subscription'} Plan`,
-                plan: sessionData.plan,
-                receiptUrl: sessionData.receiptUrl,
-                paymentStatus: sessionData.paymentStatus
-              });
               
-              // Refresh subscription status after payment
+              // Refresh subscription status after payment - dispatch only once
               dispatch(getSubscriptionStatus());
               dispatch(getSubscriptionPlans({ duration: "quarterly" }));
               // Also refresh subscription context
               if (loadSubscriptionData) {
                 loadSubscriptionData();
               }
+            } else {
+              // Fallback if session details not found
+              setPaymentData({
+                amount: 0,
+                transactionId: sessionId,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                product: 'Subscription Plan',
+                plan: null
+              });
             }
-          } else {
-            // Fallback if session details not found
+          } catch (error) {
+            console.error('Error fetching checkout session details:', error);
+            console.error('Error details:', error.response?.data);
+            // Fallback - try to get from plan if available
+            const fallbackAmount = plans?.find(p => p._id === location.state?.planId)?.price || 0;
             setPaymentData({
-              amount: 0,
+              amount: fallbackAmount,
               transactionId: sessionId,
               date: new Date().toLocaleDateString(),
               time: new Date().toLocaleTimeString(),
               product: 'Subscription Plan',
-              plan: null
+              plan: plans?.find(p => p._id === location.state?.planId) || null
             });
           }
-        } catch (error) {
-          console.error('Error fetching checkout session details:', error);
-          console.error('Error details:', error.response?.data);
-          // Fallback - try to get from plan if available
-          const fallbackAmount = plans?.find(p => p._id === location.state?.planId)?.price || 0;
-          setPaymentData({
-            amount: fallbackAmount,
-            transactionId: sessionId,
-            date: new Date().toLocaleDateString(),
-            time: new Date().toLocaleTimeString(),
-            product: 'Subscription Plan',
-            plan: plans?.find(p => p._id === location.state?.planId) || null
-          });
-        }
-      } else if (paymentIntentId && planId) {
-        // Create dynamic payment data
-        const currentPlan = plans?.find(plan => plan._id === planId);
-        setPaymentData({
-          amount: currentPlan?.price || 0,
-          transactionId: paymentIntentId,
-          date: new Date().toLocaleDateString(),
-          time: new Date().toLocaleTimeString(),
-          product: `${currentPlan?.name || 'Subscription'} Plan`,
-          plan: currentPlan
-        });
-      } else {
-        // Fallback to current subscription data
-        if (currentSubscription) {
-          const currentPlan = plans?.find(plan => plan._id === currentSubscription.plan);
+        } else if (paymentIntentId && planId) {
+          // Create dynamic payment data
+          const currentPlan = plans?.find(plan => plan._id === planId);
           setPaymentData({
             amount: currentPlan?.price || 0,
-            transactionId: currentSubscription.paymentIntentId || 'TXN-' + Date.now(),
-            date: new Date(currentSubscription.startDate).toLocaleDateString(),
-            time: new Date(currentSubscription.startDate).toLocaleTimeString(),
+            transactionId: paymentIntentId,
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString(),
             product: `${currentPlan?.name || 'Subscription'} Plan`,
             plan: currentPlan
           });
+          
+          // Refresh subscription status
+          dispatch(getSubscriptionStatus());
+          dispatch(getSubscriptionPlans({ duration: "quarterly" }));
+          if (loadSubscriptionData) {
+            loadSubscriptionData();
+          }
+        } else {
+          // Fallback to current subscription data
+          if (currentSubscription) {
+            const currentPlan = plans?.find(plan => plan._id === currentSubscription.plan);
+            setPaymentData({
+              amount: currentPlan?.price || 0,
+              transactionId: currentSubscription.paymentIntentId || 'TXN-' + Date.now(),
+              date: new Date(currentSubscription.startDate).toLocaleDateString(),
+              time: new Date(currentSubscription.startDate).toLocaleTimeString(),
+              product: `${currentPlan?.name || 'Subscription'} Plan`,
+              plan: currentPlan
+            });
+          }
         }
+      } catch (error) {
+        console.error('Error in fetchPaymentData:', error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
 
     fetchPaymentData();
-  }, [dispatch, location, currentSubscription, plans]);
+  }, []); // Empty dependency array - only run once on mount
 
   const handleDownload = () => {
     if (!paymentData) return;

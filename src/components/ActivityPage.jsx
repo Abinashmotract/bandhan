@@ -52,6 +52,8 @@ import {
   getShortlistedProfiles,
   getInterestsReceived,
   getInterestsSent,
+  getAcceptedInterests,
+  getDeclinedInterests,
   updateActivitySummary,
   acceptInterest,
   declineInterest,
@@ -77,12 +79,16 @@ const ActivityPage = ({
     shortlistedProfiles,
     interestsReceived,
     interestsSent,
+    acceptedInterests,
+    declinedInterests,
     summary,
     loading: {
       onlineMatches: loadingOnline,
       shortlisted: loadingShortlisted,
       received: loadingReceived,
       sent: loadingSent,
+      accepted: loadingAccepted,
+      declined: loadingDeclined,
     },
     error: activityErrors,
   } = useSelector((state) => state.activity);
@@ -104,14 +110,16 @@ const ActivityPage = ({
       const Cookies = (await import("js-cookie")).default;
       const token = Cookies.get("accessToken");
       const { API_BASE_URL } = await import("../utils/api");
-      const response = await fetch(`${API_BASE_URL}/matches/shortlist/${profileId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-       
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/matches/shortlist/${profileId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to unshortlist profile");
@@ -160,6 +168,8 @@ const ActivityPage = ({
           dispatch(getShortlistedProfiles()),
           dispatch(getInterestsReceived()),
           dispatch(getInterestsSent()),
+          dispatch(getAcceptedInterests()),
+          dispatch(getDeclinedInterests()),
         ]);
         dispatch(updateActivitySummary());
       } catch (error) {
@@ -301,11 +311,25 @@ const ActivityPage = ({
     }
   };
 
+  // Map accepted interests from API
+  const mappedAcceptedInterests = Array.isArray(acceptedInterests)
+    ? acceptedInterests.map((interest) =>
+        mapInterestToComponentFormat(interest, true)
+      )
+    : [];
+
+  // Map declined interests from API
+  const mappedDeclinedInterests = Array.isArray(declinedInterests)
+    ? declinedInterests.map((interest) =>
+        mapInterestToComponentFormat(interest, true)
+      )
+    : [];
+
   // Get data for selected card
   const getCardData = (cardType) => {
     switch (cardType) {
       case "accepted":
-        return receivedInterests.filter((i) => i.status === "accepted");
+        return mappedAcceptedInterests;
       case "received":
         return receivedInterests;
       case "sent":
@@ -313,7 +337,7 @@ const ActivityPage = ({
       case "shortlisted":
         return shortlistedProfiles;
       case "declined":
-        return receivedInterests.filter((i) => i.status === "declined");
+        return mappedDeclinedInterests;
       default:
         return [];
     }
@@ -334,12 +358,12 @@ const ActivityPage = ({
     setSelectedInterest(null);
     setActiveProfileTab("about"); // Reset to About Me tab when going back
   };
-
+  console.log("summary", summary);
   const renderActivitySummary = () => {
     const summaryCards = [
       {
         title: "Accepted Interests",
-        count: summary.acceptedInterests || 0,
+        count: summary.acceptedInterests || summary.length || 0,
         icon: <CheckCircle sx={{ color: "#4caf50" }} />,
         color: "#4caf50",
         type: "accepted",
@@ -395,58 +419,63 @@ const ActivityPage = ({
               1200: { slidesPerView: 4 },
             }}
           >
-            {summaryCards.map((item, index) => (
-              <SwiperSlide key={item.title} className="p-1">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card
-                    onClick={() => handleCardClick(item.type)}
-                    sx={{
-                      height: "100%",
-                      textAlign: "center",
-                      borderRadius: 3,
-                      cursor: "pointer",
-                      border:
-                        selectedCard === item.type
-                          ? `2px solid ${item.color}`
-                          : "2px solid transparent",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        transform: "translateY(-4px)",
-                        boxShadow: `0 4px 12px rgba(0,0,0,0.15)`,
-                      },
-                    }}
-                  >
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ mb: 2 }}>{item.icon}</Box>
-                      <Typography
-                        variant="h4"
+            {summaryCards.map(
+              (item, index) => (
+                console.log("item", item),
+                (
+                  <SwiperSlide key={item.title} className="p-1">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Card
+                        onClick={() => handleCardClick(item.type)}
                         sx={{
-                          fontWeight: 700,
-                          color: item.color,
-                          mb: 1,
+                          height: "100%",
+                          textAlign: "center",
+                          borderRadius: 3,
+                          cursor: "pointer",
+                          border:
+                            selectedCard === item.type
+                              ? `2px solid ${item.color}`
+                              : "2px solid transparent",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            transform: "translateY(-4px)",
+                            boxShadow: `0 4px 12px rgba(0,0,0,0.15)`,
+                          },
                         }}
                       >
-                        {item.count}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: "#666",
-                          fontSize: "0.9rem",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {item.title}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </SwiperSlide>
-            ))}
+                        <CardContent sx={{ p: 3 }}>
+                          <Box sx={{ mb: 2 }}>{item.icon}</Box>
+                          <Typography
+                            variant="h4"
+                            sx={{
+                              fontWeight: 700,
+                              color: item.color,
+                              mb: 1,
+                            }}
+                          >
+                            {item.count || item.length || 0}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: "#666",
+                              fontSize: "0.9rem",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {item.title}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </SwiperSlide>
+                )
+              )
+            )}
           </Swiper>
         </Box>
 
@@ -536,6 +565,8 @@ const ActivityPage = ({
       console.log("Cancel request for:", interest.id);
       handleDialogClose();
     };
+
+    console.log("interest" , interest)
 
     return (
       <motion.div
@@ -801,17 +832,40 @@ const ActivityPage = ({
       id: profile.id || profile._id || user?._id,
       name: user?.name || "Unknown",
       age: user?.age || (user?.dob ? getAge(user.dob) : null),
+      profileId: user?.customId || "N/A",
       height: user?.height || "N/A",
       location: user?.location || user?.city || "N/A",
       city: user?.city || "N/A",
       state: user?.state || "N/A",
       caste: user?.caste || "N/A",
+      religion: user?.religion || "N/A",
       occupation: user?.occupation || "N/A",
-      education: user?.education || "N/A",
+      education: user?.education || user?.highestQualification || "N/A",
+      maritalStatus: user?.maritalStatus || "N/A",
+      motherTongue: Array.isArray(user?.motherTongue)
+        ? user.motherTongue.join(", ")
+        : user?.motherTongue || "N/A",
+      annualIncome: user?.annualIncome || "N/A",
+      about: user?.about || "",
       profileImage: user?.profileImage || "",
       customId: user?.customId || "N/A",
       shortlistedDate: formatDate(profile.shortlistedAt || profile.createdAt),
       photos: user?.photos || [],
+      // Family information
+      fatherOccupation: user?.fatherOccupation || "N/A",
+      motherOccupation: user?.motherOccupation || "N/A",
+      brothers: user?.brothers || 0,
+      brothersMarried: user?.brothersMarried || false,
+      sisters: user?.sisters || 0,
+      sistersMarried: user?.sistersMarried || false,
+      familyType: user?.familyType || "N/A",
+      familyIncome: user?.familyIncome || "N/A",
+      nativePlace: user?.nativePlace || "N/A",
+      familyStatus: user?.familyStatus || "N/A",
+      // Preferences (Looking For)
+      preferences: user?.preferences || {},
+      // Keep reference to original profile
+      originalProfile: profile,
     };
   };
   // Map shortlisted profiles
@@ -820,42 +874,179 @@ const ActivityPage = ({
     : [];
 
   const renderShortlistedCard = (profile) => {
+    console.log(profile)
     return (
-      <Card
-        sx={{
-          borderRadius: 3,
-          overflow: "hidden",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-          cursor: "pointer",
-          "&:hover": {
-            boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-            transform: "translateY(-2px)",
-          },
-          transition: "all 0.3s ease",
-        }}
-        onClick={() => handleViewProfile(profile)}
+      <motion.div
+        key={profile.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
       >
-        <CardContent sx={{ p: 0 }}>
-          <Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
-            <Avatar
-              src={profile.profileImage}
-              sx={{ width: 80, height: 80, mr: 2 }}
-            />
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-                {profile.name}
-                {profile.age && `, ${profile.age}`}
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
-                ID: {profile.customId}
-              </Typography>
-              <Typography variant="caption" sx={{ color: "#999" }}>
-                Shortlisted on {profile.shortlistedDate}
-              </Typography>
+        <Card
+          sx={{
+            borderRadius: 3,
+            overflow: "hidden",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            "&:hover": {
+              boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+              transform: "translateY(-2px)",
+            },
+            transition: "all 0.3s ease",
+          }}
+          onClick={() => handleViewProfile(profile)}
+        >
+          <CardContent sx={{ p: 0 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "flex-start", p: 2, gap: 2 }}
+            >
+              <Avatar
+                src={profile.profileImage}
+                sx={{ width: 100, height: 100, flexShrink: 0 }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ mb: 1.5 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    {profile.name}
+                    {profile.age ? `, ${profile.age}` : ""}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#666", mb: 0.5 }}>
+                    ID: {profile.profileId} • {profile.city}
+                    {profile.state && profile.state !== "N/A"
+                      ? `, ${profile.state}`
+                      : ""}
+                  </Typography>
+                </Box>
+
+                {/* Description */}
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#555", mb: 1.5, lineHeight: 1.5 }}
+                >
+                  {profile.about ? (
+                    profile.about.substring(0, 150) +
+                    (profile.about.length > 150 ? "..." : "")
+                  ) : (
+                    <>
+                      {profile.name}
+                      {profile.age ? `, ${profile.age}` : ""}
+                      {profile.education && profile.education !== "N/A"
+                        ? `, ${profile.education} graduate`
+                        : ""}
+                      {profile.occupation && profile.occupation !== "N/A"
+                        ? ` working as ${profile.occupation}`
+                        : ""}
+                      {profile.city && profile.city !== "N/A"
+                        ? ` in ${profile.city}`
+                        : ""}
+                    </>
+                  )}
+                </Typography>
+
+                {/* Additional Info */}
+                <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                  {profile.religion && profile.religion !== "N/A" && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#666",
+                        backgroundColor: "#f5f5f5",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                      }}
+                    >
+                      {profile.religion}
+                      {profile.caste && profile.caste !== "N/A"
+                        ? ` - ${profile.caste}`
+                        : ""}
+                    </Typography>
+                  )}
+                  {profile.height && profile.height !== "N/A" && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#666",
+                        backgroundColor: "#f5f5f5",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                      }}
+                    >
+                      Height: {getHeight(profile.height)}
+                    </Typography>
+                  )}
+                  {profile.maritalStatus && profile.maritalStatus !== "N/A" && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#666",
+                        backgroundColor: "#f5f5f5",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                      }}
+                    >
+                      {profile.maritalStatus}
+                    </Typography>
+                  )}
+                </Box>
+
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#999", display: "block", mt: 1 }}
+                >
+                  Shortlisted on {profile.shortlistedDate}
+                </Typography>
+
+                {/* Buttons */}
+                <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    startIcon={<Favorite />}
+                    sx={{
+                      backgroundColor: "#e91e63",
+                      "&:hover": { backgroundColor: "#c2185b" },
+                      textTransform: "none",
+                    }}
+                  >
+                    Interest
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<Message />}
+                    sx={{
+                      borderColor: "#1976d2",
+                      color: "#1976d2",
+                      textTransform: "none",
+                      "&:hover": {
+                        borderColor: "#1565c0",
+                        backgroundColor: "rgba(25, 118, 210, 0.04)",
+                      },
+                    }}
+                  >
+                    Chat
+                  </Button>
+                  <Tooltip title="Remove from shortlist">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUnshortlistClick(profile);
+                      }}
+                      sx={{ color: "#f44336" }}
+                    >
+                      <Cancel />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Box>
             </Box>
-          </Box>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
     );
   };
 
