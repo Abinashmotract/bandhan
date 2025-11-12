@@ -242,51 +242,102 @@ const ActivityPage = ({
   };
 
   // Helper function to map API interest data to component format
-  const mapInterestToComponentFormat = (interest, isReceived = true) => {
-    const user = isReceived ? interest.fromUser : interest.targetUser;
-    return {
-      id: interest.id || interest._id,
-      name: user?.name || "Unknown",
-      age: user?.age || (user?.dob ? getAge(user.dob) : null),
-      profileId: user?.customId || "N/A",
-      lastSeen: formatLastSeen(user?.lastSeen),
-      profileImage: user?.profileImage || "",
-      height: user?.height || "N/A",
-      city: user?.city || user?.location || "N/A",
-      state: user?.state || "N/A",
-      occupation: user?.occupation || "N/A",
-      education: user?.education || user?.highestQualification || "N/A",
-      maritalStatus: user?.maritalStatus || "N/A",
-      religion: user?.religion || "N/A",
-      caste: user?.caste || "N/A",
-      motherTongue: Array.isArray(user?.motherTongue)
-        ? user.motherTongue.join(", ")
-        : user?.motherTongue || "N/A",
-      annualIncome: user?.annualIncome || "N/A",
-      about: user?.about || "",
-      dob: user?.dob,
-      location: user?.location || user?.city || "N/A",
-      // Family information
-      fatherOccupation: user?.fatherOccupation || "N/A",
-      motherOccupation: user?.motherOccupation || "N/A",
-      brothers: user?.brothers || 0,
-      brothersMarried: user?.brothersMarried || false,
-      sisters: user?.sisters || 0,
-      sistersMarried: user?.sistersMarried || false,
-      familyType: user?.familyType || "N/A",
-      familyIncome: user?.familyIncome || "N/A",
-      nativePlace: user?.nativePlace || "N/A",
-      familyStatus: user?.familyStatus || "N/A",
-      // Preferences (Looking For)
-      preferences: user?.preferences || {},
-      status: interest.status || (isReceived ? "received" : "sent"),
-      receivedDate: isReceived ? formatDate(interest.createdAt) : null,
-      sentDate: !isReceived ? formatDate(interest.createdAt) : null,
-      createdAt: interest.createdAt,
-      // Keep reference to original interest for API calls
-      originalInterest: interest,
-    };
+  // const mapInterestToComponentFormat = (interest, isReceived = true) => {
+  //   const user = isReceived ? interest.fromUser : interest.targetUser;
+  //   return {
+  //     id: interest.id || interest._id,
+  //     name: user?.name || "Unknown",
+  //     age: user?.age || (user?.dob ? getAge(user.dob) : null),
+  //     profileId: user?.customId || "N/A",
+  //     lastSeen: formatLastSeen(user?.lastSeen),
+  //     profileImage: user?.profileImage || "",
+  //     height: user?.height || "N/A",
+  //     city: user?.city || user?.location || "N/A",
+  //     state: user?.state || "N/A",
+  //     occupation: user?.occupation || "N/A",
+  //     education: user?.education || user?.highestQualification || "N/A",
+  //     maritalStatus: user?.maritalStatus || "N/A",
+  //     religion: user?.religion || "N/A",
+  //     caste: user?.caste || "N/A",
+  //     motherTongue: Array.isArray(user?.motherTongue)
+  //       ? user.motherTongue.join(", ")
+  //       : user?.motherTongue || "N/A",
+  //     annualIncome: user?.annualIncome || "N/A",
+  //     about: user?.about || "",
+  //     dob: user?.dob,
+  //     location: user?.location || user?.city || "N/A",
+  //     // Family information
+  //     fatherOccupation: user?.fatherOccupation || "N/A",
+  //     motherOccupation: user?.motherOccupation || "N/A",
+  //     brothers: user?.brothers || 0,
+  //     brothersMarried: user?.brothersMarried || false,
+  //     sisters: user?.sisters || 0,
+  //     sistersMarried: user?.sistersMarried || false,
+  //     familyType: user?.familyType || "N/A",
+  //     familyIncome: user?.familyIncome || "N/A",
+  //     nativePlace: user?.nativePlace || "N/A",
+  //     familyStatus: user?.familyStatus || "N/A",
+  //     // Preferences (Looking For)
+  //     preferences: user?.preferences || {},
+  //     status: interest.status || (isReceived ? "received" : "sent"),
+  //     receivedDate: isReceived ? formatDate(interest.createdAt) : null,
+  //     sentDate: !isReceived ? formatDate(interest.createdAt) : null,
+  //     createdAt: interest.createdAt,
+  //     // Keep reference to original interest for API calls
+  //     originalInterest: interest,
+  //   };
+  // };
+
+  // Helper function to map API interest data to component format
+const mapInterestToComponentFormat = (interest, isReceived = true) => {
+  // For accepted interests, the user data is in toUser
+  const user = isReceived 
+    ? (interest.toUser || interest.fromUser) // Use toUser for received/accepted, fallback to fromUser
+    : (interest.targetUser || interest.toUser); // Use targetUser for sent, fallback to toUser
+  
+  return {
+    id: interest.id || interest._id,
+    name: user?.name || "Unknown",
+    age: user?.age || (user?.dob ? getAge(user.dob) : null),
+    profileId: user?.customId || "N/A",
+    lastSeen: formatLastSeen(user?.lastSeen),
+    profileImage: user?.profileImage || "",
+    height: user?.height || "N/A",
+    city: user?.city || user?.location || "N/A",
+    state: user?.state || "N/A",
+    occupation: user?.occupation || "N/A",
+    education: user?.education || user?.highestQualification || "N/A",
+    maritalStatus: user?.maritalStatus || "N/A",
+    religion: user?.religion || "N/A",
+    caste: user?.caste || "N/A",
+    motherTongue: Array.isArray(user?.motherTongue)
+      ? user.motherTongue.join(", ")
+      : user?.motherTongue || "N/A",
+    annualIncome: user?.annualIncome || "N/A",
+    about: user?.about || "",
+    dob: user?.dob,
+    location: user?.location || user?.city || "N/A",
+    // Family information
+    fatherOccupation: user?.fatherOccupation || "N/A",
+    motherOccupation: user?.motherOccupation || "N/A",
+    brothers: user?.brothers || 0,
+    brothersMarried: user?.brothersMarried || false,
+    sisters: user?.sisters || 0,
+    sistersMarried: user?.sistersMarried || false,
+    familyType: user?.familyType || "N/A",
+    familyIncome: user?.familyIncome || "N/A",
+    nativePlace: user?.nativePlace || "N/A",
+    familyStatus: user?.familyStatus || "N/A",
+    // Preferences (Looking For)
+    preferences: user?.preferences || {},
+    status: interest.status || (isReceived ? "received" : "sent"),
+    receivedDate: isReceived ? formatDate(interest.createdAt) : null,
+    sentDate: !isReceived ? formatDate(interest.createdAt) : null,
+    createdAt: interest.createdAt,
+    // Keep reference to original interest for API calls
+    originalInterest: interest,
   };
+};
 
   // Map received interests from API
   const receivedInterests = Array.isArray(interestsReceived)
@@ -334,15 +385,15 @@ const ActivityPage = ({
         return receivedInterests;
       case "sent":
         return sentInterests;
-      case "shortlisted":
-        return shortlistedProfiles;
+      // case "shortlisted":
+      //   return shortlistedProfiles;
       case "declined":
         return mappedDeclinedInterests;
       default:
         return [];
     }
   };
-  console.log("shortlistedProfiles", shortlistedProfiles);
+  console.log("mappedAcceptedInterests", mappedAcceptedInterests);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -382,13 +433,13 @@ const ActivityPage = ({
         color: "#ff9800",
         type: "sent",
       },
-      {
-        title: "Shortlisted Profiles",
-        count: summary.shortlistedProfiles || 0,
-        icon: <Star sx={{ color: "#e91e63" }} />,
-        color: "#e91e63",
-        type: "shortlisted",
-      },
+      // {
+      //   title: "Shortlisted Profiles",
+      //   count: summary.shortlistedProfiles || 0,
+      //   icon: <Star sx={{ color: "#e91e63" }} />,
+      //   color: "#e91e63",
+      //   type: "shortlisted",
+      // },
       {
         title: "Declined Interests",
         count: summary.declinedInterests || 0,
