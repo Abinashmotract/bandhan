@@ -196,72 +196,72 @@ export const interactionAPI = {
 // ================================
 // MESSAGING
 // ================================
-// export const messagingAPI = {
-//   // Send message to a user
-//   sendMessage: (userId, messageData) => apiClient.post(`/chat/${userId}`, messageData),
+export const messagingAPI = {
+  // Send message to a user
+  sendMessage: (userId, messageData) => apiClient.post(`/chat/${userId}`, messageData),
   
-//   // Get chat history with a user
-//   getChatHistory: (userId, params = {}) => apiClient.get(`/chat/${userId}`, { params }),
+  // Get chat history with a user
+  getChatHistory: (userId, params = {}) => apiClient.get(`/chat/${userId}`, { params }),
   
-//   // Get all chat rooms
-//   getChatRooms: (params = {}) => apiClient.get('/chat', { params }),
+  // Get all chat rooms
+  getChatRooms: (params = {}) => apiClient.get('/chat', { params }),
   
-//   // Mark messages as read
-//   markMessagesRead: (userId) => apiClient.post(`/chat/${userId}/read`),
+  // Mark messages as read
+  markMessagesRead: (userId) => apiClient.post(`/chat/${userId}/read`),
   
-//   // Delete a message
-//   deleteMessage: (messageId) => apiClient.delete(`/chat/message/${messageId}`),
+  // Delete a message
+  deleteMessage: (messageId) => apiClient.delete(`/chat/message/${messageId}`),
   
-//   // Add reaction to message
-//   addMessageReaction: (messageId, reactionData) => apiClient.post(`/chat/message/${messageId}/reaction`, reactionData),
+  // Add reaction to message
+  addMessageReaction: (messageId, reactionData) => apiClient.post(`/chat/message/${messageId}/reaction`, reactionData),
   
-//   // Get typing status
-//   getTypingStatus: (userId) => apiClient.get(`/chat/${userId}/typing`)
-// };
+  // Get typing status
+  getTypingStatus: (userId) => apiClient.get(`/chat/${userId}/typing`)
+};
 
 // Add these methods to your existing messagingAPI object in apiService.js
 
-export const messagingAPI = {
-  // Send message
-  sendMessage: (userId, messageData) => {
-    return apiClient.post(`/chat/send/${userId}`, messageData);
-  },
+// export const messagingAPI = {
+//   // Send message
+//   sendMessage: (userId, messageData) => {
+//     return apiClient.post(`/chat/send/${userId}`, messageData);
+//   },
 
-  // Get chat history with a user
-  getChatHistory: (userId, params = {}) => {
-    return apiClient.get(`/chat/chat/${userId}`, { params });
-  },
+//   // Get chat history with a user
+//   getChatHistory: (userId, params = {}) => {
+//     return apiClient.get(`/chat/chat/${userId}`, { params });
+//   },
 
-  // Get all chat rooms (for Acceptances tab)
-  getChatRooms: (params = {}) => {
-    return apiClient.get('/chat/rooms', { params });
-  },
+//   // Get all chat rooms (for Acceptances tab)
+//   getChatRooms: (params = {}) => {
+//     return apiClient.get('/chat/rooms', { params });
+//   },
 
-  // Get interests list (for Interests tab) - NEW ENDPOINT
-  getInterestsList: (params = {}) => {
-    return apiClient.get('/chat/interests', { params });
-  },
+//   // Get interests list (for Interests tab) - NEW ENDPOINT
+//   getInterestsList: (params = {}) => {
+//     return apiClient.get('/chat/interests', { params });
+//   },
 
-  // Mark messages as read
-  markMessagesRead: (userId) => {
-    return apiClient.put(`/chat/read/${userId}`);
-  },
+//   // Mark messages as read
+//   markMessagesRead: (userId) => {
+//     return apiClient.put(`/chat/read/${userId}`);
+//   },
 
-  // Delete message
-  deleteMessage: (messageId) => {
-    return apiClient.delete(`/chat/${messageId}`);
-  },
+//   // Delete message
+//   deleteMessage: (messageId) => {
+//     return apiClient.delete(`/chat/${messageId}`);
+//   },
 
-  // Add reaction to message
-  addMessageReaction: (messageId, reactionData) => {
-    return apiClient.post(`/chat/${messageId}/reaction`, reactionData);
-  },
+//   // Add reaction to message
+//   addMessageReaction: (messageId, reactionData) => {
+//     return apiClient.post(`/chat/${messageId}/reaction`, reactionData);
+//   },
 
-  // Get typing status
-  getTypingStatus: (userId) => {
-    return apiClient.get(`/chat/typing/${userId}`);
-  }
-};
+//   // Get typing status
+//   getTypingStatus: (userId) => {
+//     return apiClient.get(`/chat/typing/${userId}`);
+//   }
+// };
 
 // ================================
 // SUBSCRIPTION & PAYMENTS
