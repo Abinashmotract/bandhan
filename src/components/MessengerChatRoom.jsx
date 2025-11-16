@@ -23,6 +23,16 @@ import {
 import { interactionAPI, messagingAPI } from "../services/apiService";
 import { showSuccess, showError } from "../utils/toast";
 import { getSocket, disconnectSocket } from "../utils/socket";
+import {
+  sendMessageService,
+  loadChatHistoryService,
+  markMessagesAsReadService,
+  deleteMessageService,
+  setTypingIndicatorService,
+  getCurrentUserIdFromToken,
+  shouldUseFirebase,
+} from "../utils/messagingService";
+import { generateRoomId } from "../utils/firebase";
 
 // Helper function to get image URL
 const getImageUrl = (imagePath) => {
@@ -319,33 +329,52 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
     try {
       setLoading(true);
       const userId = profile.id || profile._id;
-      const response = await messagingAPI.getChatHistory(userId, {
-        page: 1,
-        limit: 50,
-      });
+      
+      // Determine if using Firebase
+      const useFirebase = shouldUseFirebase();
+      
+      let loadedMessages = [];
+      if (useFirebase) {
+        // Generate room ID for Firebase
+        const currentUserId = await getCurrentUserIdFromToken();
+        const roomId = generateRoomId(currentUserId, userId);
+        roomIdRef.current = roomId;
+        
+        // Load from Firebase
+        loadedMessages = await loadChatHistoryService({
+          roomId,
+          limit: 50,
+        });
+      } else {
+        // Load from API
+        const response = await messagingAPI.getChatHistory(userId, {
+          page: 1,
+          limit: 50,
+        });
 
-      if (response.data.success) {
-        const loadedMessages = response.data.data.messages || [];
-        
-        // Reverse messages since API returns newest first, but we want oldest first for display
-        const sortedMessages = [...loadedMessages].reverse();
-        setMessages(sortedMessages);
-        
-        // Scroll to bottom after loading messages
-        setTimeout(() => {
-          scrollToBottom();
-        }, 100);
-        
-        // Check if "You sent interest" message exists
-        const interestMessage = loadedMessages.find(
-          (msg) =>
-            msg.content?.toLowerCase().includes("interest") ||
-            msg.messageType === "system"
-        );
-        if (interestMessage) {
-          setInterestSent(true);
-          setHasInterest(true);
+        if (response.data.success) {
+          loadedMessages = response.data.data.messages || [];
+          // Reverse messages since API returns newest first
+          loadedMessages = [...loadedMessages].reverse();
         }
+      }
+
+      setMessages(loadedMessages);
+      
+      // Scroll to bottom after loading messages
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+      
+      // Check if "You sent interest" message exists
+      const interestMessage = loadedMessages.find(
+        (msg) =>
+          msg.content?.toLowerCase().includes("interest") ||
+          msg.messageType === "system"
+      );
+      if (interestMessage) {
+        setInterestSent(true);
+        setHasInterest(true);
       }
     } catch (error) {
       console.error("Error loading chat history:", error);
@@ -461,62 +490,74 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
       return;
     }
 
-    const socket = socketRef.current;
-    if (!socket || !socket.connected) {
-      // Fallback to REST API if socket is not connected
-      try {
-        const userId = profile.id || profile._id;
-        const response = await messagingAPI.sendMessage(userId, {
+    const useFirebase = shouldUseFirebase();
+    const userId = profile.id || profile._id;
+
+    try {
+      setSendingMessage(true);
+
+      if (useFirebase) {
+        // Send via Firebase
+        const currentUserId = await getCurrentUserIdFromToken();
+        const roomId = roomIdRef.current || generateRoomId(currentUserId, userId);
+        roomIdRef.current = roomId;
+
+        const newMessage = await sendMessageService({
+          roomId,
+          senderId: currentUserId,
+          receiverId: userId,
           content: message.trim(),
           messageType: "text",
         });
 
-        if (response.data.success) {
-          const newMessage = {
-            _id: response.data.data._id || Date.now().toString(),
+        setMessages((prev) => [...prev, newMessage]);
+        setMessage("");
+        showSuccess("Message sent!");
+      } else {
+        // Send via Socket or API fallback
+        const socket = socketRef.current;
+        if (!socket || !socket.connected) {
+          // Fallback to REST API
+          const response = await messagingAPI.sendMessage(userId, {
             content: message.trim(),
             messageType: "text",
-            sender: { _id: "current", name: "You" },
-            receiver: { _id: userId },
-            createdAt: new Date(),
-            isRead: false,
-          };
+          });
 
-          setMessages((prev) => [...prev, newMessage]);
+          if (response.data.success) {
+            const newMessage = {
+              _id: response.data.data._id || Date.now().toString(),
+              content: message.trim(),
+              messageType: "text",
+              sender: { _id: "current", name: "You" },
+              receiver: { _id: userId },
+              createdAt: new Date(),
+              isRead: false,
+            };
+
+            setMessages((prev) => [...prev, newMessage]);
+            setMessage("");
+            showSuccess("Message sent!");
+          }
+        } else {
+          // Send via WebSocket
+          const roomId = roomIdRef.current;
+
+          socket.emit("send_message", {
+            receiverId: userId,
+            content: message.trim(),
+            messageType: "text",
+            roomId: roomId,
+          });
+
+          // Clear input immediately for better UX
           setMessage("");
+          showSuccess("Message sent!");
         }
-      } catch (error) {
-        console.error("Error sending message:", error);
-        showError("Failed to send message. Please try again.");
       }
-      return;
-    }
-
-    try {
-      setSendingMessage(true);
-      const userId = profile.id || profile._id;
-      const roomId = roomIdRef.current;
-
-      // Send message via WebSocket
-      socket.emit('send_message', {
-        receiverId: userId,
-        content: message.trim(),
-        messageType: 'text',
-        roomId: roomId
-      });
-
-      // Clear input immediately for better UX
-      setMessage("");
-
-      // Stop typing indicator
-      if (typingTimeout) {
-        clearTimeout(typingTimeout);
-      }
-      socket.emit('typing_stop', { roomId, receiverId: userId });
-
     } catch (error) {
-      console.error("Error sending message via WebSocket:", error);
+      console.error("Error sending message:", error);
       showError("Failed to send message. Please try again.");
+    } finally {
       setSendingMessage(false);
     }
   };

@@ -20,6 +20,7 @@
     "axios": "^1.11.0",
     "bootstrap": "^5.3.7",
     "date-fns": "^4.1.0",
+    "firebase": "^11.3.1",
     "framer-motion": "^12.23.12",
     "js-cookie": "^3.0.5",
     "jspdf": "^3.0.3",
