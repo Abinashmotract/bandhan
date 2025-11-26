@@ -31,7 +31,10 @@ export const createSubscription = createAsyncThunk(
   async (subscriptionData, { rejectWithValue }) => {
     try {
       const response = await subscriptionAPI.createCheckoutSession(subscriptionData.planId);
-      return response.data.data;
+      return {
+        success: response.data.success,
+        data: response.data.data
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -50,24 +53,16 @@ export const cancelSubscription = createAsyncThunk(
   }
 );
 
-export const createPaymentIntent = createAsyncThunk(
-  'subscription/createPaymentIntent',
-  async (planId, { rejectWithValue }) => {
-    try {
-      const response = await subscriptionAPI.createPaymentIntent(planId);
-      return response.data.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  }
-);
 
 export const confirmPayment = createAsyncThunk(
   'subscription/confirmPayment',
   async (paymentData, { rejectWithValue }) => {
     try {
       const response = await subscriptionAPI.confirmPayment(paymentData);
-      return response.data.data;
+      return {
+        success: response.data.success,
+        data: response.data.data
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -149,19 +144,6 @@ const subscriptionSlice = createSlice({
         state.error = action.payload;
       })
       
-      // Create payment intent
-      .addCase(createPaymentIntent.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(createPaymentIntent.fulfilled, (state, action) => {
-        state.loading = false;
-        state.paymentIntent = action.payload;
-      })
-      .addCase(createPaymentIntent.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
       
       // Confirm payment
       .addCase(confirmPayment.pending, (state) => {

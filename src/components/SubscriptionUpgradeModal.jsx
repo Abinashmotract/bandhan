@@ -26,95 +26,82 @@ import {
   EmojiEvents as CrownIcon,
   Lock as LockIcon
 } from '@mui/icons-material';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { stripePromise, STRIPE_CONFIG } from '../utils/stripe';
+import { initializeRazorpayPayment } from '../utils/razorpay';
 import { useSubscription } from '../hooks/useSubscription';
 import { useDispatch } from 'react-redux';
-import { createPaymentIntent, confirmPayment } from '../store/slices/subscriptionSlice';
+import { createSubscription, confirmPayment } from '../store/slices/subscriptionSlice';
 import toast from 'react-hot-toast';
 
 const PaymentForm = ({ plan, onSuccess, onCancel }) => {
-  const stripe = useStripe();
-  const elements = useElements();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
+  const handlePayment = async () => {
     setLoading(true);
     setError('');
 
     try {
-      // Create payment intent
-      const paymentIntentResult = await dispatch(createPaymentIntent(plan._id));
+      // Create Razorpay order
+      const orderResult = await dispatch(createSubscription({ planId: plan._id }));
       
-      if (paymentIntentResult.payload.success) {
-        const { client_secret } = paymentIntentResult.payload.data;
+      if (orderResult.payload && orderResult.payload.success) {
+        const orderData = orderResult.payload.data;
         
-        // Confirm payment with Stripe
-        const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(client_secret, {
-          payment_method: {
-            card: elements.getElement(CardElement),
-            billing_details: {
-              name: 'BandhanM User',
-            },
-          }
-        });
+        // Initialize Razorpay payment
+        initializeRazorpayPayment(
+          orderData,
+          {
+            description: `${plan.name} Plan Subscription`,
+            email: '', // You can get this from user context if available
+            name: 'BandhanM User'
+          },
+          async (response) => {
+            // Payment successful, confirm on backend
+            try {
+              const confirmResult = await dispatch(confirmPayment({
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                planId: plan._id
+              }));
 
-        if (stripeError) {
-          setError(stripeError.message);
-        } else if (paymentIntent.status === 'succeeded') {
-          // Confirm payment on backend
-          const confirmResult = await dispatch(confirmPayment({
-            paymentIntentId: paymentIntent.id,
-            planId: plan._id
-          }));
-
-          if (confirmResult.payload.success) {
-            toast.success('Subscription activated successfully!');
-            onSuccess();
-          } else {
-            setError(confirmResult.payload.message || 'Payment confirmation failed');
+              if (confirmResult.payload && confirmResult.payload.success) {
+                toast.success('Subscription activated successfully!');
+                onSuccess();
+              } else {
+                setError(confirmResult.payload?.message || 'Payment confirmation failed');
+              }
+            } catch (confirmError) {
+              setError(confirmError.message || 'Payment confirmation failed');
+            } finally {
+              setLoading(false);
+            }
+          },
+          (error) => {
+            setError(error || 'Payment failed');
+            setLoading(false);
           }
-        }
+        );
       } else {
-        setError(paymentIntentResult.payload.message || 'Payment intent creation failed');
+        setError(orderResult.payload?.message || 'Order creation failed');
+        setLoading(false);
       }
     } catch (err) {
       setError(err.message || 'Payment failed');
-    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <Box>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6" sx={{ mb: 2, color: '#000' }}>
           Payment Information
         </Typography>
-        <CardElement
-          options={{
-            style: {
-              base: {
-                fontSize: '16px',
-                color: '#424770',
-                '::placeholder': {
-                  color: '#aab7c4',
-                },
-              },
-              invalid: {
-                color: '#9e2146',
-              },
-            },
-          }}
-        />
+        <Typography variant="body2" sx={{ color: '#666', mb: 2 }}>
+          You will be redirected to Razorpay secure payment page to complete your payment.
+        </Typography>
         {error && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {error}
@@ -127,9 +114,9 @@ const PaymentForm = ({ plan, onSuccess, onCancel }) => {
           Cancel
         </Button>
         <Button
-          type="submit"
+          onClick={handlePayment}
           variant="contained"
-          disabled={!stripe || loading}
+          disabled={loading}
           sx={{
             background: 'linear-gradient(135deg, #51365F 0%, #ad1457 100%)',
             '&:hover': {
@@ -140,7 +127,7 @@ const PaymentForm = ({ plan, onSuccess, onCancel }) => {
           {loading ? <CircularProgress size={24} /> : `Pay ₹${plan.price}`}
         </Button>
       </Box>
-    </form>
+    </Box>
   );
 };
 
@@ -226,13 +213,11 @@ const SubscriptionUpgradeModal = () => {
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <Elements stripe={stripePromise}>
-            <PaymentForm
-              plan={selectedPlanForPayment}
-              onSuccess={handlePaymentSuccess}
-              onCancel={handlePaymentCancel}
-            />
-          </Elements>
+          <PaymentForm
+            plan={selectedPlanForPayment}
+            onSuccess={handlePaymentSuccess}
+            onCancel={handlePaymentCancel}
+          />
         </DialogContent>
       </Dialog>
     );

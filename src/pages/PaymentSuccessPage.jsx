@@ -39,7 +39,7 @@ const PaymentSuccessPage = () => {
         const planId = urlParams.get('plan_id') || location.state?.planId;
         
         if (sessionId) {
-          // Payment completed via Stripe checkout - fetch session details
+          // Payment completed via Razorpay - fetch order details
           try {
             const response = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
             if (response.data.success) {
@@ -68,7 +68,7 @@ const PaymentSuccessPage = () => {
               if (sessionData.paymentStatus === 'paid' && !sessionData.transaction) {
                 try {
                   console.log('Payment completed but not processed, attempting to process...');
-                  await subscriptionAPI.processPaymentManually(sessionId);
+                  await subscriptionAPI.processPaymentManually(sessionId, null);
                   // Refetch session details after processing
                   const updatedResponse = await subscriptionAPI.getCheckoutSessionDetails(sessionId);
                   if (updatedResponse.data.success) {
@@ -163,6 +163,45 @@ const PaymentSuccessPage = () => {
               time: new Date().toLocaleTimeString(),
               product: 'Subscription Plan',
               plan: plans?.find(p => p._id === location.state?.planId) || null
+            });
+          }
+        } else if (location.state?.orderId && location.state?.paymentId) {
+          // Payment completed via Razorpay - use state data
+          const orderId = location.state.orderId;
+          const paymentId = location.state.paymentId;
+          const planIdFromState = location.state.planId;
+          const currentPlan = plans?.find(plan => plan._id === planIdFromState);
+          
+          try {
+            const response = await subscriptionAPI.getCheckoutSessionDetails(orderId);
+            if (response.data.success) {
+              const orderData = response.data.data;
+              setPaymentData({
+                amount: orderData.amount || 0,
+                transactionId: paymentId || orderId,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                product: `${orderData.plan?.name || 'Subscription'} Plan`,
+                plan: orderData.plan,
+                paymentStatus: orderData.paymentStatus
+              });
+              
+              dispatch(getSubscriptionStatus());
+              dispatch(getSubscriptionPlans({ duration: "quarterly" }));
+              if (loadSubscriptionData) {
+                loadSubscriptionData();
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching order details:', error);
+            const currentPlan = plans?.find(plan => plan._id === location.state?.planId);
+            setPaymentData({
+              amount: currentPlan?.price || 0,
+              transactionId: paymentId || orderId,
+              date: new Date().toLocaleDateString(),
+              time: new Date().toLocaleTimeString(),
+              product: `${currentPlan?.name || 'Subscription'} Plan`,
+              plan: currentPlan
             });
           }
         } else if (paymentIntentId && planId) {

@@ -270,22 +270,19 @@ export const subscriptionAPI = {
   // Get available subscription plans
   getSubscriptionPlans: (params = {}) => apiClient.get('/user/subscription/plans', { params }),
   
-  // Subscribe to a plan (legacy - use createPaymentIntent instead)
-  subscribeToPlan: (planData) => apiClient.post('/user/subscription/create-payment-intent', planData),
-  
-  // Create checkout session for Stripe hosted page
+  // Create Razorpay order
   createCheckoutSession: (planId) => apiClient.post('/user/subscription/create-checkout-session', { planId }),
   
-  // Get checkout session details
-  getCheckoutSessionDetails: (sessionId) => apiClient.get(`/user/subscription/checkout-session/${sessionId}`),
+  // Get order details
+  getCheckoutSessionDetails: (orderId) => apiClient.get(`/user/subscription/checkout-session/${orderId}`),
   
   // Process payment manually (for testing)
-  processPaymentManually: (sessionId) => apiClient.post('/user/subscription/process-payment', { sessionId }),
+  processPaymentManually: (orderId, paymentId) => apiClient.post('/user/subscription/process-payment', { orderId, paymentId }),
   
-  // Confirm payment with Stripe
+  // Confirm payment with Razorpay
   confirmPayment: (paymentData) => apiClient.post('/user/subscription/confirm-payment', paymentData),
   
-  // Stripe webhook for payment events
+  // Razorpay webhook for payment events
   handleWebhook: (webhookData) => apiClient.post('/user/subscription/webhook', webhookData),
   
   // Check subscription status

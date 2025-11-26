@@ -44,11 +44,11 @@ import {
     createSubscription,
     getSubscriptionStatus,
     cancelSubscription,
-    createPaymentIntent,
     confirmPayment
 } from '../store/slices/subscriptionSlice';
+import { initializeRazorpayPayment } from '../utils/razorpay';
 import { showSuccess, showError } from '../utils/toast';
-// Removed Stripe Elements imports as we're using hosted checkout
+// Using Razorpay for payment processing
 
 const Membership = () => {
     const dispatch = useDispatch();
@@ -116,7 +116,7 @@ const Membership = () => {
             // Handle free plan directly
             handleFreePlan(plan._id);
         } else {
-            // Redirect to Stripe checkout for paid plans
+            // Process payment with Razorpay for paid plans
             handlePaidPlan(plan);
         }
     };
@@ -136,11 +136,54 @@ const Membership = () => {
             setPaymentLoading(true);
             const result = await dispatch(createSubscription({ planId: plan._id })).unwrap();
             
-            if (result.url) {
-                // Redirect to Stripe checkout page
-                window.location.href = result.url;
+            if (result.success && result.data) {
+                const orderData = result.data;
+                
+                // Initialize Razorpay payment
+                initializeRazorpayPayment(
+                    orderData,
+                    {
+                        description: `${plan.name} Plan Subscription`,
+                        email: '', // You can get this from user context if available
+                        name: 'BandhanM User'
+                    },
+                    async (response) => {
+                        // Payment successful, confirm on backend
+                        try {
+                            const confirmResult = await dispatch(confirmPayment({
+                                orderId: response.razorpay_order_id,
+                                paymentId: response.razorpay_payment_id,
+                                signature: response.razorpay_signature,
+                                planId: plan._id
+                            })).unwrap();
+
+                            if (confirmResult.success) {
+                                showSuccess('Subscription activated successfully!');
+                                dispatch(getSubscriptionStatus()); // Refresh status
+                                navigate('/payment-success', {
+                                    state: {
+                                        orderId: response.razorpay_order_id,
+                                        paymentId: response.razorpay_payment_id,
+                                        planId: plan._id
+                                    }
+                                });
+                            } else {
+                                showError(confirmResult.message || 'Payment confirmation failed');
+                            }
+                        } catch (confirmError) {
+                            showError(confirmError || 'Payment confirmation failed');
+                        } finally {
+                            setPaymentLoading(false);
+                        }
+                    },
+                    (error) => {
+                        showError(error || 'Payment failed');
+                        setPaymentLoading(false);
+                    }
+                );
             } else {
-                showError('Failed to create checkout session');
+                showError('Failed to create order');
+                setPaymentLoading(false);
             }
         } catch (error) {
             showError(error || 'Failed to initiate payment');
@@ -224,7 +267,7 @@ const Membership = () => {
                currentSubscription.autoRenew === true;
     };
 
-    // No payment form needed - using Stripe hosted checkout
+    // Using Razorpay for payment processing
 
 
     return (
@@ -637,7 +680,7 @@ const Membership = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* No payment dialog needed - using Stripe hosted checkout */}
+            {/* Using Razorpay for payment processing */}
         </Box>
     );
 };
