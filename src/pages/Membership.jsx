@@ -67,6 +67,7 @@ const Membership = () => {
         error,
         subscriptionStatus 
     } = useSelector(state => state.subscription);
+    const { user } = useSelector(state => state.auth);
 
     console.log('Membership component - plans:', plans);
     console.log('Membership component - loading:', loading);
@@ -144,8 +145,9 @@ const Membership = () => {
                     orderData,
                     {
                         description: `${plan.name} Plan Subscription`,
-                        email: '', // You can get this from user context if available
-                        name: 'BandhanM User'
+                        email: user?.email || '',
+                        contact: user?.phoneNumber || '',
+                        name: user?.name || user?.firstName || 'BandhanM User'
                     },
                     async (response) => {
                         // Payment successful, confirm on backend

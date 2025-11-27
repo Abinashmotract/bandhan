@@ -28,12 +28,13 @@ import {
 } from '@mui/icons-material';
 import { initializeRazorpayPayment } from '../utils/razorpay';
 import { useSubscription } from '../hooks/useSubscription';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createSubscription, confirmPayment } from '../store/slices/subscriptionSlice';
 import toast from 'react-hot-toast';
 
 const PaymentForm = ({ plan, onSuccess, onCancel }) => {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -53,8 +54,9 @@ const PaymentForm = ({ plan, onSuccess, onCancel }) => {
           orderData,
           {
             description: `${plan.name} Plan Subscription`,
-            email: '', // You can get this from user context if available
-            name: 'BandhanM User'
+            email: user?.email || '',
+            contact: user?.phoneNumber || '',
+            name: user?.name || user?.firstName || 'BandhanM User'
           },
           async (response) => {
             // Payment successful, confirm on backend

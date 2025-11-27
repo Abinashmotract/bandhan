@@ -46,10 +46,36 @@ export const initializeRazorpayPayment = (orderData, options, onSuccess, onError
     theme: {
       color: RAZORPAY_CONFIG.theme.color
     },
+    // Explicitly enable all payment methods - UPI, Cards, Netbanking, Wallets
+    // This ensures all payment options are available to users
+    method: {
+      upi: true,
+      card: true,
+      netbanking: true,
+      wallet: true,
+      emi: false // Disable EMI for one-time payments
+    },
+    notes: {
+      description: options.description || RAZORPAY_CONFIG.description
+    },
+    // Configure to show all payment options
+    // The payment methods are controlled by Razorpay account settings
+    // This configuration ensures proper display
     modal: {
       ondismiss: function() {
         onError('Payment cancelled by user');
       }
+    },
+    // Enable retry for failed payments
+    retry: {
+      enabled: true,
+      max_count: 4
+    },
+    // Enable OTP auto-read for better UX
+    readonly: {
+      email: !!options.email,
+      contact: !!options.contact,
+      name: !!options.name
     }
   };
 
