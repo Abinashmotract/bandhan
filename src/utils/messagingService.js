@@ -11,19 +11,10 @@ import {
   generateRoomId,
   setTypingIndicator,
 } from "./firebase";
-import { messagingAPI } from "../services/apiService";
 import Cookies from "js-cookie";
 
 /**
- * Determine whether to use Firebase or API based on environment
- * @returns {boolean} true if Firebase should be used
- */
-export const shouldUseFirebase = () => {
-  return import.meta.env.VITE_USE_FIREBASE === "true";
-};
-
-/**
- * Send a message using Firebase or API
+ * Send a message using Firebase
  * @param {Object} messageConfig - Configuration object
  * @returns {Promise<Object>} Message object
  */
@@ -34,39 +25,20 @@ export const sendMessageService = async (messageConfig) => {
     receiverId,
     content,
     messageType = "text",
-    userId, // For API fallback
   } = messageConfig;
 
-  if (shouldUseFirebase()) {
-    return sendMessageFirebase(roomId, senderId, receiverId, content, messageType);
-  } else {
-    // Fallback to API
-    const messageData = {
-      content: content.trim(),
-      messageType: messageType,
-    };
-    const response = await messagingAPI.sendMessage(userId, messageData);
-    return response.data?.data || response.data;
-  }
+  return sendMessageFirebase(roomId, senderId, receiverId, content, messageType);
 };
 
 /**
- * Load chat history using Firebase or API
+ * Load chat history using Firebase
  * @param {Object} config - Configuration object
  * @returns {Promise<Array>} Array of messages
  */
 export const loadChatHistoryService = async (config) => {
-  const { roomId, userId, limit = 50 } = config;
+  const { roomId, limit = 50 } = config;
 
-  if (shouldUseFirebase()) {
-    return loadChatHistoryFirebase(roomId, limit);
-  } else {
-    // Fallback to API
-    const response = await messagingAPI.getChatHistory(userId, {
-      limit,
-    });
-    return response.data?.data?.messages || response.data?.messages || [];
-  }
+  return loadChatHistoryFirebase(roomId, limit);
 };
 
 /**
@@ -78,15 +50,7 @@ export const loadChatHistoryService = async (config) => {
 export const subscribeToMessagesService = (config, callback) => {
   const { roomId } = config;
 
-  if (shouldUseFirebase()) {
-    return subscribeToMessages(roomId, callback);
-  } else {
-    // API doesn't support real-time subscriptions via this method
-    console.warn(
-      "Real-time message subscriptions only available with Firebase"
-    );
-    return null;
-  }
+  return subscribeToMessages(roomId, callback);
 };
 
 /**
@@ -97,12 +61,7 @@ export const subscribeToMessagesService = (config, callback) => {
 export const markMessagesAsReadService = async (config) => {
   const { roomId, userId } = config;
 
-  if (shouldUseFirebase()) {
-    return markMessagesAsReadFirebase(roomId, userId);
-  } else {
-    // Fallback to API
-    return messagingAPI.markMessagesRead(userId);
-  }
+  return markMessagesAsReadFirebase(roomId, userId);
 };
 
 /**
@@ -113,12 +72,7 @@ export const markMessagesAsReadService = async (config) => {
 export const deleteMessageService = async (config) => {
   const { roomId, messageId } = config;
 
-  if (shouldUseFirebase()) {
-    return deleteMessageFirebase(roomId, messageId);
-  } else {
-    // Fallback to API
-    return messagingAPI.deleteMessage(messageId);
-  }
+  return deleteMessageFirebase(roomId, messageId);
 };
 
 /**
@@ -129,13 +83,7 @@ export const deleteMessageService = async (config) => {
 export const setTypingIndicatorService = async (config) => {
   const { roomId, userId, isTyping } = config;
 
-  if (shouldUseFirebase()) {
-    return setTypingIndicator(roomId, userId, isTyping);
-  } else {
-    // API doesn't have built-in typing indicator for Firebase
-    console.warn("Typing indicators only available with Firebase");
-    return null;
-  }
+  return setTypingIndicator(roomId, userId, isTyping);
 };
 
 /**
@@ -166,7 +114,6 @@ export const getCurrentUserIdFromToken = async () => {
 };
 
 export default {
-  shouldUseFirebase,
   sendMessageService,
   loadChatHistoryService,
   subscribeToMessagesService,

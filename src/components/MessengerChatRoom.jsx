@@ -7,9 +7,6 @@ import {
   IconButton,
   Button,
   TextField,
-  Card,
-  CardContent,
-  Divider,
   CircularProgress,
 } from "@mui/material";
 import {
@@ -19,20 +16,17 @@ import {
   MoreVert,
   Send,
   CheckCircle,
+  Message,
 } from "@mui/icons-material";
-import { interactionAPI, messagingAPI } from "../services/apiService";
 import { showSuccess, showError } from "../utils/toast";
-import { getSocket, disconnectSocket } from "../utils/socket";
 import {
   sendMessageService,
   loadChatHistoryService,
+  subscribeToMessagesService,
   markMessagesAsReadService,
-  deleteMessageService,
-  setTypingIndicatorService,
   getCurrentUserIdFromToken,
-  shouldUseFirebase,
 } from "../utils/messagingService";
-import { generateRoomId } from "../utils/firebase";
+import { generateRoomId, initializeFirebase } from "../utils/firebase";
 
 // Helper function to get image URL
 const getImageUrl = (imagePath) => {
@@ -76,42 +70,33 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
   const [hasInterest, setHasInterest] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [typingTimeout, setTypingTimeout] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
   const messagesEndRef = useRef(null);
-  const socketRef = useRef(null);
+  const unsubscribeRef = useRef(null);
   const roomIdRef = useRef(null);
 
   useEffect(() => {
     if (profile?.id || profile?._id) {
-      checkExistingInterest();
-      loadChatHistory();
-      setupWebSocket();
+      // Initialize Firebase first
+      console.log("Initializing Firebase...");
+      const initialized = initializeFirebase();
+      if (!initialized) {
+        console.error("Failed to initialize Firebase");
+        showError(
+          "Failed to initialize messaging. Please check Firebase configuration."
+        );
+        return;
+      }
+
+      initializeChat();
     }
 
     return () => {
       // Cleanup on unmount
-      if (socketRef.current) {
-        const socket = socketRef.current;
-        
-        // Remove all event listeners
-        socket.off('new_message');
-        socket.off('message_received');
-        socket.off('message_sent');
-        socket.off('user_typing');
-        socket.off('user_stopped_typing');
-        socket.off('message_error');
-        socket.off('connect_error');
-        
-        // Leave room
-        if (roomIdRef.current) {
-          socket.emit('leave_room', roomIdRef.current);
-        }
-        
-        // Clear typing timeout
-        if (typingTimeout) {
-          clearTimeout(typingTimeout);
-        }
+      if (unsubscribeRef.current) {
+        console.log("🔌 Unsubscribing from Firebase messages");
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
       }
     };
   }, [profile]);
@@ -124,194 +109,94 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const setupWebSocket = async () => {
+  const initializeChat = async () => {
     try {
-      const socket = getSocket();
-      if (!socket) {
-        console.warn('Socket not available');
+      // Get current user ID first
+      const userId = await getCurrentUserIdFromToken();
+      if (!userId) {
+        console.error("Could not get current user ID");
+        showError("Failed to load chat. Please login again.");
         return;
       }
 
-      socketRef.current = socket;
+      setCurrentUserId(userId);
+      console.log(
+        `Current User: ${userId}, Chat Partner: ${profile.id || profile._id}`
+      );
 
-      // Generate room ID for this chat (same for both users)
-      const userId = profile.id || profile._id;
-      const Cookies = (await import("js-cookie")).default;
-      const token = Cookies.get("accessToken");
-      
-      if (!token) {
-        console.warn('No token available for socket');
-        return;
-      }
+      // Generate room ID
+      const partnerId = profile.id || profile._id;
+      const roomId = generateRoomId(userId, partnerId);
+      roomIdRef.current = roomId;
 
-      // Get current user ID from token or use a helper
-      const getCurrentUserId = async () => {
-        try {
-          const { API_BASE_URL } = await import("../utils/api");
-          const response = await fetch(`${API_BASE_URL}/auth/user`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (response.ok) {
-            const data = await response.json();
-            const userId = data.user?._id || data.user?.id || data.data?._id || data.data?.id;
-            setCurrentUserId(userId);
-            return userId;
-          }
-        } catch (err) {
-          console.error('Error getting current user ID:', err);
-        }
-        return null;
-      };
+      console.log(`Generated Room ID: ${roomId}`);
 
-      // Setup room joining after getting current user ID
-      getCurrentUserId().then((currentUserId) => {
-        if (currentUserId && userId) {
-          // Create consistent room ID (sorted IDs to ensure same room for both users)
-          const roomIds = [currentUserId.toString(), userId.toString()].sort();
-          const roomId = `chat_${roomIds[0]}_${roomIds[1]}`;
-          roomIdRef.current = roomId;
-          
-          socket.emit('join_room', roomId);
-          console.log(`Joined room: ${roomId}`);
-        }
-      });
+      // Check existing interest
+      await checkExistingInterest();
 
-      // Listen for new messages
-      socket.on('new_message', (data) => {
-        if (data.success && data.message) {
-          const msg = data.message;
-          const profileUserId = profile.id || profile._id;
-          
-          // Only add message if it's for this chat
-          // Check if message is from the profile user (they're sending to us)
-          if (msg.sender?._id === profileUserId || 
-              msg.sender?.id === profileUserId ||
-              msg.receiver?._id === profileUserId || 
-              msg.receiver?.id === profileUserId) {
-            setMessages((prev) => {
-              // Check if message already exists
-              const exists = prev.some(m => 
-                m._id === msg._id || 
-                (m.content === msg.content && 
-                 m.createdAt && msg.createdAt &&
-                 Math.abs(new Date(m.createdAt).getTime() - new Date(msg.createdAt).getTime()) < 1000)
-              );
-              if (exists) return prev;
-              
-              return [...prev, {
-                _id: msg._id,
-                content: msg.content,
-                messageType: msg.messageType,
-                sender: msg.sender,
-                receiver: msg.receiver,
-                createdAt: msg.createdAt,
-                isRead: msg.isRead
-              }];
-            });
-            // Scroll to bottom after adding message
-            setTimeout(() => {
-              scrollToBottom();
-            }, 100);
-          }
-        }
-      });
+      // Load chat history
+      await loadChatHistory(roomId);
 
-      // Listen for message received in room
-      socket.on('message_received', (data) => {
-        if (data.message) {
-          setMessages((prev) => {
-            const exists = prev.some(m => m._id === data.message._id);
-            if (exists) return prev;
-            return [...prev, {
-              _id: data.message._id,
-              content: data.message.content,
-              messageType: data.message.messageType,
-              sender: data.message.sender,
-              createdAt: data.message.createdAt,
-              isRead: false
-            }];
-          });
-        }
-      });
+      // Setup real-time subscription
+      setupRealtimeSubscription(roomId);
+    } catch (error) {
+      console.error("Error initializing chat:", error);
+      showError("Failed to initialize chat");
+    }
+  };
 
-      // Listen for message sent confirmation
-      socket.on('message_sent', (data) => {
-        if (data.success && data.message) {
-          setMessages((prev) => {
-            const exists = prev.some(m => 
-              m._id === data.message._id || 
-              (m.content === data.message.content && 
-               m.createdAt && data.message.createdAt &&
-               Math.abs(new Date(m.createdAt).getTime() - new Date(data.message.createdAt).getTime()) < 1000)
-            );
-            if (exists) return prev;
-            return [...prev, {
-              _id: data.message._id,
-              content: data.message.content,
-              messageType: data.message.messageType,
-              sender: data.message.sender,
-              receiver: data.message.receiver,
-              createdAt: data.message.createdAt,
-              isRead: data.message.isRead
-            }];
-          });
-          setSendingMessage(false);
-          // Scroll to bottom after adding message
+  const setupRealtimeSubscription = (roomId) => {
+    console.log(`📂 Setting up real-time subscription for room: ${roomId}`);
+
+    // Unsubscribe from previous subscription if exists
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
+
+    // Subscribe to Firebase messages
+    const unsubscribe = subscribeToMessagesService(
+      { roomId },
+      (newMessages) => {
+        console.log(
+          `📨 Firebase subscription callback: ${newMessages?.length} messages in room ${roomId}`
+        );
+
+        if (newMessages && Array.isArray(newMessages)) {
+          // Update messages state with ALL messages from Firebase
+          setMessages(newMessages);
+
+          // Scroll to bottom after updating
           setTimeout(() => {
             scrollToBottom();
           }, 100);
         }
-      });
+      }
+    );
 
-      // Listen for typing indicators
-      socket.on('user_typing', (data) => {
-        if (data.userId === userId) {
-          setIsTyping(true);
-        }
-      });
-
-      socket.on('user_stopped_typing', (data) => {
-        setIsTyping(false);
-      });
-
-      // Listen for errors
-      socket.on('message_error', (data) => {
-        showError(data.message || 'Failed to send message');
-        setSendingMessage(false);
-      });
-
-      // Listen for connection errors
-      socket.on('connect_error', (error) => {
-        console.error('Socket connection error:', error);
-        showError('Connection error. Please refresh the page.');
-      });
-
-    } catch (error) {
-      console.error('Error setting up WebSocket:', error);
-    }
+    unsubscribeRef.current = unsubscribe;
+    console.log(`✅ Real-time subscription established for room: ${roomId}`);
   };
 
   const checkExistingInterest = async () => {
     try {
       if (!profile?.id && !profile?._id) return;
-      
+
       const userId = profile.id || profile._id;
-      const { API_BASE_URL } = await import("../utils/api");
       const Cookies = (await import("js-cookie")).default;
-      const token = Cookies.get("accessToken");
-      
+
       // Check if interest exists by fetching interests sent by current user
       const { conversationAPI } = await import("../services/apiService");
-      const response = await conversationAPI.getConversations('interests');
-      
+      const response = await conversationAPI.getConversations("interests");
+
       if (response.data.success && response.data.data) {
         const interests = response.data.data;
         const existingInterest = interests.find(
-          (interest) => 
-            (interest.user?.id === userId || interest.user?._id === userId) ||
-            (interest.userId === userId)
+          (interest) =>
+            interest.user?.id === userId ||
+            interest.user?._id === userId ||
+            interest.userId === userId
         );
-        
+
         if (existingInterest) {
           setHasInterest(true);
           setInterestSent(true);
@@ -319,53 +204,22 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
       }
     } catch (error) {
       console.error("Error checking existing interest:", error);
-      // Don't show error to user, just assume no interest exists
     }
   };
 
-  const loadChatHistory = async () => {
-    if (!profile?.id && !profile?._id) return;
-
+  const loadChatHistory = async (roomId) => {
     try {
       setLoading(true);
-      const userId = profile.id || profile._id;
-      
-      // Determine if using Firebase
-      const useFirebase = shouldUseFirebase();
-      
-      let loadedMessages = [];
-      if (useFirebase) {
-        // Generate room ID for Firebase
-        const currentUserId = await getCurrentUserIdFromToken();
-        const roomId = generateRoomId(currentUserId, userId);
-        roomIdRef.current = roomId;
-        
-        // Load from Firebase
-        loadedMessages = await loadChatHistoryService({
-          roomId,
-          limit: 50,
-        });
-      } else {
-        // Load from API
-        const response = await messagingAPI.getChatHistory(userId, {
-          page: 1,
-          limit: 50,
-        });
+      console.log(`Loading chat history from room: ${roomId}`);
 
-        if (response.data.success) {
-          loadedMessages = response.data.data.messages || [];
-          // Reverse messages since API returns newest first
-          loadedMessages = [...loadedMessages].reverse();
-        }
-      }
+      const loadedMessages = await loadChatHistoryService({
+        roomId,
+        limit: 50,
+      });
 
+      console.log(`Loaded ${loadedMessages.length} messages from Firebase`);
       setMessages(loadedMessages);
-      
-      // Scroll to bottom after loading messages
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-      
+
       // Check if "You sent interest" message exists
       const interestMessage = loadedMessages.find(
         (msg) =>
@@ -376,8 +230,14 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
         setInterestSent(true);
         setHasInterest(true);
       }
+
+      // Scroll to bottom after loading
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
     } catch (error) {
       console.error("Error loading chat history:", error);
+      showError("Failed to load chat history");
     } finally {
       setLoading(false);
     }
@@ -397,11 +257,10 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
     try {
       setSendingInterest(true);
       const userId = profile.id || profile._id;
-      
-      // Use the matches API endpoint for sending interest
+
       const { API_BASE_URL } = await import("../utils/api");
       const Cookies = (await import("js-cookie")).default;
-      
+
       const token = Cookies.get("accessToken");
       const response = await fetch(`${API_BASE_URL}/matches/interest`, {
         method: "POST",
@@ -418,15 +277,15 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        // Show the actual API error message
         const errorMessage = data.message || "Failed to send interest";
         showError(errorMessage);
-        
-        // If interest already exists, mark it as sent so UI reflects the state
-        if (errorMessage.includes("already") || errorMessage.includes("Interest already")) {
+
+        if (
+          errorMessage.includes("already") ||
+          errorMessage.includes("Interest already")
+        ) {
           setInterestSent(true);
           setHasInterest(true);
-          // Reload conversations to show in Interests tab
           setTimeout(() => {
             if (onInterestSent) {
               onInterestSent(userId);
@@ -441,40 +300,24 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
         setHasInterest(true);
         showSuccess("Your interest has been sent!");
 
-        // Add system message to chat
-        const systemMessage = {
-          _id: Date.now().toString(),
-          content: "You sent interest",
-          messageType: "system",
-          sender: { _id: "system", name: "System" },
-          receiver: { _id: userId },
-          createdAt: new Date(),
-          isRead: true,
-        };
-
-        setMessages((prev) => [...prev, systemMessage]);
-
-        // If message was sent, add it to messages and reload chat history
+        // If message was sent with interest, reload chat history
         if (message.trim()) {
-          // Reload chat history to get the actual message from backend
           setTimeout(() => {
-            loadChatHistory();
+            loadChatHistory(roomIdRef.current);
           }, 500);
           setMessage("");
         }
 
-        // Notify parent component
         if (onInterestSent) {
           onInterestSent(userId);
         }
-      } else {
-        // Show the actual API error message
-        showError(data.message || "Failed to send interest");
       }
     } catch (error) {
       console.error("Error sending interest:", error);
-      // Show the error message - check if it's a string or has a message property
-      const errorMessage = error.message || error.toString() || "Failed to send interest. Please try again.";
+      const errorMessage =
+        error.message ||
+        error.toString() ||
+        "Failed to send interest. Please try again.";
       showError(errorMessage);
     } finally {
       setSendingInterest(false);
@@ -482,109 +325,62 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
   };
 
   const handleSendMessage = async () => {
-    if (!message.trim() || !profile?.id) return;
+    if (!message.trim() || !profile?.id) {
+      console.warn("Message empty or profile missing");
+      return;
+    }
 
     // If interest not sent yet, send interest with message
     if (!interestSent && !hasInterest) {
+      console.log("Interest not sent, sending interest first");
       await handleSendInterest();
       return;
     }
 
-    const useFirebase = shouldUseFirebase();
     const userId = profile.id || profile._id;
+    const messageText = message.trim();
 
     try {
       setSendingMessage(true);
+      console.log("🚀 Sending message...");
 
-      if (useFirebase) {
-        // Send via Firebase
-        const currentUserId = await getCurrentUserIdFromToken();
-        const roomId = roomIdRef.current || generateRoomId(currentUserId, userId);
-        roomIdRef.current = roomId;
-
-        const newMessage = await sendMessageService({
-          roomId,
-          senderId: currentUserId,
-          receiverId: userId,
-          content: message.trim(),
-          messageType: "text",
-        });
-
-        setMessages((prev) => [...prev, newMessage]);
-        setMessage("");
-        showSuccess("Message sent!");
-      } else {
-        // Send via Socket or API fallback
-        const socket = socketRef.current;
-        if (!socket || !socket.connected) {
-          // Fallback to REST API
-          const response = await messagingAPI.sendMessage(userId, {
-            content: message.trim(),
-            messageType: "text",
-          });
-
-          if (response.data.success) {
-            const newMessage = {
-              _id: response.data.data._id || Date.now().toString(),
-              content: message.trim(),
-              messageType: "text",
-              sender: { _id: "current", name: "You" },
-              receiver: { _id: userId },
-              createdAt: new Date(),
-              isRead: false,
-            };
-
-            setMessages((prev) => [...prev, newMessage]);
-            setMessage("");
-            showSuccess("Message sent!");
-          }
-        } else {
-          // Send via WebSocket
-          const roomId = roomIdRef.current;
-
-          socket.emit("send_message", {
-            receiverId: userId,
-            content: message.trim(),
-            messageType: "text",
-            roomId: roomId,
-          });
-
-          // Clear input immediately for better UX
-          setMessage("");
-          showSuccess("Message sent!");
-        }
+      if (!currentUserId) {
+        console.error("Current user ID not available");
+        showError("Failed to send message");
+        return;
       }
+
+      const roomId = roomIdRef.current;
+      console.log(`Sending message in room: ${roomId}`);
+
+      // Clear input immediately
+      setMessage("");
+
+      // Send to Firebase - the subscription will handle updating the UI
+      console.log("📤 Sending message to Firebase...");
+      await sendMessageService({
+        roomId,
+        senderId: currentUserId,
+        receiverId: userId,
+        content: messageText,
+        messageType: "text",
+      });
+
+      console.log("✅ Message sent to Firebase successfully");
+      showSuccess("Message sent!");
+
+      // Scroll to bottom after sending
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("❌ Error sending message:", error);
       showError("Failed to send message. Please try again.");
+      // Restore message text on error
+      setMessage(messageText);
     } finally {
       setSendingMessage(false);
     }
-  };
-
-  // Handle typing indicator
-  const handleTyping = () => {
-    const socket = socketRef.current;
-    const userId = profile?.id || profile?._id;
-    const roomId = roomIdRef.current;
-
-    if (!socket || !socket.connected || !userId || !roomId) return;
-
-    // Clear existing timeout
-    if (typingTimeout) {
-      clearTimeout(typingTimeout);
-    }
-
-    // Emit typing start
-    socket.emit('typing_start', { roomId, receiverId: userId });
-
-    // Set timeout to stop typing after 3 seconds
-    const timeout = setTimeout(() => {
-      socket.emit('typing_stop', { roomId, receiverId: userId });
-      setTypingTimeout(null);
-    }, 3000);
-
-    setTypingTimeout(timeout);
   };
 
   const formatTime = (date) => {
@@ -597,7 +393,8 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
     return `${displayHours}:${String(minutes).padStart(2, "0")} ${ampm}`;
   };
 
-  const profileAge = profile?.age || (profile?.dob ? calculateAge(profile.dob) : null);
+  const profileAge =
+    profile?.age || (profile?.dob ? calculateAge(profile.dob) : null);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -664,23 +461,30 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
 
       {/* Profile Info */}
       <Box sx={{ p: 2, bgcolor: "#f5f5f5", borderBottom: "1px solid #e0e0e0" }}>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: interestSent ? 1 : 0 }}>
-          {profileAge && <Typography variant="body2">• {profileAge} years</Typography>}
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 1,
+            mb: interestSent ? 1 : 0,
+          }}
+        >
+          {profileAge && (
+            <Typography variant="body2">• {profileAge} years</Typography>
+          )}
           {profile?.height && (
-            <Typography variant="body2">• {formatHeight(profile.height)}</Typography>
+            <Typography variant="body2">
+              • {formatHeight(profile.height)}
+            </Typography>
           )}
           {profile?.occupation && (
             <Typography variant="body2">• {profile.occupation}</Typography>
           )}
           {profile?.caste && (
-            <Typography variant="body2">
-              • {profile.caste}
-            </Typography>
+            <Typography variant="body2">• {profile.caste}</Typography>
           )}
           {profile?.location && (
-            <Typography variant="body2">
-              • {profile.location}
-            </Typography>
+            <Typography variant="body2">• {profile.location}</Typography>
           )}
           {profile?.annualIncome && (
             <Typography variant="body2">• {profile.annualIncome}</Typography>
@@ -760,15 +564,9 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
             {messages.map((msg, index) => {
               const isSystemMessage = msg.messageType === "system";
               // Check if message is from current user
-              // Handle both string and ObjectId comparison
-              const senderId = msg.sender?._id?.toString() || msg.sender?.id?.toString() || msg.sender?._id || msg.sender?.id;
-              const currentUserIdStr = currentUserId?.toString();
-              const isOwnMessage =
-                senderId === currentUserIdStr || 
-                senderId === "current" || 
-                senderId === "system" ||
-                (msg.sender?._id === "current") ||
-                (msg.sender?.id === "current");
+              const senderId =
+                msg.sender?._id?.toString() || msg.sender?.id?.toString();
+              const isOwnMessage = senderId === currentUserId?.toString();
 
               return (
                 <Box
@@ -794,7 +592,9 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
                         : "text.primary",
                       p: isSystemMessage ? 0 : 1.5,
                       borderRadius: 2,
-                      boxShadow: !isSystemMessage ? "0 1px 2px rgba(0,0,0,0.1)" : "none",
+                      boxShadow: !isSystemMessage
+                        ? "0 1px 2px rgba(0,0,0,0.1)"
+                        : "none",
                     }}
                   >
                     <Typography variant="body2">{msg.content}</Typography>
@@ -826,7 +626,7 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
                 </Box>
               );
             })}
-            
+
             {/* Typing Indicator */}
             {isTyping && (
               <Box
@@ -852,13 +652,16 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
                     maxWidth: "70%",
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.secondary" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontStyle: "italic", color: "text.secondary" }}
+                  >
                     {profile?.name || "User"} is typing...
                   </Typography>
                 </Box>
               </Box>
             )}
-            
+
             <div ref={messagesEndRef} />
           </>
         )}
@@ -885,13 +688,7 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
             fullWidth
             placeholder="Write here..."
             value={message}
-            onChange={(e) => {
-              setMessage(e.target.value);
-              // Trigger typing indicator when user types
-              if (interestSent || hasInterest) {
-                handleTyping();
-              }
-            }}
+            onChange={(e) => setMessage(e.target.value)}
             onKeyPress={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -920,7 +717,10 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
                 handleSendMessage();
               }
             }}
-            disabled={(!message.trim() && (interestSent || hasInterest)) || sendingMessage}
+            disabled={
+              (!message.trim() && (interestSent || hasInterest)) ||
+              sendingMessage
+            }
             sx={{
               bgcolor: "#dc2626",
               color: "white",
@@ -933,7 +733,11 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
               },
             }}
           >
-            {sendingMessage ? <CircularProgress size={20} color="inherit" /> : <Send />}
+            {sendingMessage ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              <Send />
+            )}
           </IconButton>
         </Box>
       </Box>
@@ -942,4 +746,3 @@ const MessengerChatRoom = ({ profile, onBack, onInterestSent }) => {
 };
 
 export default MessengerChatRoom;
-

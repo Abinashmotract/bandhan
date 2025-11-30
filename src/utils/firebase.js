@@ -63,7 +63,11 @@ export const initializeFirebase = () => {
 
 export const getFirebaseDatabase = () => {
   if (!database) {
-    initializeFirebase();
+    const initialized = initializeFirebase();
+    if (!initialized) {
+      console.error('❌ Failed to initialize Firebase database');
+      return null;
+    }
   }
   return database;
 };
@@ -101,7 +105,13 @@ export const sendMessageFirebase = async (
 ) => {
   try {
     const db = getFirebaseDatabase();
-    if (!db) throw new Error('Firebase not initialized');
+    if (!db) {
+      throw new Error('Firebase database not initialized');
+    }
+
+    console.log(`📤 [SEND] Room: ${roomId}`);
+    console.log(`📤 [SEND] From: ${senderId} → To: ${receiverId}`);
+    console.log(`📤 [SEND] Message: ${content.substring(0, 50)}...`);
 
     const messagesRef = ref(db, `chats/${roomId}/messages`);
     const newMessageRef = push(messagesRef);
@@ -121,14 +131,18 @@ export const sendMessageFirebase = async (
       timestamp: Date.now(),
     };
 
+    console.log(`📝 [SEND] Writing to: chats/${roomId}/messages/${newMessageRef.key}`);
+    await set(newMessageRef, messageData);
+    console.log(`✅ [SEND] Saved with ID: ${newMessageRef.key}`);
+
     await set(newMessageRef, messageData);
 
-    // Update room's last message
-    await updateRoomLastMessage(roomId, messageData, receiverId);
+    console.log(`✅ [FIREBASE] Message saved successfully with ID: ${newMessageRef.key}`);
 
     return messageData;
   } catch (error) {
-    console.error('❌ Error sending message to Firebase:', error);
+    console.error('❌ [FIREBASE] Error sending message to Firebase:', error);
+    console.error('   Error details:', error.message);
     throw error;
   }
 };
@@ -166,6 +180,8 @@ export const loadChatHistoryFirebase = async (roomId, limit = 50) => {
     const db = getFirebaseDatabase();
     if (!db) throw new Error('Firebase not initialized');
 
+    console.log(`📥 [LOAD] Loading from ${roomId}, limit: ${limit}`);
+
     const messagesRef = ref(db, `chats/${roomId}/messages`);
     const messagesQuery = query(
       messagesRef,
@@ -175,6 +191,7 @@ export const loadChatHistoryFirebase = async (roomId, limit = 50) => {
     const snapshot = await get(messagesQuery);
 
     if (!snapshot.exists()) {
+      console.log(`📥 [LOAD] No messages in ${roomId}`);
       return [];
     }
 
@@ -184,11 +201,14 @@ export const loadChatHistoryFirebase = async (roomId, limit = 50) => {
     });
 
     // Return in chronological order (oldest first)
-    return messages.sort((a, b) => 
+    const sorted = messages.sort((a, b) => 
       new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
+    
+    console.log(`📥 [LOAD] Got ${sorted.length} messages from ${roomId}`);
+    return sorted;
   } catch (error) {
-    console.error('❌ Error loading chat history from Firebase:', error);
+    console.error('❌ [LOAD] Error:', error.message);
     throw error;
   }
 };
@@ -200,35 +220,75 @@ export const loadChatHistoryFirebase = async (roomId, limit = 50) => {
  * @returns {Function} Unsubscribe function
  */
 export const subscribeToMessages = (roomId, callback) => {
+  let unsubscribe = null;
+  let messageCount = 0;
+  
   try {
+    // Ensure Firebase is initialized before subscribing
+    const initialized = initializeFirebase();
+    if (!initialized) {
+      console.error('❌ Failed to initialize Firebase for subscription');
+      return () => {}; // Return dummy unsubscribe
+    }
+
     const db = getFirebaseDatabase();
-    if (!db) throw new Error('Firebase not initialized');
+    if (!db) {
+      console.error('❌ Firebase database is not available');
+      return () => {}; // Return dummy unsubscribe
+    }
+
+    console.log(`🔔 [SUBSCRIBE] Setting up Firebase subscription for room: ${roomId}`);
 
     const messagesRef = ref(db, `chats/${roomId}/messages`);
 
-    const unsubscribe = onValue(
+    unsubscribe = onValue(
       messagesRef,
       (snapshot) => {
-        if (snapshot.exists()) {
-          const messages = [];
-          snapshot.forEach((child) => {
-            messages.push(child.val());
-          });
-          
-          // Sort by timestamp
-          messages.sort((a, b) => a.timestamp - b.timestamp);
-          callback(messages);
+        try {
+          if (snapshot.exists()) {
+            const messages = [];
+            snapshot.forEach((child) => {
+              messages.push(child.val());
+            });
+            
+            // Sort by timestamp (chronological order)
+            messages.sort((a, b) => {
+              const timeA = new Date(a.createdAt).getTime();
+              const timeB = new Date(b.createdAt).getTime();
+              return timeA - timeB;
+            });
+            
+            const newCount = messages.length;
+            const messageChange = newCount - messageCount;
+            messageCount = newCount;
+            
+            if (messageChange > 0) {
+              console.log(`📨 [SUBSCRIBE] NEW MESSAGE! Room ${roomId} now has ${newCount} messages (${messageChange} new)`);
+              const latestMessage = messages[messages.length - 1];
+              console.log(`   From: ${latestMessage.sender._id}, Content: ${latestMessage.content.substring(0, 30)}...`);
+            } else {
+              console.log(`🔄 [SUBSCRIBE] Messages updated: ${newCount} total in room ${roomId}`);
+            }
+            
+            callback(messages);
+          } else {
+            console.log(`⚠️ [SUBSCRIBE] No data in room ${roomId} yet`);
+            callback([]);
+          }
+        } catch (callbackError) {
+          console.error('❌ [SUBSCRIBE] Error in subscription callback:', callbackError);
         }
       },
       (error) => {
-        console.error('❌ Error subscribing to messages:', error);
+        console.error('❌ [SUBSCRIBE] Firebase subscription error:', error);
       }
     );
 
+    console.log(`✅ [SUBSCRIBE] Firebase subscription established for room: ${roomId}`);
     return unsubscribe;
   } catch (error) {
-    console.error('❌ Error in subscribeToMessages:', error);
-    throw error;
+    console.error('❌ [SUBSCRIBE] Error in subscribeToMessages:', error);
+    return () => {}; // Return dummy unsubscribe function
   }
 };
 
